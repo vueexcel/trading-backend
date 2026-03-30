@@ -1,0 +1,34 @@
+const express = require('express');
+const router = express.Router();
+const {
+    getStockData,
+    getMonthlyOHLC,
+    getWeeklyOHLC,
+    getOhlcSignalsIndicator,
+    getUniqueIndices,
+    getPeriodOptions,
+    getTickerDetailsByIndex,
+    getTickerReturns
+} = require('../controllers/marketController');
+const requireAuth = require('../middleware/authMiddleware'); // Protect this route!
+
+// Only logged-in users can see stock data
+router.get('/ohlc', requireAuth, getStockData);
+
+// monthly aggregated OHLC (used by frontend screen)
+// params: ticker, start_date, end_date (optional)
+router.post('/monthly-ohlc', requireAuth, getMonthlyOHLC);
+
+// weekly aggregated OHLC; body: { ticker, start_date?, end_date? }
+router.post('/weekly-ohlc', requireAuth, getWeeklyOHLC);
+
+// Daily OHLC + indicator signal (L1–L3, S1–S3, N) per date from consolidated_testing_2
+router.post('/ohlc-signals-indicator', requireAuth, getOhlcSignalsIndicator);
+
+// New analytics routes
+router.get('/indices', requireAuth, getUniqueIndices);
+router.get('/period-options', requireAuth, getPeriodOptions);
+router.post('/ticker-details', requireAuth, getTickerDetailsByIndex);
+router.post('/ticker-returns', requireAuth, getTickerReturns);
+
+module.exports = router;

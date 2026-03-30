@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
+  <title>OHLC Signals Indicator</title>
+  <style>
+    :root {
+      --bg: #111827;
+      --panel: #1f2937;
+      --muted: #9ca3af;
+      --text: #f3f4f6;
+      --accent: #2563eb;
+      --error: #ef4444;
+      --ok: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    input, button {
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #0f172a;
+      color: var(--text);
+      padding: 0 10px;
+      font-size: 14px;
+    }
+    button {
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { filter: brightness(1.1); }
+    button.btn-secondary {
+      background: #374151;
+    }
+    button.btn-secondary:hover { filter: brightness(1.08); }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .filters.auth-row {
+      margin-top: 12px;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+    }
+    .auth-status {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      padding-top: 4px;
+    }
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+    }
+    #chart {
+      width: 100%;
+      height: 560px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .ohlc-hover {
+      position: absolute;
+      top: 10px;
+      right: 56px;
+      z-index: 20;
+      min-width: 140px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.45;
+      color: var(--text);
+      pointer-events: none;
+      white-space: pre-line;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+    .ohlc-hover .ohlc-muted {
+      color: var(--muted);
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+    .status {
+      margin-top: 8px;
+      min-height: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .status.error { color: var(--error); }
+    .status.ok { color: var(--ok); }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    @media (max-width: 900px) {
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OHLC + Signals Indicator Chart</h1>
+
+    <div class="panel">
+      <div class="filters">
+        <div class="field">
+          <label for="ticker">Ticker</label>
+          <input id="ticker" type="text" value="AAPL" />
+        </div>
+        <div class="field">
+          <label for="startDate">Start Date</label>
+          <input id="startDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="endDate">End Date</label>
+          <input id="endDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="loadBtn">&nbsp;</label>
+          <button type="button" id="loadBtn">Load Chart</button>
+        </div>
+      </div>
+      <div class="filters auth-row">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" placeholder="Account email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Password" />
+        </div>
+        <div class="field">
+          <label for="loginBtn">&nbsp;</label>
+          <button type="button" id="loginBtn">Sign in</button>
+        </div>
+        <div class="field">
+          <label for="logoutBtn">&nbsp;</label>
+          <button type="button" id="logoutBtn" class="btn-secondary" disabled>Sign out</button>
+        </div>
+        <div class="field">
+          <label>Session</label>
+          <div id="authStatus" class="auth-status">Not signed in</div>
+        </div>
+      </div>
+      <div class="hint">
+        Auth: Supabase session (persisted, auto-refresh). API: <code>POST /api/market/ohlc-signals-indicator</code>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="chart-wrap">
+        <div id="chart"></div>
+        <div id="ohlcHover" class="ohlc-hover" aria-live="polite">
+          <div class="ohlc-muted">Crosshair</div>
+          <span>Move over the chart…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase UMD: createClient on global `supabase` -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Pin v4: v5+ removes chart.addCandlestickSeries -->
+  <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+  <script>
+    const API_ORIGIN =
+      window.TRADING_API_ORIGIN ||
+      (function () {
+        if (window.location.protocol === 'file:') return 'http://localhost:5000';
+        const h = window.location.hostname;
+        const p = window.location.port;
+        if ((h === 'localhost' || h === '127.0.0.1') && p && p !== '5000') {
+          return 'http://localhost:5000';
+        }
+        return window.location.origin;
+      })();
+    const CONFIG_URL = API_ORIGIN + '/api/public/supabase-config';
+    const API_URL = API_ORIGIN + '/api/market/ohlc-signals-indicator';
+
+    const SIGNAL_COLORS = {
+      S1: '#ef4444',
+      S2: '#f97316',
+      S3: '#fb923c',
+      L1: '#4d7c0f',
+      L2: '#16a34a',
+      L3: '#84cc16'
+    };
+
+    const tickerEl = document.getElementById('ticker');
+    const startDateEl = document.getElementById('startDate');
+    const endDateEl = document.getElementById('endDate');
+    const emailEl = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authStatusEl = document.getElementById('authStatus');
+    const loadBtn = document.getElementById('loadBtn');
+    const statusEl = document.getElementById('status');
+    const chartContainer = document.getElementById('chart');
+    const ohlcHoverEl = document.getElementById('ohlcHover');
+
+    let sb = null;
+
+    const today = new Date();
+    const prior = new Date();
+    prior.setDate(today.getDate() - 100);
+    startDateEl.value = toDateInput(prior);
+    endDateEl.value = toDateInput(today);
+
+    tickerEl.value = localStorage.getItem('market_api_ticker') || tickerEl.value;
+    emailEl.value = localStorage.getItem('market_api_email') || '';
+
+    const chart = LightweightCharts.createChart(chartContainer, {
+      layout: {
+        background: { color: '#0b1220' },
+        textColor: '#d1d5db'
+      },
+      grid: {
+        vertLines: { color: 'rgba(148, 163, 184, 0.2)' },
+        horzLines: { color: 'rgba(148, 163, 184, 0.2)' }
+      },
+      rightPriceScale: { borderColor: 'rgba(148, 163, 184, 0.35)' },
+      timeScale: { borderColor: 'rgba(148, 163, 184, 0.35)' },
+      width: chartContainer.clientWidth,
+      height: 560
+    });
+
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: '#16a34a',
+      downColor: '#dc2626',
+      borderVisible: false,
+      wickUpColor: '#16a34a',
+      wickDownColor: '#dc2626'
+    });
+
+    function formatChartTime(t) {
+      if (t == null) return '—';
+      if (typeof t === 'string') return t;
+      if (typeof t === 'number') {
+        return new Date(t * 1000).toISOString().slice(0, 10);
+      }
+      if (typeof t === 'object' && 'year' in t && 'month' in t && 'day' in t) {
+        const m = String(t.month).padStart(2, '0');
+        const d = String(t.day).padStart(2, '0');
+        return t.year + '-' + m + '-' + d;
+      }
+      return String(t);
+    }
+
+    function formatPrice(n) {
+      if (n == null || Number.isNaN(Number(n))) return '—';
+      const x = Number(n);
+      const abs = Math.abs(x);
+      const digits = abs >= 1000 ? 2 : abs >= 1 ? 4 : 6;
+      return x.toFixed(digits);
+    }
+
+    function setOhlcHoverIdle() {
+      ohlcHoverEl.innerHTML =
+        '<div class="ohlc-muted">Crosshair</div><span>Move over the chart…</span>';
+    }
+
+    chart.subscribeCrosshairMove(function (param) {
+      if (!param || param.time === undefined || param.point === undefined) {
+        setOhlcHoverIdle();
+        return;
+      }
+      const bar = param.seriesData.get(candleSeries);
+      if (!bar || bar.open === undefined) {
+        setOhlcHoverIdle();
+        return;
+      }
+      const dateStr = formatChartTime(param.time);
+      ohlcHoverEl.innerHTML =
+        '<div class="ohlc-muted">' +
+        dateStr +
+        '</div>' +
+        'O ' +
+        formatPrice(bar.open) +
+        '\nH ' +
+        formatPrice(bar.high) +
+        '\nL ' +
+        formatPrice(bar.low) +
+        '\nC ' +
+        formatPrice(bar.close);
+    });
+
+    function setStatus(msg, type) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function updateAuthUI(session) {
+      if (session && session.user) {
+        authStatusEl.textContent = 'Signed in as ' + session.user.email;
+        logoutBtn.disabled = false;
+      } else {
+        authStatusEl.textContent = 'Not signed in';
+        logoutBtn.disabled = true;
+      }
+    }
+
+    async function initSupabase() {
+      if (typeof supabase === 'undefined' || !supabase.createClient) {
+        setStatus('Supabase library failed to load.', 'error');
+        return;
+      }
+      try {
+        const res = await fetch(CONFIG_URL);
+        const cfg = await res.json();
+        if (!cfg.url || !cfg.anonKey) {
+          setStatus(
+            'Missing Supabase config on server (set SUPABASE_URL and SUPABASE_KEY in .env).',
+            'error'
+          );
+          return;
+        }
+        sb = supabase.createClient(cfg.url, cfg.anonKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage
+          }
+        });
+        sb.auth.onAuthStateChange(function (_event, session) {
+          updateAuthUI(session);
+        });
+        const { data: sessionData } = await sb.auth.getSession();
+        updateAuthUI(sessionData.session);
+      } catch (e) {
+        setStatus('Could not load auth config: ' + e.message, 'error');
+      }
+    }
+
+    async function handleLogin() {
+      if (!sb) {
+        setStatus('Auth not initialized.', 'error');
+        return;
+      }
+      const email = emailEl.value.trim();
+      const password = passwordEl.value;
+      if (!email || !password) {
+        setStatus('Enter email and password.', 'error');
+        return;
+      }
+      loginBtn.disabled = true;
+      try {
+        const { error } = await sb.auth.signInWithPassword({ email: email, password: password });
+        if (error) {
+          setStatus(error.message, 'error');
+          return;
+        }
+        localStorage.setItem('market_api_email', email);
+        passwordEl.value = '';
+        setStatus('Signed in.', 'ok');
+      } finally {
+        loginBtn.disabled = false;
+      }
+    }
+
+    async function handleLogout() {
+      if (!sb) return;
+      logoutBtn.disabled = true;
+      try {
+        await sb.auth.signOut();
+        setStatus('Signed out.', 'ok');
+      } finally {
+        logoutBtn.disabled = true;
+      }
+    }
+
+    function toDateInput(d) {
+      return d.toISOString().slice(0, 10);
+    }
+
+    function pickNumber(row, keys) {
+      for (const key of keys) {
+        if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+          const n = Number(row[key]);
+          if (!Number.isNaN(n)) return n;
+        }
+      }
+      return null;
+    }
+
+    function signalSide(sig) {
+      const s = String(sig || 'N').toUpperCase();
+      if (s.startsWith('L')) return 'long';
+      if (s.startsWith('S')) return 'short';
+      return null;
+    }
+
+    function mapRowsToCandles(rows) {
+      const candles = [];
+      const markers = [];
+      /**
+       * null = start of range; 'neutral' = last bar was N (or unknown); 'long' | 'short' = last L/S side.
+       * Marker when direction changes: long↔short, neutral→long, neutral→short, or start→L/S.
+       */
+      let lastDirection = null;
+
+      for (const row of rows) {
+        const time = String(row.Date || row.date || '').slice(0, 10);
+        if (!time) continue;
+
+        const open = pickNumber(row, ['Open', 'open']);
+        const high = pickNumber(row, ['High', 'high']);
+        const low = pickNumber(row, ['Low', 'low']);
+        const close = pickNumber(row, ['Close', 'close']);
+        if ([open, high, low, close].some((v) => v == null)) continue;
+
+        candles.push({ time, open, high, low, close });
+
+        const signalRaw = String(row.signal || row.Signal || 'N').toUpperCase();
+        const side = signalSide(signalRaw);
+        const tierOk = signalRaw !== 'N' && SIGNAL_COLORS[signalRaw];
+
+        if (!tierOk || !side) {
+          lastDirection = 'neutral';
+          continue;
+        }
+
+        if (lastDirection !== side) {
+          markers.push({
+            time,
+            position: side === 'short' ? 'aboveBar' : 'belowBar',
+            color: SIGNAL_COLORS[signalRaw],
+            shape: side === 'short' ? 'arrowDown' : 'arrowUp',
+            text: signalRaw
+          });
+        }
+        lastDirection = side;
+      }
+
+      return { candles, markers };
+    }
+
+    async function loadData() {
+      const ticker = tickerEl.value.trim().toUpperCase();
+      const start_date = startDateEl.value;
+      const end_date = endDateEl.value;
+
+      if (!ticker || !start_date || !end_date) {
+        setStatus('Ticker, start date, and end date are required.', 'error');
+        return;
+      }
+      if (!sb) {
+        setStatus('Auth not ready yet.', 'error');
+        return;
+      }
+      const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+      if (sessionError || !sessionData.session) {
+        setStatus('Sign in to load the chart.', 'error');
+        return;
+      }
+      const token = sessionData.session.access_token;
+
+      localStorage.setItem('market_api_ticker', ticker);
+
+      setStatus('Loading data...');
+      loadBtn.disabled = true;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ ticker, start_date, end_date })
+        });
+
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || payload.message || 'Request failed');
+        }
+
+        const rows = Array.isArray(payload.data) ? payload.data : [];
+        const { candles, markers } = mapRowsToCandles(rows);
+
+        candleSeries.setData(candles);
+        candleSeries.setMarkers(markers);
+        chart.timeScale().fitContent();
+
+        setStatus(
+          'Loaded ' + candles.length + ' candles. Cache hit: ' + String(payload.cache_hit),
+          'ok'
+        );
+      } catch (err) {
+        setStatus('Failed to load chart: ' + err.message, 'error');
+      } finally {
+        loadBtn.disabled = false;
+      }
+    }
+
+    loadBtn.addEventListener('click', loadData);
+    loginBtn.addEventListener('click', handleLogin);
+    logoutBtn.addEventListener('click', handleLogout);
+    window.addEventListener('resize', () => {
+      chart.applyOptions({ width: chartContainer.clientWidth });
+    });
+
+    initSupabase().then(function () {
+      loadData();
+    });
+  </script>
+</body>
+</html>
