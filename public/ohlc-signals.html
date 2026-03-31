@@ -54,7 +54,7 @@
       font-size: 12px;
       color: var(--muted);
     }
-    input, button {
+    input, button, select {
       height: 38px;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -81,6 +81,10 @@
     .filters.auth-row {
       margin-top: 12px;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
+    }
+    .filters.odin-row {
+      margin-top: 12px;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
     }
     .auth-status {
       font-size: 12px;
@@ -129,6 +133,7 @@
     }
     .status.error { color: var(--error); }
     .status.ok { color: var(--ok); }
+    .status.warn { color: #f59e0b; }
     .hint {
       font-size: 12px;
       color: var(--muted);
@@ -146,8 +151,8 @@
     <div class="panel">
       <div class="filters">
         <div class="field">
-          <label for="ticker">Ticker</label>
-          <input id="ticker" type="text" value="AAPL" />
+          <label for="tickersInput">Tickers (comma-separated)</label>
+          <input id="tickersInput" type="text" value="AAPL,MSFT,TSLA" />
         </div>
         <div class="field">
           <label for="startDate">Start Date</label>
@@ -158,8 +163,30 @@
           <input id="endDate" type="date" />
         </div>
         <div class="field">
+          <label for="tickerSelect">Chart Ticker</label>
+          <select id="tickerSelect"></select>
+        </div>
+        <div class="field">
           <label for="loadBtn">&nbsp;</label>
           <button type="button" id="loadBtn">Load Chart</button>
+        </div>
+      </div>
+      <div class="filters odin-row">
+        <div class="field">
+          <label for="entryLongSignalsInput">Entry Long Signals</label>
+          <input id="entryLongSignalsInput" type="text" value="L1,L2" />
+        </div>
+        <div class="field">
+          <label for="exitLongSignalsInput">Exit Long Signals</label>
+          <input id="exitLongSignalsInput" type="text" value="S1,S2,S3,N" />
+        </div>
+        <div class="field">
+          <label for="entryShortSignalsInput">Entry Short Signals</label>
+          <input id="entryShortSignalsInput" type="text" value="S1" />
+        </div>
+        <div class="field">
+          <label for="exitShortSignalsInput">Exit Short Signals</label>
+          <input id="exitShortSignalsInput" type="text" value="L1,L2,L3,N" />
         </div>
       </div>
       <div class="filters auth-row">
@@ -185,7 +212,9 @@
         </div>
       </div>
       <div class="hint">
-        Auth: Supabase session (persisted, auto-refresh). API: <code>POST /api/market/ohlc-signals-indicator</code>
+        Auth: Supabase session (persisted, auto-refresh). API base:
+        <code id="apiOriginHint"></code>
+        — chart markers come from <code>POST /api/analytics/odin-index</code> trades
       </div>
       <div id="status" class="status"></div>
     </div>
@@ -206,19 +235,60 @@
   <!-- Pin v4: v5+ removes chart.addCandlestickSeries -->
   <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
   <script>
-    const API_ORIGIN =
-      window.TRADING_API_ORIGIN ||
-      (function () {
-        if (window.location.protocol === 'file:') return 'http://localhost:5000';
-        const h = window.location.hostname;
-        const p = window.location.port;
-        if ((h === 'localhost' || h === '127.0.0.1') && p && p !== '5000') {
+    /** Deployed backend (no trailing slash). Override with window.TRADING_API_ORIGIN or localStorage. */
+    var PRODUCTION_API_ORIGIN = 'https://trading-backend-xlh9.onrender.com';
+
+    function normalizeApiOrigin(url) {
+      return String(url || '').replace(/\/$/, '');
+    }
+
+    function isPrivateLanHost(hostname) {
+      if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+      return /^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname);
+    }
+
+    function computeDefaultApiOrigin() {
+      if (window.TRADING_API_ORIGIN) {
+        return normalizeApiOrigin(window.TRADING_API_ORIGIN);
+      }
+      try {
+        var saved = localStorage.getItem('trading_api_origin');
+        if (saved) return normalizeApiOrigin(saved);
+      } catch (e) {}
+
+      var loc = window.location;
+      if (loc.protocol === 'file:') {
+        return PRODUCTION_API_ORIGIN;
+      }
+
+      var host = loc.hostname;
+      var port = loc.port || '';
+
+      if (host === 'trading-backend-xlh9.onrender.com') {
+        return loc.origin;
+      }
+
+      if (port === '5000' && (host === 'localhost' || host === '127.0.0.1')) {
+        return loc.origin;
+      }
+
+      if (host === 'localhost' || host === '127.0.0.1') {
+        if (port && port !== '5000') {
           return 'http://localhost:5000';
         }
-        return window.location.origin;
-      })();
-    const CONFIG_URL = API_ORIGIN + '/api/public/supabase-config';
-    const API_URL = API_ORIGIN + '/api/market/ohlc-signals-indicator';
+      }
+
+      if (port && port !== '5000' && isPrivateLanHost(host)) {
+        return normalizeApiOrigin(loc.protocol + '//' + host + ':5000');
+      }
+
+      return PRODUCTION_API_ORIGIN;
+    }
+
+    var API_ORIGIN = computeDefaultApiOrigin();
+    var CONFIG_URL = API_ORIGIN + '/api/public/supabase-config';
+    var MARKET_OHLC_API_URL = API_ORIGIN + '/api/market/ohlc-signals-indicator';
+    var ODIN_INDEX_API_URL = API_ORIGIN + '/api/analytics/odin-index';
 
     const SIGNAL_COLORS = {
       S1: '#ef4444',
@@ -229,9 +299,14 @@
       L3: '#84cc16'
     };
 
-    const tickerEl = document.getElementById('ticker');
+    const tickersInputEl = document.getElementById('tickersInput');
+    const tickerSelectEl = document.getElementById('tickerSelect');
     const startDateEl = document.getElementById('startDate');
     const endDateEl = document.getElementById('endDate');
+    const entryLongSignalsInputEl = document.getElementById('entryLongSignalsInput');
+    const exitLongSignalsInputEl = document.getElementById('exitLongSignalsInput');
+    const entryShortSignalsInputEl = document.getElementById('entryShortSignalsInput');
+    const exitShortSignalsInputEl = document.getElementById('exitShortSignalsInput');
     const emailEl = document.getElementById('email');
     const passwordEl = document.getElementById('password');
     const loginBtn = document.getElementById('loginBtn');
@@ -241,8 +316,17 @@
     const statusEl = document.getElementById('status');
     const chartContainer = document.getElementById('chart');
     const ohlcHoverEl = document.getElementById('ohlcHover');
+    const apiOriginHintEl = document.getElementById('apiOriginHint');
+    if (apiOriginHintEl) apiOriginHintEl.textContent = API_ORIGIN;
 
     let sb = null;
+    let currentOdinPayloadKey = '';
+    const odinTradeMarkersByTicker = new Map();
+    /** Keep last good series so failed/empty reloads do not wipe the chart */
+    let lastGoodCandles = null;
+    let lastGoodMarkers = null;
+    /** Abort previous fetch when a new Load starts (avoids stale response overwriting the chart) */
+    let chartLoadAbort = null;
 
     const today = new Date();
     const prior = new Date();
@@ -250,7 +334,18 @@
     startDateEl.value = toDateInput(prior);
     endDateEl.value = toDateInput(today);
 
-    tickerEl.value = localStorage.getItem('market_api_ticker') || tickerEl.value;
+    function clampDateRange() {
+      var s = startDateEl.value;
+      var e = endDateEl.value;
+      if (!s || !e) return;
+      if (s > e) {
+        endDateEl.value = s;
+      }
+    }
+    startDateEl.addEventListener('change', clampDateRange);
+    endDateEl.addEventListener('change', clampDateRange);
+
+    tickersInputEl.value = localStorage.getItem('market_api_tickers') || tickersInputEl.value;
     emailEl.value = localStorage.getItem('market_api_email') || '';
 
     const chart = LightweightCharts.createChart(chartContainer, {
@@ -427,65 +522,247 @@
       return null;
     }
 
-    function signalSide(sig) {
-      const s = String(sig || 'N').toUpperCase();
-      if (s.startsWith('L')) return 'long';
-      if (s.startsWith('S')) return 'short';
-      return null;
+    function rowDateToTimeKey(row) {
+      const d = row.Date != null ? row.Date : row.date;
+      if (d == null || d === '') return '';
+      if (typeof d === 'string') {
+        const m = d.match(/^(\d{4}-\d{2}-\d{2})/);
+        if (m) return m[1];
+        const parsed = Date.parse(d);
+        if (!Number.isNaN(parsed)) {
+          return new Date(parsed).toISOString().slice(0, 10);
+        }
+        return d.slice(0, 10);
+      }
+      if (typeof d === 'object' && d !== null) {
+        if (typeof d.value === 'string') return rowDateToTimeKey({ Date: d.value });
+        if (d.year != null && d.month != null && d.day != null) {
+          return (
+            d.year +
+            '-' +
+            String(d.month).padStart(2, '0') +
+            '-' +
+            String(d.day).padStart(2, '0')
+          );
+        }
+      }
+      return '';
+    }
+
+    function normalizeCandles(candles) {
+      const byTime = new Map();
+      for (let i = 0; i < candles.length; i++) {
+        const c = candles[i];
+        if (!c || !c.time) continue;
+        byTime.set(c.time, c);
+      }
+      return Array.from(byTime.keys())
+        .sort()
+        .map(function (t) {
+          return byTime.get(t);
+        });
+    }
+
+    function filterMarkersForCandles(markers, candles) {
+      const times = new Set();
+      for (let i = 0; i < candles.length; i++) {
+        times.add(candles[i].time);
+      }
+      return markers.filter(function (m) {
+        return times.has(m.time);
+      });
     }
 
     function mapRowsToCandles(rows) {
       const candles = [];
-      const markers = [];
-      /**
-       * null = start of range; 'neutral' = last bar was N (or unknown); 'long' | 'short' = last L/S side.
-       * Marker when direction changes: long↔short, neutral→long, neutral→short, or start→L/S.
-       */
-      let lastDirection = null;
 
       for (const row of rows) {
-        const time = String(row.Date || row.date || '').slice(0, 10);
+        const time = rowDateToTimeKey(row);
         if (!time) continue;
 
-        const open = pickNumber(row, ['Open', 'open']);
-        const high = pickNumber(row, ['High', 'high']);
-        const low = pickNumber(row, ['Low', 'low']);
-        const close = pickNumber(row, ['Close', 'close']);
+        const open = pickNumber(row, ['Open', 'open', 'OPEN']);
+        const high = pickNumber(row, ['High', 'high', 'HIGH']);
+        const low = pickNumber(row, ['Low', 'low', 'LOW']);
+        const close = pickNumber(row, ['Close', 'close', 'CLOSE']);
         if ([open, high, low, close].some((v) => v == null)) continue;
 
-        candles.push({ time, open, high, low, close });
-
-        const signalRaw = String(row.signal || row.Signal || 'N').toUpperCase();
-        const side = signalSide(signalRaw);
-        const tierOk = signalRaw !== 'N' && SIGNAL_COLORS[signalRaw];
-
-        if (!tierOk || !side) {
-          lastDirection = 'neutral';
-          continue;
-        }
-
-        if (lastDirection !== side) {
-          markers.push({
-            time,
-            position: side === 'short' ? 'aboveBar' : 'belowBar',
-            color: SIGNAL_COLORS[signalRaw],
-            shape: side === 'short' ? 'arrowDown' : 'arrowUp',
-            text: signalRaw
-          });
-        }
-        lastDirection = side;
+        candles.push({ time: time, open: open, high: high, low: low, close: close });
       }
 
-      return { candles, markers };
+      return normalizeCandles(candles);
+    }
+
+    function parseCsvList(input) {
+      return String(input || '')
+        .split(',')
+        .map(function (s) { return s.trim().toUpperCase(); })
+        .filter(Boolean);
+    }
+
+    function stableStringify(value) {
+      if (Array.isArray(value)) {
+        return '[' + value.map(stableStringify).join(',') + ']';
+      }
+      if (value && typeof value === 'object') {
+        const keys = Object.keys(value).sort();
+        return '{' + keys.map(function (k) { return JSON.stringify(k) + ':' + stableStringify(value[k]); }).join(',') + '}';
+      }
+      return JSON.stringify(value);
+    }
+
+    function buildOdinPayload() {
+      const tickers = parseCsvList(tickersInputEl.value);
+      return {
+        start_date: startDateEl.value,
+        end_date: endDateEl.value,
+        tickers: tickers,
+        entry_long_signals: parseCsvList(entryLongSignalsInputEl.value),
+        exit_long_signals: parseCsvList(exitLongSignalsInputEl.value),
+        entry_short_signals: parseCsvList(entryShortSignalsInputEl.value),
+        exit_short_signals: parseCsvList(exitShortSignalsInputEl.value),
+        initial_portfolio: 1000,
+        include_neutral_rows: true,
+        chunk_size: 30
+      };
+    }
+
+    function ensureTickerSelectOptions(tickers, selectedTicker) {
+      const unique = [];
+      const seen = new Set();
+      for (let i = 0; i < tickers.length; i++) {
+        const t = String(tickers[i] || '').trim().toUpperCase();
+        if (!t || seen.has(t)) continue;
+        seen.add(t);
+        unique.push(t);
+      }
+      if (unique.length === 0) return '';
+
+      tickerSelectEl.innerHTML = '';
+      for (let i = 0; i < unique.length; i++) {
+        const t = unique[i];
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        tickerSelectEl.appendChild(opt);
+      }
+      const finalSelected = unique.includes((selectedTicker || '').toUpperCase())
+        ? selectedTicker.toUpperCase()
+        : unique[0];
+      tickerSelectEl.value = finalSelected;
+      return finalSelected;
+    }
+
+    function markerFromTradeEvent(evt) {
+      const isOpen = evt.kind === 'open';
+      const isLong = evt.tradeType === 'long';
+      if (isOpen) {
+        return {
+          time: evt.time,
+          position: isLong ? 'belowBar' : 'aboveBar',
+          color: isLong ? '#22c55e' : '#ef4444',
+          shape: isLong ? 'arrowUp' : 'arrowDown',
+          text: (isLong ? 'OPEN L' : 'OPEN S') + (evt.signal ? ':' + evt.signal : '')
+        };
+      }
+      return {
+        time: evt.time,
+        position: isLong ? 'aboveBar' : 'belowBar',
+        color: '#f59e0b',
+        shape: 'circle',
+        text: 'CLOSE' + (evt.signal ? ':' + evt.signal : '')
+      };
+    }
+
+    function extractOdinMarkersByTicker(payload) {
+      const byTicker = new Map();
+      const headers = Array.isArray(payload && payload.headers) ? payload.headers : [];
+      const idx = {};
+      headers.forEach(function (h, i) { idx[String(h)] = i; });
+      const iTradeId = idx['#'];
+      const iTradeType = idx['Trade Type'];
+      const iEntrySignal = idx['Entry Signal'];
+      const iEntryExecDate = idx['Execution Date (Entry-T+1)'];
+      const iExitSignal = idx['Exit Signal'];
+      const iExitExecDate = idx['Execution Date (Exit-T+1)'];
+
+      const results = Array.isArray(payload && payload.results_by_ticker) ? payload.results_by_ticker : [];
+      for (let r = 0; r < results.length; r++) {
+        const ticker = String(results[r].ticker || '').toUpperCase();
+        const rows = Array.isArray(results[r].rows) ? results[r].rows : [];
+        const events = [];
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const tradeId = iTradeId == null ? null : row[iTradeId];
+          if (!Number.isFinite(Number(tradeId)) || Number(tradeId) <= 0) continue;
+          const tradeType = String(iTradeType == null ? '' : row[iTradeType]).toLowerCase();
+          const entryExec = iEntryExecDate == null ? '' : String(row[iEntryExecDate] || '').slice(0, 10);
+          const exitExec = iExitExecDate == null ? '' : String(row[iExitExecDate] || '').slice(0, 10);
+          const entrySignal = iEntrySignal == null ? '' : String(row[iEntrySignal] || '').toUpperCase();
+          const exitSignal = iExitSignal == null ? '' : String(row[iExitSignal] || '').toUpperCase();
+          if (entryExec) events.push({ kind: 'open', time: entryExec, tradeType: tradeType, signal: entrySignal });
+          if (exitExec) events.push({ kind: 'close', time: exitExec, tradeType: tradeType, signal: exitSignal });
+        }
+        byTicker.set(ticker, events.map(markerFromTradeEvent));
+      }
+      return byTicker;
+    }
+
+    async function fetchAndRenderOhlcForTicker(ticker, start_date, end_date, token) {
+      const response = await fetch(MARKET_OHLC_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ ticker, start_date, end_date }),
+        signal: chartLoadAbort ? chartLoadAbort.signal : undefined
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || payload.message || 'OHLC request failed');
+      }
+
+      const rows = Array.isArray(payload.data) ? payload.data : [];
+      const candles = mapRowsToCandles(rows);
+      const tradeMarkers = odinTradeMarkersByTicker.get(ticker) || [];
+      const markers = filterMarkersForCandles(tradeMarkers, candles);
+
+      if (candles.length === 0 && lastGoodCandles && lastGoodCandles.length > 0) {
+        setStatus(
+          'No OHLC rows in this date range — previous chart kept.',
+          'warn'
+        );
+        return;
+      }
+
+      candleSeries.setData(candles);
+      candleSeries.setMarkers(markers);
+      chart.timeScale().fitContent();
+      lastGoodCandles = candles;
+      lastGoodMarkers = markers;
+      setStatus(
+        'Loaded ' + candles.length + ' candles, ' + markers.length + ' trade markers.',
+        'ok'
+      );
     }
 
     async function loadData() {
-      const ticker = tickerEl.value.trim().toUpperCase();
+      clampDateRange();
       const start_date = startDateEl.value;
       const end_date = endDateEl.value;
+      const odinPayload = buildOdinPayload();
 
-      if (!ticker || !start_date || !end_date) {
-        setStatus('Ticker, start date, and end date are required.', 'error');
+      if (!start_date || !end_date) {
+        setStatus('Start date and end date are required.', 'error');
+        return;
+      }
+      if (start_date > end_date) {
+        setStatus('Start date must be on or before end date.', 'error');
+        return;
+      }
+      if (!odinPayload.tickers.length) {
+        setStatus('Provide at least one ticker in Tickers input.', 'error');
         return;
       }
       if (!sb) {
@@ -499,43 +776,108 @@
       }
       const token = sessionData.session.access_token;
 
-      localStorage.setItem('market_api_ticker', ticker);
+      localStorage.setItem('market_api_tickers', odinPayload.tickers.join(','));
+
+      if (chartLoadAbort) {
+        chartLoadAbort.abort();
+      }
+      chartLoadAbort = new AbortController();
 
       setStatus('Loading data...');
       loadBtn.disabled = true;
 
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({ ticker, start_date, end_date })
-        });
+        const payloadKey = stableStringify(odinPayload);
+        let selectedTicker = (tickerSelectEl.value || '').toUpperCase();
 
-        const payload = await response.json();
-        if (!response.ok || !payload.success) {
-          throw new Error(payload.error || payload.message || 'Request failed');
+        if (currentOdinPayloadKey !== payloadKey || odinTradeMarkersByTicker.size === 0) {
+          const odinResponse = await fetch(ODIN_INDEX_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(odinPayload),
+            signal: chartLoadAbort.signal
+          });
+          const odinPayloadResp = await odinResponse.json();
+          if (!odinResponse.ok || !odinPayloadResp.success) {
+            throw new Error(
+              (odinPayloadResp && (odinPayloadResp.error || odinPayloadResp.message)) || 'Odin index request failed'
+            );
+          }
+          const resolvedFromResponse =
+            odinPayloadResp &&
+            odinPayloadResp.universe &&
+            Array.isArray(odinPayloadResp.universe.resolved_tickers)
+              ? odinPayloadResp.universe.resolved_tickers
+              : odinPayload.tickers;
+          const resolvedTickers = resolvedFromResponse.map(function (t) {
+            return String(t).toUpperCase();
+          });
+          selectedTicker = ensureTickerSelectOptions(resolvedTickers, selectedTicker || odinPayload.tickers[0]);
+          odinTradeMarkersByTicker.clear();
+          const extracted = extractOdinMarkersByTicker(odinPayloadResp);
+          extracted.forEach(function (v, k) {
+            odinTradeMarkersByTicker.set(k, v);
+          });
+          currentOdinPayloadKey = payloadKey;
+        } else {
+          selectedTicker = ensureTickerSelectOptions(odinPayload.tickers, selectedTicker || odinPayload.tickers[0]);
         }
 
-        const rows = Array.isArray(payload.data) ? payload.data : [];
-        const { candles, markers } = mapRowsToCandles(rows);
-
-        candleSeries.setData(candles);
-        candleSeries.setMarkers(markers);
-        chart.timeScale().fitContent();
-
-        setStatus(
-          'Loaded ' + candles.length + ' candles. Cache hit: ' + String(payload.cache_hit),
-          'ok'
-        );
+        await fetchAndRenderOhlcForTicker(selectedTicker, start_date, end_date, token);
       } catch (err) {
-        setStatus('Failed to load chart: ' + err.message, 'error');
+        if (err.name === 'AbortError') {
+          return;
+        }
+        if (lastGoodCandles && lastGoodCandles.length > 0) {
+          setStatus(
+            'Load failed — keeping previous chart. ' + err.message,
+            'error'
+          );
+        } else {
+          setStatus('Failed to load chart: ' + err.message, 'error');
+        }
       } finally {
         loadBtn.disabled = false;
       }
     }
+
+    async function reloadSelectedTickerOnly() {
+      clampDateRange();
+      const ticker = String(tickerSelectEl.value || '').toUpperCase();
+      const start_date = startDateEl.value;
+      const end_date = endDateEl.value;
+      if (!ticker || !start_date || !end_date || !sb) return;
+      const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+      if (sessionError || !sessionData.session) return;
+      if (chartLoadAbort) {
+        chartLoadAbort.abort();
+      }
+      chartLoadAbort = new AbortController();
+      try {
+        await fetchAndRenderOhlcForTicker(ticker, start_date, end_date, sessionData.session.access_token);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setStatus('Failed to reload ticker: ' + err.message, 'error');
+        }
+      }
+    }
+
+    function invalidateCachedOdinPayload() {
+      currentOdinPayloadKey = '';
+      odinTradeMarkersByTicker.clear();
+    }
+
+    tickersInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    entryLongSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    exitLongSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    entryShortSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    exitShortSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    startDateEl.addEventListener('change', invalidateCachedOdinPayload);
+    endDateEl.addEventListener('change', invalidateCachedOdinPayload);
+    tickerSelectEl.addEventListener('change', reloadSelectedTickerOnly);
 
     loadBtn.addEventListener('click', loadData);
     loginBtn.addEventListener('click', handleLogin);
