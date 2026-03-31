@@ -82,6 +82,47 @@
       margin-top: 12px;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
     }
+    .ticker-search-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .ticker-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 8px;
+      background: #0b1220;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+      z-index: 40;
+      padding: 4px;
+    }
+    .ticker-menu.hidden {
+      display: none;
+    }
+    .ticker-option {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--text);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .ticker-option:hover,
+    .ticker-option.active {
+      background: rgba(59, 130, 246, 0.22);
+    }
+    .ticker-empty {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 8px 10px;
+    }
     .filters.odin-row {
       margin-top: 12px;
       grid-template-columns: repeat(4, minmax(140px, 1fr));
@@ -151,8 +192,11 @@
     <div class="panel">
       <div class="filters">
         <div class="field">
-          <label for="tickersInput">Tickers (comma-separated)</label>
-          <input id="tickersInput" type="text" value="AAPL,MSFT,TSLA" />
+          <label for="tickerInput">Ticker (searchable)</label>
+          <div class="ticker-search-wrap">
+            <input id="tickerInput" type="text" value="AAPL" placeholder="Type symbol e.g. AAPL" autocomplete="off" />
+            <div id="tickerMenu" class="ticker-menu hidden"></div>
+          </div>
         </div>
         <div class="field">
           <label for="startDate">Start Date</label>
@@ -161,10 +205,6 @@
         <div class="field">
           <label for="endDate">End Date</label>
           <input id="endDate" type="date" />
-        </div>
-        <div class="field">
-          <label for="tickerSelect">Chart Ticker</label>
-          <select id="tickerSelect"></select>
         </div>
         <div class="field">
           <label for="loadBtn">&nbsp;</label>
@@ -289,6 +329,8 @@
     var CONFIG_URL = API_ORIGIN + '/api/public/supabase-config';
     var MARKET_OHLC_API_URL = API_ORIGIN + '/api/market/ohlc-signals-indicator';
     var ODIN_INDEX_API_URL = API_ORIGIN + '/api/analytics/odin-index';
+    var TICKER_GROUPS_API_URL = API_ORIGIN + '/api/tickers/groups';
+    var TICKER_GROUP_API_PREFIX = API_ORIGIN + '/api/tickers/group/';
 
     const SIGNAL_COLORS = {
       S1: '#ef4444',
@@ -299,8 +341,8 @@
       L3: '#84cc16'
     };
 
-    const tickersInputEl = document.getElementById('tickersInput');
-    const tickerSelectEl = document.getElementById('tickerSelect');
+    const tickerInputEl = document.getElementById('tickerInput');
+    const tickerMenuEl = document.getElementById('tickerMenu');
     const startDateEl = document.getElementById('startDate');
     const endDateEl = document.getElementById('endDate');
     const entryLongSignalsInputEl = document.getElementById('entryLongSignalsInput');
@@ -327,6 +369,9 @@
     let lastGoodMarkers = null;
     /** Abort previous fetch when a new Load starts (avoids stale response overwriting the chart) */
     let chartLoadAbort = null;
+    let currentAppliedMarkers = [];
+    let allTickerSymbols = [];
+    let filteredTickerSymbols = [];
 
     const today = new Date();
     const prior = new Date();
@@ -345,7 +390,7 @@
     startDateEl.addEventListener('change', clampDateRange);
     endDateEl.addEventListener('change', clampDateRange);
 
-    tickersInputEl.value = localStorage.getItem('market_api_tickers') || tickersInputEl.value;
+    tickerInputEl.value = localStorage.getItem('market_api_ticker') || tickerInputEl.value;
     emailEl.value = localStorage.getItem('market_api_email') || '';
 
     const chart = LightweightCharts.createChart(chartContainer, {
@@ -466,6 +511,9 @@
         });
         const { data: sessionData } = await sb.auth.getSession();
         updateAuthUI(sessionData.session);
+        if (sessionData.session) {
+          fetchAllTickersForDatalist(sessionData.session.access_token).catch(function () {});
+        }
       } catch (e) {
         setStatus('Could not load auth config: ' + e.message, 'error');
       }
@@ -599,6 +647,89 @@
         .filter(Boolean);
     }
 
+    function setTickerOptions(symbols) {
+      const unique = [];
+      const seen = new Set();
+      for (let i = 0; i < symbols.length; i++) {
+        const s = String(symbols[i] || '').trim().toUpperCase();
+        if (!s || seen.has(s)) continue;
+        seen.add(s);
+        unique.push(s);
+      }
+      unique.sort();
+      allTickerSymbols = unique;
+      renderTickerMenu(unique.slice(0, 30));
+    }
+
+    function renderTickerMenu(symbols) {
+      filteredTickerSymbols = symbols;
+      tickerMenuEl.innerHTML = '';
+      if (!symbols.length) {
+        const empty = document.createElement('div');
+        empty.className = 'ticker-empty';
+        empty.textContent = 'No tickers found';
+        tickerMenuEl.appendChild(empty);
+        return;
+      }
+      for (let i = 0; i < symbols.length; i++) {
+        const sym = symbols[i];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ticker-option';
+        btn.textContent = sym;
+        btn.addEventListener('click', function () {
+          tickerInputEl.value = sym;
+          hideTickerMenu();
+          invalidateCachedOdinPayload();
+        });
+        tickerMenuEl.appendChild(btn);
+      }
+    }
+
+    function showTickerMenu() {
+      tickerMenuEl.classList.remove('hidden');
+    }
+
+    function hideTickerMenu() {
+      tickerMenuEl.classList.add('hidden');
+    }
+
+    function filterTickerMenu() {
+      const q = String(tickerInputEl.value || '').trim().toUpperCase();
+      const matches = q
+        ? allTickerSymbols.filter(function (s) { return s.indexOf(q) !== -1; }).slice(0, 60)
+        : allTickerSymbols.slice(0, 30);
+      renderTickerMenu(matches);
+      showTickerMenu();
+    }
+
+    async function fetchAllTickersForDatalist(token) {
+      const groupsRes = await fetch(TICKER_GROUPS_API_URL, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const groupsPayload = await groupsRes.json();
+      if (!groupsRes.ok) {
+        throw new Error(groupsPayload.error || 'Failed to load ticker groups');
+      }
+      const groups = Array.isArray(groupsPayload) ? groupsPayload : [];
+      const symbols = [];
+      for (let i = 0; i < groups.length; i++) {
+        const code = String(groups[i].code || '').trim();
+        if (!code) continue;
+        const r = await fetch(TICKER_GROUP_API_PREFIX + encodeURIComponent(code), {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const p = await r.json();
+        if (!r.ok) continue;
+        const list = Array.isArray(p.tickers) ? p.tickers : [];
+        for (let j = 0; j < list.length; j++) {
+          const sym = String(list[j].symbol || '').trim().toUpperCase();
+          if (sym) symbols.push(sym);
+        }
+      }
+      setTickerOptions(symbols);
+    }
+
     function stableStringify(value) {
       if (Array.isArray(value)) {
         return '[' + value.map(stableStringify).join(',') + ']';
@@ -611,11 +742,11 @@
     }
 
     function buildOdinPayload() {
-      const tickers = parseCsvList(tickersInputEl.value);
+      const ticker = String(tickerInputEl.value || '').trim().toUpperCase();
       return {
         start_date: startDateEl.value,
         end_date: endDateEl.value,
-        tickers: tickers,
+        tickers: ticker ? [ticker] : [],
         entry_long_signals: parseCsvList(entryLongSignalsInputEl.value),
         exit_long_signals: parseCsvList(exitLongSignalsInputEl.value),
         entry_short_signals: parseCsvList(entryShortSignalsInputEl.value),
@@ -624,32 +755,6 @@
         include_neutral_rows: true,
         chunk_size: 30
       };
-    }
-
-    function ensureTickerSelectOptions(tickers, selectedTicker) {
-      const unique = [];
-      const seen = new Set();
-      for (let i = 0; i < tickers.length; i++) {
-        const t = String(tickers[i] || '').trim().toUpperCase();
-        if (!t || seen.has(t)) continue;
-        seen.add(t);
-        unique.push(t);
-      }
-      if (unique.length === 0) return '';
-
-      tickerSelectEl.innerHTML = '';
-      for (let i = 0; i < unique.length; i++) {
-        const t = unique[i];
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.textContent = t;
-        tickerSelectEl.appendChild(opt);
-      }
-      const finalSelected = unique.includes((selectedTicker || '').toUpperCase())
-        ? selectedTicker.toUpperCase()
-        : unique[0];
-      tickerSelectEl.value = finalSelected;
-      return finalSelected;
     }
 
     function markerFromTradeEvent(evt) {
@@ -671,6 +776,48 @@
         shape: 'circle',
         text: 'CLOSE' + (evt.signal ? ':' + evt.signal : '')
       };
+    }
+
+    function normalizeTradeMarkers(markers) {
+      const byTime = new Map();
+      for (let i = 0; i < markers.length; i++) {
+        const m = markers[i];
+        if (!m || !m.time) continue;
+        if (!byTime.has(m.time)) byTime.set(m.time, []);
+        byTime.get(m.time).push(m);
+      }
+      const normalized = [];
+      const times = Array.from(byTime.keys()).sort();
+      for (let i = 0; i < times.length; i++) {
+        const time = times[i];
+        const items = byTime.get(time);
+        const below = items.filter(function (x) { return x.position === 'belowBar'; });
+        const above = items.filter(function (x) { return x.position === 'aboveBar'; });
+        if (below.length) {
+          normalized.push({
+            time: time,
+            position: 'belowBar',
+            color: below[below.length - 1].color,
+            shape: below[below.length - 1].shape,
+            text: below.map(function (x) { return x.text; }).join(' | ')
+          });
+        }
+        if (above.length) {
+          normalized.push({
+            time: time,
+            position: 'aboveBar',
+            color: above[above.length - 1].color,
+            shape: above[above.length - 1].shape,
+            text: above.map(function (x) { return x.text; }).join(' | ')
+          });
+        }
+      }
+      return normalized.sort(function (a, b) {
+        if (a.time < b.time) return -1;
+        if (a.time > b.time) return 1;
+        if (a.position === b.position) return 0;
+        return a.position === 'belowBar' ? -1 : 1;
+      });
     }
 
     function extractOdinMarkersByTicker(payload) {
@@ -702,7 +849,7 @@
           if (entryExec) events.push({ kind: 'open', time: entryExec, tradeType: tradeType, signal: entrySignal });
           if (exitExec) events.push({ kind: 'close', time: exitExec, tradeType: tradeType, signal: exitSignal });
         }
-        byTicker.set(ticker, events.map(markerFromTradeEvent));
+        byTicker.set(ticker, normalizeTradeMarkers(events.map(markerFromTradeEvent)));
       }
       return byTicker;
     }
@@ -726,7 +873,7 @@
       const rows = Array.isArray(payload.data) ? payload.data : [];
       const candles = mapRowsToCandles(rows);
       const tradeMarkers = odinTradeMarkersByTicker.get(ticker) || [];
-      const markers = filterMarkersForCandles(tradeMarkers, candles);
+      const markers = normalizeTradeMarkers(filterMarkersForCandles(tradeMarkers, candles));
 
       if (candles.length === 0 && lastGoodCandles && lastGoodCandles.length > 0) {
         setStatus(
@@ -738,6 +885,7 @@
 
       candleSeries.setData(candles);
       candleSeries.setMarkers(markers);
+      currentAppliedMarkers = markers;
       chart.timeScale().fitContent();
       lastGoodCandles = candles;
       lastGoodMarkers = markers;
@@ -762,7 +910,7 @@
         return;
       }
       if (!odinPayload.tickers.length) {
-        setStatus('Provide at least one ticker in Tickers input.', 'error');
+        setStatus('Provide one ticker in Ticker input.', 'error');
         return;
       }
       if (!sb) {
@@ -776,7 +924,8 @@
       }
       const token = sessionData.session.access_token;
 
-      localStorage.setItem('market_api_tickers', odinPayload.tickers.join(','));
+      const selectedTicker = String(odinPayload.tickers[0] || '').toUpperCase();
+      localStorage.setItem('market_api_ticker', selectedTicker);
 
       if (chartLoadAbort) {
         chartLoadAbort.abort();
@@ -788,8 +937,6 @@
 
       try {
         const payloadKey = stableStringify(odinPayload);
-        let selectedTicker = (tickerSelectEl.value || '').toUpperCase();
-
         if (currentOdinPayloadKey !== payloadKey || odinTradeMarkersByTicker.size === 0) {
           const odinResponse = await fetch(ODIN_INDEX_API_URL, {
             method: 'POST',
@@ -806,24 +953,12 @@
               (odinPayloadResp && (odinPayloadResp.error || odinPayloadResp.message)) || 'Odin index request failed'
             );
           }
-          const resolvedFromResponse =
-            odinPayloadResp &&
-            odinPayloadResp.universe &&
-            Array.isArray(odinPayloadResp.universe.resolved_tickers)
-              ? odinPayloadResp.universe.resolved_tickers
-              : odinPayload.tickers;
-          const resolvedTickers = resolvedFromResponse.map(function (t) {
-            return String(t).toUpperCase();
-          });
-          selectedTicker = ensureTickerSelectOptions(resolvedTickers, selectedTicker || odinPayload.tickers[0]);
           odinTradeMarkersByTicker.clear();
           const extracted = extractOdinMarkersByTicker(odinPayloadResp);
           extracted.forEach(function (v, k) {
             odinTradeMarkersByTicker.set(k, v);
           });
           currentOdinPayloadKey = payloadKey;
-        } else {
-          selectedTicker = ensureTickerSelectOptions(odinPayload.tickers, selectedTicker || odinPayload.tickers[0]);
         }
 
         await fetchAndRenderOhlcForTicker(selectedTicker, start_date, end_date, token);
@@ -844,46 +979,57 @@
       }
     }
 
-    async function reloadSelectedTickerOnly() {
-      clampDateRange();
-      const ticker = String(tickerSelectEl.value || '').toUpperCase();
-      const start_date = startDateEl.value;
-      const end_date = endDateEl.value;
-      if (!ticker || !start_date || !end_date || !sb) return;
-      const { data: sessionData, error: sessionError } = await sb.auth.getSession();
-      if (sessionError || !sessionData.session) return;
-      if (chartLoadAbort) {
-        chartLoadAbort.abort();
-      }
-      chartLoadAbort = new AbortController();
-      try {
-        await fetchAndRenderOhlcForTicker(ticker, start_date, end_date, sessionData.session.access_token);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setStatus('Failed to reload ticker: ' + err.message, 'error');
-        }
-      }
-    }
+    
 
     function invalidateCachedOdinPayload() {
       currentOdinPayloadKey = '';
       odinTradeMarkersByTicker.clear();
     }
 
-    tickersInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    tickerInputEl.addEventListener('change', invalidateCachedOdinPayload);
+    tickerInputEl.addEventListener('input', function () {
+      invalidateCachedOdinPayload();
+      filterTickerMenu();
+    });
+    tickerInputEl.addEventListener('focus', function () {
+      filterTickerMenu();
+    });
+    tickerInputEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        hideTickerMenu();
+        return;
+      }
+      if (e.key === 'Enter' && filteredTickerSymbols.length > 0) {
+        e.preventDefault();
+        tickerInputEl.value = filteredTickerSymbols[0];
+        hideTickerMenu();
+        invalidateCachedOdinPayload();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!tickerMenuEl.contains(e.target) && e.target !== tickerInputEl) {
+        hideTickerMenu();
+      }
+    });
     entryLongSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
     exitLongSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
     entryShortSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
     exitShortSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
     startDateEl.addEventListener('change', invalidateCachedOdinPayload);
     endDateEl.addEventListener('change', invalidateCachedOdinPayload);
-    tickerSelectEl.addEventListener('change', reloadSelectedTickerOnly);
-
     loadBtn.addEventListener('click', loadData);
     loginBtn.addEventListener('click', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
     window.addEventListener('resize', () => {
       chart.applyOptions({ width: chartContainer.clientWidth });
+      if (currentAppliedMarkers && currentAppliedMarkers.length > 0) {
+        candleSeries.setMarkers(currentAppliedMarkers);
+      }
+    });
+    chart.timeScale().subscribeVisibleTimeRangeChange(function () {
+      if (currentAppliedMarkers && currentAppliedMarkers.length > 0) {
+        candleSeries.setMarkers(currentAppliedMarkers);
+      }
     });
 
     initSupabase().then(function () {
