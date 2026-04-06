@@ -41,7 +41,7 @@
     }
     .filters {
       display: grid;
-      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
       gap: 10px;
       align-items: end;
     }
@@ -285,6 +285,13 @@
         <div class="field">
           <label for="endDate">End Date</label>
           <input id="endDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="executionModeSelect">Execution Mode</label>
+          <select id="executionModeSelect">
+            <option value="T+1" selected>T+1 (Next-Day Open)</option>
+            <option value="T">T (Signal-Day Close)</option>
+          </select>
         </div>
         <div class="field">
           <label for="loadBtn">&nbsp;</label>
@@ -633,6 +640,7 @@
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const authStatusEl = document.getElementById('authStatus');
+    const executionModeSelectEl = document.getElementById('executionModeSelect');
     const loadBtn = document.getElementById('loadBtn');
     const statusEl = document.getElementById('status');
     const chartContainer = document.getElementById('chart');
@@ -1031,6 +1039,7 @@
 
     function buildOdinPayload() {
       const ticker = String(tickerInputEl.value || '').trim().toUpperCase();
+      const mode = executionModeSelectEl ? executionModeSelectEl.value : 'T+1';
       return {
         start_date: startDateEl.value,
         end_date: endDateEl.value,
@@ -1041,7 +1050,8 @@
         exit_short_signals: parseCsvList(exitShortSignalsInputEl.value),
         initial_portfolio: 1000,
         include_neutral_rows: true,
-        chunk_size: 30
+        chunk_size: 30,
+        execution_mode: mode
       };
     }
 
@@ -1116,9 +1126,14 @@
       const iTradeId = idx['#'];
       const iTradeType = idx['Trade Type'];
       const iEntrySignal = idx['Entry Signal'];
-      const iEntryExecDate = idx['Execution Date (Entry-T+1)'];
+      // T+1 mode uses Execution Date columns; T mode uses Signal Date (same day as execution)
+      const iEntryExecDate = idx['Execution Date (Entry-T+1)'] != null
+        ? idx['Execution Date (Entry-T+1)']
+        : idx['Signal Date (Entry-T)'];
       const iExitSignal = idx['Exit Signal'];
-      const iExitExecDate = idx['Execution Date (Exit-T+1)'];
+      const iExitExecDate = idx['Execution Date (Exit-T+1)'] != null
+        ? idx['Execution Date (Exit-T+1)']
+        : idx['Signal Date (Exit-T)'];
 
       const results = Array.isArray(payload && payload.results_by_ticker) ? payload.results_by_ticker : [];
       for (let r = 0; r < results.length; r++) {
@@ -1314,6 +1329,7 @@
     exitShortSignalsInputEl.addEventListener('change', invalidateCachedOdinPayload);
     startDateEl.addEventListener('change', invalidateCachedOdinPayload);
     endDateEl.addEventListener('change', invalidateCachedOdinPayload);
+    executionModeSelectEl.addEventListener('change', invalidateCachedOdinPayload);
     loadBtn.addEventListener('click', loadData);
     loginBtn.addEventListener('click', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);

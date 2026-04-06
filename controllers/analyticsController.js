@@ -809,6 +809,179 @@ function buildSheetParityTradeRowsForTicker({
   return { rows, warning: null, completedTrades, stats };
 }
 
+// ── T-mode (execution = signal-day CLOSE, no T+1 lookup) ──────────────────
+function buildSheetParityTradeRowsForTickerT({
+  ticker,
+  priceMap,
+  signals,
+  startDate,
+  entryLongSet,
+  exitLongSet,
+  entryShortSet,
+  exitShortSet,
+  initialPortfolio,
+  includeNeutralRows
+}) {
+  if (!priceMap || priceMap.size === 0) return { rows: [], warning: `No prices: ${ticker}`, completedTrades: 0 };
+  if (!signals || signals.length === 0) return { rows: [], warning: `No signals: ${ticker}`, completedTrades: 0 };
+
+  const startPriceData = priceMap.get(dateKeySimple(startDate)) || Array.from(priceMap.values())[0];
+  if (!startPriceData || startPriceData.open == null) {
+    return { rows: [], warning: `No start price: ${ticker}`, completedTrades: 0 };
+  }
+
+  const startPrice = Number(startPriceData.open);
+  const rows = [];
+  let currentPos = null;
+  let tradeOpenDate = null;
+  let tradeOpenClose = 0;
+  let tradeSignalOpenDate = null;
+  let tradeSignalOpenCloseVal = 0;
+  let tradeEntrySignal = '';
+  let accumPL1 = 1.0;
+  let tradeID = 0;
+
+  for (let i = 0; i < signals.length; i++) {
+    const sigDate = signals[i].date;
+    const oldSig = String(signals[i].oldSig || signals[i].signal || '').trim().toUpperCase();
+    const ma1Sig = String(signals[i].ma1Sig || '').trim().toUpperCase();
+    const ma2Sig = String(signals[i].ma2Sig || '').trim().toUpperCase();
+    const sigPriceData = priceMap.get(dateKeySimple(sigDate));
+
+    if (!sigPriceData) continue;
+    if (!oldSig && !ma1Sig && !ma2Sig) continue;
+    if (oldSig === 'NULL') continue;
+    if (i > 0 && signals[i - 1].date.getTime() === sigDate.getTime()) continue;
+
+    const firesEntryLong  = _anyFires(entryLongSet,  oldSig, ma1Sig, ma2Sig);
+    const firesExitLong   = _anyFires(exitLongSet,   oldSig, ma1Sig, ma2Sig);
+    const firesEntryShort = _anyFires(entryShortSet, oldSig, ma1Sig, ma2Sig);
+    const firesExitShort  = _anyFires(exitShortSet,  oldSig, ma1Sig, ma2Sig);
+
+    let newPos = currentPos;
+    let logNeutral = false;
+    let firedSignal = oldSig || ma1Sig || ma2Sig;
+
+    if (currentPos === 'Long') {
+      if (firesExitLong) {
+        firedSignal = firesExitLong;
+        newPos = firesEntryShort ? 'Short' : 'Neutral';
+        if (newPos === 'Neutral') logNeutral = true;
+      }
+    } else if (currentPos === 'Short') {
+      if (firesExitShort) {
+        firedSignal = firesExitShort;
+        newPos = firesEntryLong ? 'Long' : 'Neutral';
+        if (newPos === 'Neutral') logNeutral = true;
+      }
+    } else {
+      if (firesEntryLong) {
+        newPos = 'Long';
+        firedSignal = firesEntryLong;
+      } else if (firesEntryShort) {
+        newPos = 'Short';
+        firedSignal = firesEntryShort;
+      }
+    }
+
+    if (newPos === currentPos) continue;
+
+    // T mode: execution price = signal-day close, no next-day lookup
+    const execClose = Number(sigPriceData.close);
+    const execDate  = sigDate;
+
+    if (currentPos === 'Long' || currentPos === 'Short') {
+      tradeID++;
+      const rawDiff = execClose - tradeOpenClose;
+      const diffPct = tradeOpenClose === 0 ? 0 : rawDiff / tradeOpenClose;
+      const pnlPct  = currentPos === 'Long' ? diffPct : -diffPct;
+      accumPL1 *= (1 + pnlPct);
+      const holdDays = tradeOpenDate ? Math.round((execDate - tradeOpenDate) / 86400000) : 0;
+      const odxVal   = startPrice * accumPL1;
+      const yearlyReturn = holdDays > 0 ? pnlPct / (holdDays / 365.25) : 0;
+      const portVal  = Math.round(initialPortfolio * accumPL1);
+      const portPL   = Math.round(initialPortfolio * accumPL1 - initialPortfolio);
+
+      rows.push([
+        tradeID,
+        toDateString(tradeSignalOpenDate),   // Signal Date (Entry-T)
+        Number(tradeSignalOpenCloseVal),      // Signal Close (Entry-T)
+        currentPos === 'Long'  ? 1 : '',     // BTO
+        currentPos === 'Short' ? 1 : '',     // STO
+        tradeEntrySignal,                    // Entry Signal
+        currentPos.toLowerCase(),            // Trade Type
+        Number(tradeOpenClose),              // Execution Close (Entry-T)
+        toDateString(sigDate),               // Signal Date (Exit-T)
+        Number(sigPriceData.close),          // Signal Close (Exit-T)
+        currentPos === 'Short' ? 1 : '',     // BTC
+        currentPos === 'Long'  ? 1 : '',     // STC
+        firedSignal,                         // Exit Signal
+        Number(execClose),                   // Execution Close (Exit-T)
+        diffPct,
+        pnlPct,
+        holdDays,
+        accumPL1,
+        accumPL1 - 1,
+        odxVal,
+        odxVal,
+        holdDays,
+        holdDays / 30.4,
+        holdDays / 365.25,
+        yearlyReturn,
+        '',
+        portVal,
+        portPL
+      ]);
+    }
+
+    if (includeNeutralRows && logNeutral && currentPos !== null) {
+      rows.push([
+        'N/A',
+        toDateString(sigDate),
+        Number(sigPriceData.close),
+        '', '', '', 'neutral',
+        Number(execClose),
+        toDateString(sigDate),
+        Number(sigPriceData.close),
+        '', '',
+        firedSignal,
+        Number(execClose),
+        0, 0, 0,
+        accumPL1, accumPL1 - 1,
+        startPrice * accumPL1, startPrice * accumPL1,
+        0, 0, 0, 0, '',
+        Math.round(initialPortfolio * accumPL1), 0
+      ]);
+    }
+
+    if (newPos === 'Long' || newPos === 'Short') {
+      tradeSignalOpenDate     = sigDate;
+      tradeSignalOpenCloseVal = Number(sigPriceData.close);
+      tradeOpenDate           = execDate;
+      tradeOpenClose          = execClose;
+      tradeEntrySignal        = firedSignal;
+    }
+
+    currentPos = newPos;
+  }
+
+  rows.sort((a, b) => {
+    const ai = Number.isFinite(Number(a[0])) ? Number(a[0]) : -1;
+    const bi = Number.isFinite(Number(b[0])) ? Number(b[0]) : -1;
+    return bi - ai;
+  });
+
+  const completedTrades = rows.filter(r => Number.isFinite(Number(r[0])) && Number(r[0]) > 0).length;
+  const firstTradeRow   = rows.find(r => Number.isFinite(Number(r[0])) && Number(r[0]) > 0);
+  const stats = {
+    completed_trades: completedTrades,
+    final_portfolio:  firstTradeRow ? Number(firstTradeRow[26]) : Number(initialPortfolio),
+    portfolio_pnl:    firstTradeRow ? Number(firstTradeRow[27]) : 0
+  };
+
+  return { rows, warning: null, completedTrades, stats };
+}
+
 function processOdinSummaryForTicker(ticker, pMap, signals, startDate, entrySet, exitSet, initialPortfolio) {
   if (!pMap || pMap.size === 0) return { row: null, warning: `No prices: ${ticker}` };
   if (!signals || signals.length === 0) return { row: null, warning: `No signals: ${ticker}` };
@@ -1065,6 +1238,8 @@ const runOdinIndex = async (req, res) => {
   const groupsIn = body.groups;
   const includeNeutralRows = body.include_neutral_rows !== false;
   const chunkSize = Math.max(1, Math.min(Number(body.chunk_size) || 30, 100));
+  // 'T' = execution at signal-day close; 'T+1' = execution at next-day open (default)
+  const executionMode = String(body.execution_mode || 'T+1').trim().toUpperCase() === 'T' ? 'T' : 'T+1';
   const legacyEntrySignals = toList(body.entry_signals).map(s => s.toUpperCase());
   const legacyExitSignals = toList(body.exit_signals).map(s => s.toUpperCase());
   let entryLongSignals = toList(body.entry_long_signals).map(s => s.toUpperCase());
@@ -1116,7 +1291,7 @@ const runOdinIndex = async (req, res) => {
   }
 
   try {
-    const indexCacheKey = makeCacheKey('analytics:odin-index:v3', {
+    const indexCacheKey = makeCacheKey('analytics:odin-index:v4', {
       startDateStr,
       endDateStr,
       tickersIn: toList(tickersIn).map((t) => String(t).toUpperCase()).sort(),
@@ -1127,7 +1302,8 @@ const runOdinIndex = async (req, res) => {
       exitShortSignals: [...exitShortSignals].sort(),
       initialPortfolio,
       includeNeutralRows,
-      chunkSize
+      chunkSize,
+      executionMode
     });
     const cachedIndex = await getCache(indexCacheKey);
     if (cachedIndex) {
@@ -1141,15 +1317,25 @@ const runOdinIndex = async (req, res) => {
       return res.status(400).json({ error: 'No tickers resolved from provided groups/tickers', warnings: resolveWarnings });
     }
 
-    const headers = [
-      '#', 'Signal Date (Entry-T)', 'Signal Close (Entry-T)', 'BTO', 'STO', 'Entry Signal', 'Trade Type',
-      'Execution Date (Entry-T+1)', 'Execution Open (Entry-T+1)',
-      'Signal Date (Exit-T)', 'Signal Close (Exit-T)', 'BTC', 'STC', 'Exit Signal',
-      'Execution Date (Exit-T+1)', 'Execution Open (Exit-T+1)',
-      'Difference (%)', 'P&L (%)', 'Hold Days', 'Accum P&L 1', 'Accum P&L 2',
-      'ODX', 'ODX', 'Days Count', 'Months Count', 'Years Count',
-      'Av. Yearly Return', '', 'Port Val ($)', 'Port P&L ($)'
-    ];
+    const headers = executionMode === 'T'
+      ? [
+          '#', 'Signal Date (Entry-T)', 'Signal Close (Entry-T)', 'BTO', 'STO', 'Entry Signal', 'Trade Type',
+          'Execution Close (Entry-T)',
+          'Signal Date (Exit-T)', 'Signal Close (Exit-T)', 'BTC', 'STC', 'Exit Signal',
+          'Execution Close (Exit-T)',
+          'Difference (%)', 'P&L (%)', 'Hold Days', 'Accum P&L 1', 'Accum P&L 2',
+          'ODX', 'ODX', 'Days Count', 'Months Count', 'Years Count',
+          'Av. Yearly Return', '', 'Port Val ($)', 'Port P&L ($)'
+        ]
+      : [
+          '#', 'Signal Date (Entry-T)', 'Signal Close (Entry-T)', 'BTO', 'STO', 'Entry Signal', 'Trade Type',
+          'Execution Date (Entry-T+1)', 'Execution Open (Entry-T+1)',
+          'Signal Date (Exit-T)', 'Signal Close (Exit-T)', 'BTC', 'STC', 'Exit Signal',
+          'Execution Date (Exit-T+1)', 'Execution Open (Exit-T+1)',
+          'Difference (%)', 'P&L (%)', 'Hold Days', 'Accum P&L 1', 'Accum P&L 2',
+          'ODX', 'ODX', 'Days Count', 'Months Count', 'Years Count',
+          'Av. Yearly Return', '', 'Port Val ($)', 'Port P&L ($)'
+        ];
 
     const entryLongSet = new Set(entryLongSignals);
     const exitLongSet = new Set(exitLongSignals);
@@ -1194,7 +1380,10 @@ const runOdinIndex = async (req, res) => {
       }
 
       for (const ticker of chunk) {
-        const built = buildSheetParityTradeRowsForTicker({
+        const buildFn = executionMode === 'T'
+          ? buildSheetParityTradeRowsForTickerT
+          : buildSheetParityTradeRowsForTicker;
+        const built = buildFn({
           ticker,
           priceMap: priceMaps.get(ticker),
           signals: signalMap.get(ticker),
@@ -1231,11 +1420,11 @@ const runOdinIndex = async (req, res) => {
         exit_long_signals: exitLongSignals,
         entry_short_signals: entryShortSignals,
         exit_short_signals: exitShortSignals,
-        // Backward-compat aliases for existing clients
         entry_signals: [...new Set([...entryLongSignals, ...entryShortSignals])],
         exit_signals: [...new Set([...exitLongSignals, ...exitShortSignals])],
         include_neutral_rows: includeNeutralRows,
         chunk_size: chunkSize,
+        execution_mode: executionMode,
         resolved_ticker_count: resolvedTickers.length
       },
       headers,
