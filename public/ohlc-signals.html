@@ -183,6 +183,86 @@
     @media (max-width: 900px) {
       .filters { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── Multi-signal select ─────────────────────────── */
+    .ms-wrap { position: relative; }
+    .ms-box {
+      min-height: 38px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #0f172a;
+      padding: 4px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      user-select: none;
+    }
+    .ms-box:focus-within { border-color: var(--accent); }
+    .ms-placeholder { color: var(--muted); font-size: 12px; }
+    .ms-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+    .ms-tag-remove {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      height: auto;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+    }
+    .ms-tag-remove:hover { color: #fff; }
+    .ms-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #0b1220;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 8px;
+      z-index: 60;
+      padding: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .ms-dropdown.hidden { display: none; }
+    .ms-group-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 4px 3px;
+      border-top: 1px solid rgba(148,163,184,0.12);
+      margin-top: 2px;
+    }
+    .ms-group-label:first-child { border-top: none; margin-top: 0; padding-top: 2px; }
+    .ms-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .ms-option:hover { background: rgba(59, 130, 246, 0.18); }
+    .ms-option input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
+    .ms-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .ms-option-label { flex: 1; }
   </style>
 </head>
 <body>
@@ -213,20 +293,24 @@
       </div>
       <div class="filters odin-row">
         <div class="field">
-          <label for="entryLongSignalsInput">Entry Long Signals</label>
-          <input id="entryLongSignalsInput" type="text" value="L1,L2" />
+          <label>Entry Long Signals</label>
+          <div class="ms-wrap" id="msWrap_entryLong"></div>
+          <input type="hidden" id="entryLongSignalsInput" value="L11" />
         </div>
         <div class="field">
-          <label for="exitLongSignalsInput">Exit Long Signals</label>
-          <input id="exitLongSignalsInput" type="text" value="S1,S2,S3,N" />
+          <label>Exit Long Signals</label>
+          <div class="ms-wrap" id="msWrap_exitLong"></div>
+          <input type="hidden" id="exitLongSignalsInput" value="N,S11,S12,S21,S22,S31,S32" />
         </div>
         <div class="field">
-          <label for="entryShortSignalsInput">Entry Short Signals</label>
-          <input id="entryShortSignalsInput" type="text" value="S1" />
+          <label>Entry Short Signals</label>
+          <div class="ms-wrap" id="msWrap_entryShort"></div>
+          <input type="hidden" id="entryShortSignalsInput" value="S11" />
         </div>
         <div class="field">
-          <label for="exitShortSignalsInput">Exit Short Signals</label>
-          <input id="exitShortSignalsInput" type="text" value="L1,L2,L3,N" />
+          <label>Exit Short Signals</label>
+          <div class="ms-wrap" id="msWrap_exitShort"></div>
+          <input type="hidden" id="exitShortSignalsInput" value="" />
         </div>
       </div>
       <div class="filters auth-row">
@@ -275,6 +359,196 @@
   <!-- Pin v4: v5+ removes chart.addCandlestickSeries -->
   <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
   <script>
+    // ── Multi-Signal Select Component ────────────────────────────────────────
+    const MS_SIGNAL_GROUPS = [
+      {
+        label: 'Classic',
+        signals: ['L1','L2','L3','S1','S2','S3','N']
+      },
+      {
+        label: 'MA200 Dashboard 1',
+        signals: ['L11','L21','L31','S11','S21','S31']
+      },
+      {
+        label: 'MA200 Dashboard 2',
+        signals: ['L12','L22','L32','S12','S22','S32']
+      }
+    ];
+
+    const MS_COLORS = {
+      L1:'#4d7c0f', L2:'#16a34a', L3:'#84cc16',
+      S1:'#ef4444', S2:'#f97316', S3:'#fb923c',
+      N: '#6b7280',
+      L11:'#166534', L21:'#15803d', L31:'#4ade80',
+      S11:'#dc2626', S21:'#ea580c', S31:'#f97316',
+      L12:'#14532d', L22:'#16a34a', L32:'#86efac',
+      S12:'#b91c1c', S22:'#c2410c', S32:'#fb923c'
+    };
+
+    function msColor(sig) {
+      return MS_COLORS[sig] || '#4b5563';
+    }
+
+    function createMultiSignalSelect(wrapEl, hiddenInput) {
+      let selected = new Set(
+        String(hiddenInput.value || '').split(',').map(s => s.trim()).filter(Boolean)
+      );
+      let open = false;
+
+      // Build DOM
+      const box = document.createElement('div');
+      box.className = 'ms-box';
+      box.tabIndex = 0;
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'ms-dropdown hidden';
+
+      // Build grouped checkboxes
+      MS_SIGNAL_GROUPS.forEach(function(group) {
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'ms-group-label';
+        groupLabel.textContent = group.label;
+        dropdown.appendChild(groupLabel);
+
+        group.signals.forEach(function(sig) {
+          const opt = document.createElement('label');
+          opt.className = 'ms-option';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = sig;
+          cb.checked = selected.has(sig);
+
+          const dot = document.createElement('span');
+          dot.className = 'ms-dot';
+          dot.style.background = msColor(sig);
+
+          const lbl = document.createElement('span');
+          lbl.className = 'ms-option-label';
+          lbl.textContent = sig;
+
+          opt.appendChild(cb);
+          opt.appendChild(dot);
+          opt.appendChild(lbl);
+          dropdown.appendChild(opt);
+
+          cb.addEventListener('change', function() {
+            if (cb.checked) selected.add(sig);
+            else selected.delete(sig);
+            syncValue();
+            renderTags();
+          });
+
+          // Stop click on label from toggling twice
+          opt.addEventListener('click', function(e) {
+            if (e.target !== cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+          });
+        });
+      });
+
+      wrapEl.appendChild(box);
+      wrapEl.appendChild(dropdown);
+
+      function renderTags() {
+        box.innerHTML = '';
+        if (selected.size === 0) {
+          const ph = document.createElement('span');
+          ph.className = 'ms-placeholder';
+          ph.textContent = 'Select signals…';
+          box.appendChild(ph);
+          return;
+        }
+        // Render tags in insertion order matching the groups
+        const ordered = [];
+        MS_SIGNAL_GROUPS.forEach(function(g) {
+          g.signals.forEach(function(s) { if (selected.has(s)) ordered.push(s); });
+        });
+        // Also add any signals not in groups (N handled separately)
+        if (selected.has('N') && !ordered.includes('N')) ordered.unshift('N');
+
+        ordered.forEach(function(sig) {
+          const tag = document.createElement('span');
+          tag.className = 'ms-tag';
+          tag.style.background = msColor(sig);
+          tag.textContent = sig;
+
+          const rm = document.createElement('button');
+          rm.className = 'ms-tag-remove';
+          rm.type = 'button';
+          rm.textContent = '×';
+          rm.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selected.delete(sig);
+            // Uncheck in dropdown
+            dropdown.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
+              if (cb.value === sig) cb.checked = false;
+            });
+            syncValue();
+            renderTags();
+          });
+
+          tag.appendChild(rm);
+          box.appendChild(tag);
+        });
+      }
+
+      function syncValue() {
+        const ordered = [];
+        MS_SIGNAL_GROUPS.forEach(function(g) {
+          g.signals.forEach(function(s) { if (selected.has(s)) ordered.push(s); });
+        });
+        if (selected.has('N') && !ordered.includes('N')) ordered.unshift('N');
+        hiddenInput.value = ordered.join(',');
+        hiddenInput.dispatchEvent(new Event('change'));
+      }
+
+      function openDropdown() {
+        open = true;
+        dropdown.classList.remove('hidden');
+      }
+
+      function closeDropdown() {
+        open = false;
+        dropdown.classList.add('hidden');
+      }
+
+      box.addEventListener('click', function() {
+        open ? closeDropdown() : openDropdown();
+      });
+
+      box.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open ? closeDropdown() : openDropdown(); }
+        if (e.key === 'Escape') closeDropdown();
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!wrapEl.contains(e.target)) closeDropdown();
+      });
+
+      renderTags();
+    }
+
+    // Initialise after DOM is ready (called at end of script)
+    function initMultiSignalSelects() {
+      createMultiSignalSelect(
+        document.getElementById('msWrap_entryLong'),
+        document.getElementById('entryLongSignalsInput')
+      );
+      createMultiSignalSelect(
+        document.getElementById('msWrap_exitLong'),
+        document.getElementById('exitLongSignalsInput')
+      );
+      createMultiSignalSelect(
+        document.getElementById('msWrap_entryShort'),
+        document.getElementById('entryShortSignalsInput')
+      );
+      createMultiSignalSelect(
+        document.getElementById('msWrap_exitShort'),
+        document.getElementById('exitShortSignalsInput')
+      );
+    }
+    // ── End Multi-Signal Select ──────────────────────────────────────────────
+
     /** Deployed backend (no trailing slash). Override with window.TRADING_API_ORIGIN or localStorage. */
     var PRODUCTION_API_ORIGIN = 'https://trading-backend-xlh9.onrender.com';
 
@@ -333,12 +607,17 @@
     var TICKER_GROUP_API_PREFIX = API_ORIGIN + '/api/tickers/group/';
 
     const SIGNAL_COLORS = {
-      S1: '#ef4444',
-      S2: '#f97316',
-      S3: '#fb923c',
-      L1: '#4d7c0f',
-      L2: '#16a34a',
-      L3: '#84cc16'
+      // Old signals (sp500data1.test)
+      S1: '#ef4444', S2: '#f97316', S3: '#fb923c',
+      L1: '#4d7c0f', L2: '#16a34a', L3: '#84cc16',
+      // MA200 Dashboard 1 signals (MA200_dashboard_1_signals)
+      S11: '#dc2626', S21: '#ea580c', S31: '#f97316',
+      L11: '#166534', L21: '#15803d', L31: '#4ade80',
+      N11: '#6b7280',
+      // MA200 Dashboard 2 signals (MA200_dashboard_2_signals)
+      S12: '#b91c1c', S22: '#c2410c', S32: '#fb923c',
+      L12: '#14532d', L22: '#16a34a', L32: '#86efac',
+      N12: '#9ca3af'
     };
 
     const tickerInputEl = document.getElementById('tickerInput');
@@ -414,6 +693,15 @@
       borderVisible: false,
       wickUpColor: '#16a34a',
       wickDownColor: '#dc2626'
+    });
+
+    const ma200Series = chart.addLineSeries({
+      color: '#3b82f6',
+      lineWidth: 2,
+      priceLineVisible: false,
+      lastValueVisible: true,
+      crosshairMarkerVisible: false,
+      title: 'MA200'
     });
 
     function formatChartTime(t) {
@@ -883,14 +1171,23 @@
         return;
       }
 
+      const ma200Data = Array.isArray(payload.ma200)
+        ? payload.ma200
+            .filter(function (r) { return r.date && r.value != null; })
+            .map(function (r) { return { time: r.date, value: r.value }; })
+            .sort(function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; })
+        : [];
+
       candleSeries.setData(candles);
       candleSeries.setMarkers(markers);
+      ma200Series.setData(ma200Data);
       currentAppliedMarkers = markers;
       chart.timeScale().fitContent();
       lastGoodCandles = candles;
       lastGoodMarkers = markers;
       setStatus(
-        'Loaded ' + candles.length + ' candles, ' + markers.length + ' trade markers.',
+        'Loaded ' + candles.length + ' candles, ' + markers.length + ' trade markers' +
+        (ma200Data.length ? ', MA200 (' + ma200Data.length + ' pts)' : '') + '.',
         'ok'
       );
     }
@@ -1031,6 +1328,8 @@
         candleSeries.setMarkers(currentAppliedMarkers);
       }
     });
+
+    initMultiSignalSelects();
 
     initSupabase().then(function () {
       loadData();

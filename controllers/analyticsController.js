@@ -422,6 +422,33 @@ const ODIN_SUMMARY_PRICE_TABLE = `\`${TABLE_FQN}\``;
 const ODIN_SUMMARY_SIGNAL_TABLE = '`extended-byway-454621-s6.sp500data1.consolidated_testing_2`';
 const ODIN_INDEX_PRICE_TABLE = `\`${process.env.ODIN_INDEX_PRICE_TABLE || TABLE_FQN}\``;
 const ODIN_INDEX_SIGNAL_TABLE = `\`${process.env.ODIN_INDEX_SIGNAL_TABLE || `${PROJECT_ID}.${DATASET}.test`}\``;
+const ODIN_MA200_DASHBOARD_TABLE = `\`${process.env.ODIN_MA200_DASHBOARD_TABLE || `${PROJECT_ID}.${DATASET}.ma200_dashboard_final`}\``;
+
+// ─── Signal classification (mirrors Apps Script) ───────────────────────────
+// Signals that live in MA200_dashboard_1_signals column
+const MA1_SIGNALS = new Set(['L11','L21','L31','S11','S21','S31','N11']);
+// Signals that live in MA200_dashboard_2_signals column
+const MA2_SIGNALS = new Set(['L12','L22','L32','S12','S22','S32','N12']);
+
+function _sigSource(sig) {
+  if (MA2_SIGNALS.has(sig)) return 'ma2';
+  if (MA1_SIGNALS.has(sig)) return 'ma1';
+  return 'old';
+}
+
+function _sigFires(sig, oldSig, ma1Sig, ma2Sig) {
+  const source = _sigSource(sig);
+  if (source === 'ma2') return ma2Sig === sig;
+  if (source === 'ma1') return ma1Sig === sig;
+  return oldSig === sig;
+}
+
+function _anyFires(sigSet, oldSig, ma1Sig, ma2Sig) {
+  for (const sig of sigSet) {
+    if (_sigFires(sig, oldSig, ma1Sig, ma2Sig)) return sig;
+  }
+  return null;
+}
 
 function toList(input) {
   if (Array.isArray(input)) return input.map(v => String(v).trim()).filter(Boolean);
@@ -562,12 +589,19 @@ async function fetchIndexBatchSignals(tickers, startStr, endStr) {
   if (!tickers.length) return [];
   const tickerList = tickers.map(t => `'${t.replace(/'/g, "\\'")}'`).join(',');
   const query = `
-    SELECT Ticker, Date, Signal
-    FROM ${ODIN_INDEX_SIGNAL_TABLE}
-    WHERE Ticker IN (${tickerList})
-      AND Date >= '${startStr}'
-      AND Date <= '${endStr}'
-    ORDER BY Ticker, Date ASC
+    SELECT
+      t.Ticker,
+      t.Date,
+      t.Signal                                        AS old_signal,
+      COALESCE(m.MA200_dashboard_1_signals, '')       AS ma1_signal,
+      COALESCE(m.MA200_dashboard_2_signals, '')       AS ma2_signal
+    FROM ${ODIN_INDEX_SIGNAL_TABLE} t
+    LEFT JOIN ${ODIN_MA200_DASHBOARD_TABLE} m
+      ON t.Ticker = m.Ticker AND t.Date = m.Date
+    WHERE t.Ticker IN (${tickerList})
+      AND t.Date >= '${startStr}'
+      AND t.Date <= '${endStr}'
+    ORDER BY t.Ticker ASC, t.Date ASC
   `;
   const [rows] = await bigquery.query({ query });
   return rows || [];
@@ -620,60 +654,46 @@ function buildSheetParityTradeRowsForTicker({
 
   for (let i = 0; i < signals.length; i++) {
     const sigDate = signals[i].date;
-    const rawSignal = String(signals[i].signal || '').trim().toUpperCase();
+    // Support both old {signal} shape and new {oldSig, ma1Sig, ma2Sig} shape
+    const oldSig = String(signals[i].oldSig || signals[i].signal || '').trim().toUpperCase();
+    const ma1Sig = String(signals[i].ma1Sig || '').trim().toUpperCase();
+    const ma2Sig = String(signals[i].ma2Sig || '').trim().toUpperCase();
     const sigPriceData = priceMap.get(dateKeySimple(sigDate));
 
-    if (!sigPriceData || !rawSignal || rawSignal === 'NULL') continue;
+    if (!sigPriceData) continue;
+    if (!oldSig && !ma1Sig && !ma2Sig) continue;
+    if (oldSig === 'NULL') continue;
     if (i > 0 && signals[i - 1].date.getTime() === sigDate.getTime()) continue;
 
-    let newPos;
-    let logNeutral = false;
+    // ── _anyFires routing: each configured signal checks its own source column ──
+    const firesEntryLong  = _anyFires(entryLongSet,  oldSig, ma1Sig, ma2Sig);
+    const firesExitLong   = _anyFires(exitLongSet,   oldSig, ma1Sig, ma2Sig);
+    const firesEntryShort = _anyFires(entryShortSet, oldSig, ma1Sig, ma2Sig);
+    const firesExitShort  = _anyFires(exitShortSet,  oldSig, ma1Sig, ma2Sig);
 
-    if (rawSignal.startsWith('L')) {
-      if (currentPos === 'Short') {
-        if (exitShortSet.size > 0 && exitShortSet.has(rawSignal)) {
-          newPos = entryLongSet.has(rawSignal) ? 'Long' : 'Neutral';
-        } else if (exitShortSet.size === 0) {
-          newPos = entryLongSet.has(rawSignal) ? 'Long' : 'Neutral';
-        } else {
-          newPos = 'Short';
-        }
-      } else if (currentPos === 'Long') {
-        newPos = exitLongSet.has(rawSignal) ? 'Neutral' : 'Long';
-      } else {
-        newPos = entryLongSet.has(rawSignal) ? 'Long' : 'Neutral';
+    let newPos = currentPos;
+    let logNeutral = false;
+    let firedSignal = oldSig || ma1Sig || ma2Sig;
+
+    if (currentPos === 'Long') {
+      if (firesExitLong) {
+        firedSignal = firesExitLong;
+        newPos = firesEntryShort ? 'Short' : 'Neutral';
+        if (newPos === 'Neutral') logNeutral = true;
       }
-    } else if (rawSignal.startsWith('S')) {
-      if (currentPos === 'Long') {
-        if (exitLongSet.size > 0 && exitLongSet.has(rawSignal)) {
-          newPos = entryShortSet.has(rawSignal) ? 'Short' : 'Neutral';
-        } else if (exitLongSet.size === 0) {
-          newPos = entryShortSet.has(rawSignal) ? 'Short' : 'Neutral';
-        } else {
-          newPos = 'Long';
-        }
-      } else if (currentPos === 'Short') {
-        newPos = exitShortSet.has(rawSignal) ? 'Neutral' : 'Short';
-      } else {
-        newPos = entryShortSet.has(rawSignal) ? 'Short' : 'Neutral';
+    } else if (currentPos === 'Short') {
+      if (firesExitShort) {
+        firedSignal = firesExitShort;
+        newPos = firesEntryLong ? 'Long' : 'Neutral';
+        if (newPos === 'Neutral') logNeutral = true;
       }
     } else {
-      if (currentPos === 'Long') {
-        if (exitLongSet.has(rawSignal)) {
-          newPos = 'Neutral';
-          logNeutral = true;
-        } else {
-          newPos = 'Long';
-        }
-      } else if (currentPos === 'Short') {
-        if (exitShortSet.has(rawSignal)) {
-          newPos = 'Neutral';
-          logNeutral = true;
-        } else {
-          newPos = 'Short';
-        }
-      } else {
-        newPos = 'Neutral';
+      if (firesEntryLong) {
+        newPos = 'Long';
+        firedSignal = firesEntryLong;
+      } else if (firesEntryShort) {
+        newPos = 'Short';
+        firedSignal = firesEntryShort;
       }
     }
 
@@ -706,7 +726,7 @@ function buildSheetParityTradeRowsForTicker({
         Number(sigPriceData.close),
         currentPos === 'Short' ? 1 : '',
         currentPos === 'Long' ? 1 : '',
-        rawSignal,
+        firedSignal,
         toDateString(exec.date),
         Number(exec.prices.open),
         diffPct,
@@ -741,7 +761,7 @@ function buildSheetParityTradeRowsForTicker({
         Number(sigPriceData.close),
         '',
         '',
-        rawSignal,
+        firedSignal,
         toDateString(exec.date),
         Number(exec.prices.open),
         0,
@@ -766,7 +786,7 @@ function buildSheetParityTradeRowsForTicker({
       tradeSignalOpenCloseVal = Number(sigPriceData.close);
       tradeOpenDate = exec.date;
       tradeOpenPrice = Number(exec.prices.open);
-      tradeEntrySignal = rawSignal;
+      tradeEntrySignal = firedSignal;
     }
 
     currentPos = newPos;
@@ -1096,7 +1116,7 @@ const runOdinIndex = async (req, res) => {
   }
 
   try {
-    const indexCacheKey = makeCacheKey('analytics:odin-index:v2', {
+    const indexCacheKey = makeCacheKey('analytics:odin-index:v3', {
       startDateStr,
       endDateStr,
       tickersIn: toList(tickersIn).map((t) => String(t).toUpperCase()).sort(),
@@ -1161,10 +1181,13 @@ const runOdinIndex = async (req, res) => {
       for (const r of signalRows) {
         const t = String(r.Ticker || '').toUpperCase();
         const d = parseDateLike(r.Date);
-        const s = String(r.Signal || '').trim().toUpperCase();
-        if (!t || !d || !s) continue;
+        if (!t || !d) continue;
+        const oldSig = String(r.old_signal || r.Signal || '').trim().toUpperCase();
+        const ma1Sig = String(r.ma1_signal || '').trim().toUpperCase();
+        const ma2Sig = String(r.ma2_signal || '').trim().toUpperCase();
+        if (!oldSig && !ma1Sig && !ma2Sig) continue;
         if (!signalMap.has(t)) signalMap.set(t, []);
-        signalMap.get(t).push({ date: d, signal: s });
+        signalMap.get(t).push({ date: d, oldSig, ma1Sig, ma2Sig });
       }
       for (const t of signalMap.keys()) {
         signalMap.get(t).sort((a, b) => a.date - b.date);

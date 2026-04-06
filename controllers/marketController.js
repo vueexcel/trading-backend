@@ -46,6 +46,8 @@ const TABLE_FQN = `${PROJECT_ID}.${DATASET}.${TABLE}`; // used in backticks belo
 // Same signal source as Odin summary; override with OHLC_SIGNALS_TABLE_FQN if needed (full `project.dataset.table` in backticks).
 const OHLC_SIGNALS_TABLE_FQN =
     process.env.OHLC_SIGNALS_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.consolidated_testing_2`';
+const MA200_TABLE_FQN =
+    process.env.MA200_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.200MA_consolidated`';
 
 const OHLC_MAX_LIMIT = 500;
 const OHLC_DEFAULT_LIMIT = 100;
@@ -113,7 +115,7 @@ const getOhlcSignalsIndicator = async (req, res) => {
     const sym = ticker.toUpperCase();
 
     try {
-        const cacheKey = makeCacheKey('market:ohlc-signals-indicator:v1', {
+        const cacheKey = makeCacheKey('market:ohlc-signals-indicator:v2', {
             ticker: sym,
             startStr,
             endStr
@@ -138,14 +140,25 @@ const getOhlcSignalsIndicator = async (req, res) => {
               AND \`Date\` BETWEEN @start AND @end
             ORDER BY \`Date\` ASC
         `;
+        const ma200Query = `
+            SELECT \`Date\` AS dt, \`DMA_200\` AS dma200
+            FROM ${MA200_TABLE_FQN}
+            WHERE \`Ticker\` = @ticker
+              AND \`Date\` BETWEEN @start AND @end
+            ORDER BY \`Date\` ASC
+        `;
 
-        const [priceRows, signalRows] = await Promise.all([
+        const [priceRows, signalRows, ma200Rows] = await Promise.all([
             bigquery.query({
                 query: ohlcQuery,
                 params: { ticker: sym, start: startStr, end: endStr }
             }).then((r) => r[0] || []),
             bigquery.query({
                 query: signalQuery,
+                params: { ticker: sym, start: startStr, end: endStr }
+            }).then((r) => r[0] || []),
+            bigquery.query({
+                query: ma200Query,
                 params: { ticker: sym, start: startStr, end: endStr }
             }).then((r) => r[0] || [])
         ]);
@@ -169,6 +182,15 @@ const getOhlcSignalsIndicator = async (req, res) => {
             };
         });
 
+        const ma200 = (ma200Rows || [])
+            .map((r) => {
+                const date = rowDateKeyFromBQ(r.dt);
+                const raw = bqCellToPlain(r.dma200);
+                const value = raw != null ? Number(raw) : null;
+                return { date, value };
+            })
+            .filter((r) => r.date && r.value != null && !Number.isNaN(r.value));
+
         const payload = {
             success: true,
             cache_hit: false,
@@ -176,7 +198,8 @@ const getOhlcSignalsIndicator = async (req, res) => {
             start_date: startStr,
             end_date: endStr,
             row_count: rows.length,
-            data: rows
+            data: rows,
+            ma200
         };
 
         await setCache(cacheKey, payload, OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS);
