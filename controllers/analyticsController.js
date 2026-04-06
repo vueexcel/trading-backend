@@ -425,11 +425,10 @@ const ODIN_INDEX_SIGNAL_TABLE = `\`${process.env.ODIN_INDEX_SIGNAL_TABLE || `${P
 const ODIN_MA200_DASHBOARD_TABLE = `\`${process.env.ODIN_MA200_DASHBOARD_TABLE || `${PROJECT_ID}.${DATASET}.ma200_dashboard_final`}\``;
 
 // ─── Signal classification (mirrors Apps Script T / T+1 multi-source) ─────
-// MA200_dashboard_1_signals — same codes as _MA1_SIGS in sheet script
-const MA1_SIGNALS = new Set(['L11', 'L21', 'L31', 'S11', 'S21', 'S31', 'N']);
-// MA200_dashboard_2_signals — same codes as _MA2_SIGS; checked before MA1 in _sigSource
-// (so plain "N" routes to ma2 column only, matching sheet _sigSourceT order)
-const MA2_SIGNALS = new Set(['L12', 'L22', 'L32', 'S12', 'S22', 'S32', 'N']);
+// MA200_dashboard_1_signals — same codes as _MA1_SIGS in sheet script (no plain N; use N1 for MA1 neutral)
+const MA1_SIGNALS = new Set(['L11', 'L21', 'L31', 'S11', 'S21', 'S31']);
+// MA200_dashboard_2_signals — checked before MA1 in _sigSource (no plain N; use N2 for MA2 neutral)
+const MA2_SIGNALS = new Set(['L12', 'L22', 'L32', 'S12', 'S22', 'S32']);
 
 function _sigSource(sig) {
   if (MA2_SIGNALS.has(sig)) return 'ma2';
@@ -438,6 +437,9 @@ function _sigSource(sig) {
 }
 
 function _sigFires(sig, oldSig, ma1Sig, ma2Sig) {
+  // Column-specific neutral exits: data columns still store "N"; pickers N / N1 / N2 choose which column counts.
+  if (sig === 'N1') return ma1Sig === 'N';
+  if (sig === 'N2') return ma2Sig === 'N';
   const source = _sigSource(sig);
   if (source === 'ma2') return ma2Sig === sig;
   if (source === 'ma1') return ma1Sig === sig;
