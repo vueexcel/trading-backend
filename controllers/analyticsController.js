@@ -424,11 +424,12 @@ const ODIN_INDEX_PRICE_TABLE = `\`${process.env.ODIN_INDEX_PRICE_TABLE || TABLE_
 const ODIN_INDEX_SIGNAL_TABLE = `\`${process.env.ODIN_INDEX_SIGNAL_TABLE || `${PROJECT_ID}.${DATASET}.test`}\``;
 const ODIN_MA200_DASHBOARD_TABLE = `\`${process.env.ODIN_MA200_DASHBOARD_TABLE || `${PROJECT_ID}.${DATASET}.ma200_dashboard_final`}\``;
 
-// ─── Signal classification (mirrors Apps Script) ───────────────────────────
-// Signals that live in MA200_dashboard_1_signals column
-const MA1_SIGNALS = new Set(['L11','L21','L31','S11','S21','S31','N11']);
-// Signals that live in MA200_dashboard_2_signals column
-const MA2_SIGNALS = new Set(['L12','L22','L32','S12','S22','S32','N12']);
+// ─── Signal classification (mirrors Apps Script T / T+1 multi-source) ─────
+// MA200_dashboard_1_signals — same codes as _MA1_SIGS in sheet script
+const MA1_SIGNALS = new Set(['L11', 'L21', 'L31', 'S11', 'S21', 'S31', 'N']);
+// MA200_dashboard_2_signals — same codes as _MA2_SIGS; checked before MA1 in _sigSource
+// (so plain "N" routes to ma2 column only, matching sheet _sigSourceT order)
+const MA2_SIGNALS = new Set(['L12', 'L22', 'L32', 'S12', 'S22', 'S32', 'N']);
 
 function _sigSource(sig) {
   if (MA2_SIGNALS.has(sig)) return 'ma2';
@@ -1291,7 +1292,7 @@ const runOdinIndex = async (req, res) => {
   }
 
   try {
-    const indexCacheKey = makeCacheKey('analytics:odin-index:v4', {
+    const indexCacheKey = makeCacheKey('analytics:odin-index:v5', {
       startDateStr,
       endDateStr,
       tickersIn: toList(tickersIn).map((t) => String(t).toUpperCase()).sort(),
