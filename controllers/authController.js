@@ -67,4 +67,26 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { signUp, login, logout };
+// 4. Refresh session (exchange refresh_token for new access_token)
+const refresh = async (req, res) => {
+    const { refresh_token } = req.body || {};
+
+    try {
+        if (!refresh_token) {
+            return res.status(400).json({ error: 'refresh_token is required' });
+        }
+
+        const { data, error } = await supabase.auth.refreshSession({ refresh_token });
+
+        if (error) throw error;
+
+        res.status(200).json({
+            message: 'Session refreshed',
+            session: data.session
+        });
+    } catch (error) {
+        res.status(401).json({ error: error.message || 'Refresh failed' });
+    }
+};
+
+module.exports = { signUp, login, logout, refresh };
