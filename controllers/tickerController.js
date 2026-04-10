@@ -60,11 +60,19 @@ const getTickersByGroup = async (req, res) => {
     }
 };
 
+/** Allow only safe ticker-name characters for ilike patterns (avoid % / _ injection). */
+function sanitizeTickerSearchQuery(q) {
+    const trimmed = String(q || '').trim();
+    const safe = trimmed.replace(/[^a-zA-Z0-9.-]/g, '').slice(0, 20);
+    return safe;
+}
+
 // 3. Search for a Ticker (With OPTIONAL Group Filtering)
 const searchTickers = async (req, res) => {
     const { q, group } = req.query; // e.g., ?q=AAPL or ?q=AAPL&group=SP
 
-    if (!q) {
+    const safe = sanitizeTickerSearchQuery(q);
+    if (!safe) {
         return res.status(400).json({ error: 'Search query is required' });
     }
 
@@ -89,14 +97,12 @@ const searchTickers = async (req, res) => {
                 .from('ticker_groups')
                 .select(`
                     tickers!inner (
-                        id, 
-                        symbol, 
-                        company_name
+                        symbol
                     )
                 `)
                 .eq('group_id', groupData.id)
-                .or(`symbol.ilike.%${q}%,company_name.ilike.%${q}%`, { foreignTable: 'tickers' })
-                .limit(10);
+                .or(`symbol.ilike.${safe}%`, { foreignTable: 'tickers' })
+                .limit(50);
 
             if (error) throw error;
 
@@ -108,9 +114,10 @@ const searchTickers = async (req, res) => {
             // --- SCENARIO B: Search ALL stocks (No group selected) ---
             const { data, error } = await supabase
                 .from('tickers')
-                .select('id, symbol, company_name')
-                .or(`symbol.ilike.%${q}%,company_name.ilike.%${q}%`)
-                .limit(10);`    `
+                .select('symbol')
+                .ilike('symbol', `${safe}%`)
+                .order('symbol', { ascending: true })
+                .limit(50);
 
             if (error) throw error;
             return res.status(200).json(data);

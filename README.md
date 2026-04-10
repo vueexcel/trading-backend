@@ -73,6 +73,7 @@ REDIS_TOKEN=<your-upstash-redis-token>
 - `BIGQUERY_DATASET` - Dataset containing market data (default: `sp500data1`)
 - `BIGQUERY_TABLE` - Table with OHLC prices (default: `stock_all_data`)
 - `TICKER_DETAILS_TABLE` - Table with ticker metadata (default: `TickerDetails`)
+- `TICKER_DETAILS_SYMBOL_COLUMN` (optional) - If set (e.g. `Ticker`), only that column is used for symbol lookups in `TickerDetails`. If unset, the API tries `Symbol` then `Ticker`.
 
 ## API Endpoints
 

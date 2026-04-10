@@ -1,4 +1,5 @@
 const bigquery = require('./config/bigquery');
+const supabase = require('./config/supabase');
 
 const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT || 'extended-byway-454621-s6';
 const BIGQUERY_DATASET = process.env.BIGQUERY_DATASET || 'sp500data1';
@@ -91,14 +92,319 @@ async function calculatePeriodDates(periodValue) {
 }
 
 async function getUniqueIndices() {
-  const query = `
-    SELECT DISTINCT \`Index\`
+  const { data, error } = await supabase
+    .from('market_groups')
+    .select('name')
+    .order('id', { ascending: true });
+  if (error) throw error;
+  return (data || []).map((r) => r.name).filter(Boolean);
+}
+
+async function fetchMarketGroupsWithCodes() {
+  const { data, error } = await supabase
+    .from('market_groups')
+    .select('id, name, code')
+    .order('id', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+function normIndexKey(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function resolveMarketGroupFromIndexValue(indexValue, groups) {
+  const groupsArr = groups || [];
+  if (!groupsArr.length) return null;
+  const raw = String(indexValue || '').trim();
+  if (!raw) return null;
+  const n = normIndexKey(raw);
+  const up = raw.toUpperCase();
+
+  for (const g of groupsArr) {
+    if (g.code && String(g.code).toUpperCase() === up) return g;
+  }
+
+  const aliasToCode = {
+    's&p 500': 'SP',
+    sp500: 'SP',
+    'sp 500': 'SP',
+    's&p500': 'SP',
+    'dow jones 30': 'DJ',
+    'dow jones': 'DJ',
+    dow: 'DJ',
+    djia: 'DJ',
+    'nasdaq 100': 'ND',
+    nasdaq100: 'ND',
+    ndx: 'ND',
+    etf: 'ETF',
+    other: 'OTH'
+  };
+  const code = aliasToCode[n] || aliasToCode[raw.toLowerCase().replace(/\s+/g, ' ')];
+  if (code) {
+    const found = groupsArr.find((x) => (x.code || '').toUpperCase() === code);
+    if (found) return found;
+  }
+
+  for (const g of groupsArr) {
+    if (normIndexKey(g.name) === n) return g;
+  }
+  const compact = (s) => s.replace(/[^a-z0-9]/gi, '');
+  const nc = compact(n);
+  for (const g of groupsArr) {
+    if (compact(normIndexKey(g.name)) === nc) return g;
+  }
+  return null;
+}
+
+/**
+ * Tickers in a market group from Supabase (symbol + company_name).
+ * Uses ticker_id → tickers first; falls back to embedded tickers(...) with array-shaped rows.
+ */
+async function getMembersForMarketGroupId(groupId) {
+  const { data: links, error: linkErr } = await supabase
+    .from('ticker_groups')
+    .select('ticker_id')
+    .eq('group_id', groupId);
+
+  if (!linkErr && links?.length) {
+    const ids = [...new Set(links.map((l) => l.ticker_id).filter(Boolean))];
+    if (ids.length) {
+      const { data: ticks, error: tickErr } = await supabase
+        .from('tickers')
+        .select('symbol, company_name')
+        .in('id', ids);
+      if (tickErr) {
+        console.error('getMembersForMarketGroupId tickers:', tickErr);
+      } else if (ticks?.length) {
+        const seen = new Set();
+        const out = [];
+        for (const t of ticks) {
+          const sym = String(t.symbol || '').trim();
+          if (!sym) continue;
+          const u = sym.toUpperCase();
+          if (seen.has(u)) continue;
+          seen.add(u);
+          out.push({ symbol: sym, company_name: t.company_name || '' });
+        }
+        return out;
+      }
+    }
+  } else if (linkErr) {
+    console.error('getMembersForMarketGroupId ticker_groups:', linkErr);
+  }
+
+  const { data: nested, error: nestErr } = await supabase
+    .from('ticker_groups')
+    .select('tickers(symbol, company_name)')
+    .eq('group_id', groupId);
+  if (nestErr) {
+    console.error('getMembersForMarketGroupId nested:', nestErr);
+    return [];
+  }
+  const seen = new Set();
+  const out = [];
+  for (const row of nested || []) {
+    const t = row.tickers;
+    const pushOne = (x) => {
+      const sym = x && x.symbol ? String(x.symbol).trim() : '';
+      if (!sym) return;
+      const u = sym.toUpperCase();
+      if (seen.has(u)) return;
+      seen.add(u);
+      out.push({ symbol: sym, company_name: (x && x.company_name) || '' });
+    };
+    if (Array.isArray(t)) {
+      for (const x of t) pushOne(x);
+    } else {
+      pushOne(t);
+    }
+  }
+  return out;
+}
+
+/** BigQuery row shape varies (Symbol vs symbol); normalize for lookups. */
+function normalizeTickerDetailRow(row) {
+  if (!row || typeof row !== 'object') return null;
+  const sym = row.Symbol ?? row.symbol ?? row.Ticker ?? row.ticker;
+  if (sym == null || String(sym).trim() === '') return null;
+  return {
+    Symbol: String(sym).trim(),
+    Security: String(row.Security ?? row.security ?? '').trim(),
+    Sector: String(row.Sector ?? row.sector ?? '').trim(),
+    Industry: String(row.Industry ?? row.industry ?? '').trim(),
+    Index: String(row.Index ?? row.index ?? '').trim()
+  };
+}
+
+function detailRowScore(d) {
+  if (!d) return 0;
+  let n = 0;
+  if (d.Security) n += 4;
+  if (d.Sector) n += 2;
+  if (d.Industry) n += 2;
+  if (d.Index) n += 1;
+  return n;
+}
+
+/** One best row per symbol (TickerDetails can have multiple Index rows per ticker). */
+function mergeTickerDetailRowsBySymbol(rawRows) {
+  const map = new Map();
+  for (const r of rawRows || []) {
+    const d = normalizeTickerDetailRow(r);
+    if (!d) continue;
+    const key = d.Symbol.toUpperCase();
+    const prev = map.get(key);
+    if (!prev || detailRowScore(d) > detailRowScore(prev)) {
+      map.set(key, d);
+    }
+  }
+  return map;
+}
+
+function buildTickerDetailsByColumnQuery(symbolColumn) {
+  const col = /^[A-Za-z_][A-Za-z0-9_]*$/.test(symbolColumn) ? symbolColumn : 'Symbol';
+  return (tickersParam) => `
+    SELECT \`${col}\` AS Symbol, Security, Sector, Industry, \`Index\`
     FROM \`${TICKER_DETAILS_FQN}\`
-    WHERE \`Index\` IS NOT NULL
-    ORDER BY \`Index\`
+    WHERE UPPER(TRIM(CAST(\`${col}\` AS STRING))) IN (${tickersParam})
   `;
-  const [rows] = await bigquery.query({ query });
-  return (rows || []).map(r => r.Index).filter(Boolean);
+}
+
+/**
+ * TickerDetails may use Symbol or Ticker (like stock_all_data); ETFs are often keyed one way or missing.
+ * Query both columns when possible and merge rows.
+ */
+async function fetchTickerDetailsRowsBySymbols(symbols) {
+  const unique = [
+    ...new Set(
+      symbols
+        .map((s) => String(s || '').toUpperCase().trim())
+        .filter(Boolean)
+    )
+  ];
+  if (!unique.length) return [];
+  const tickersParam = unique.map((t) => `'${t.replace(/'/g, "\\'")}'`).join(', ');
+  const envCol = (process.env.TICKER_DETAILS_SYMBOL_COLUMN || '').trim();
+  const columnsToTry = envCol
+    ? [envCol]
+    : ['Symbol', 'Ticker'];
+
+  let combined = [];
+  for (const col of columnsToTry) {
+    try {
+      const sql = buildTickerDetailsByColumnQuery(col)(tickersParam);
+      const [chunk] = await bigquery.query({ query: sql });
+      if (chunk && chunk.length) {
+        combined = combined.concat(chunk);
+      }
+    } catch (e) {
+      console.warn(`TickerDetails lookup by column "${col}":`, e.message || e);
+    }
+  }
+
+  const merged = mergeTickerDetailRowsBySymbol(combined);
+  return [...merged.values()].sort((a, b) =>
+    a.Symbol.localeCompare(b.Symbol, undefined, { sensitivity: 'base' })
+  );
+}
+
+/** Fill empty Security from Supabase `tickers.company_name`. */
+async function backfillSecurityFromSupabase(rows) {
+  const need = rows.filter((r) => !String(r.Security || '').trim());
+  if (!need.length) return rows;
+  const syms = [...new Set(need.map((r) => String(r.Symbol || '').toUpperCase().trim()).filter(Boolean))];
+  if (!syms.length) return rows;
+
+  const variants = [...new Set(syms.flatMap((s) => [s, s.toLowerCase()]))];
+
+  const byUpper = new Map();
+  const chunkSize = 120;
+  for (let i = 0; i < variants.length; i += chunkSize) {
+    const slice = variants.slice(i, i + chunkSize);
+    const { data, error } = await supabase
+      .from('tickers')
+      .select('symbol, company_name')
+      .in('symbol', slice);
+    if (error) {
+      console.error('backfillSecurityFromSupabase:', error);
+      return rows;
+    }
+    for (const t of data || []) {
+      const u = String(t.symbol || '')
+        .toUpperCase()
+        .trim();
+      if (!u) continue;
+      const name = String(t.company_name || '').trim();
+      if (name) byUpper.set(u, name);
+    }
+  }
+
+  return rows.map((r) => {
+    const u = String(r.Symbol || '')
+      .toUpperCase()
+      .trim();
+    const cn = byUpper.get(u);
+    if (!cn || String(r.Security || '').trim()) return r;
+    return { ...r, Security: cn };
+  });
+}
+
+/** When group is ETF and BigQuery has no sector/industry, use neutral labels so UI/heatmap still groups. */
+function applyEtfSectorIndustryDefaults(rows, groupMeta) {
+  const code = String(groupMeta?.code || '').toUpperCase();
+  const name = String(groupMeta?.name || '').toUpperCase();
+  if (code !== 'ETF' && name !== 'ETF') return rows;
+  return rows.map((r) => ({
+    ...r,
+    Sector: String(r.Sector || '').trim() || 'ETF',
+    Industry: String(r.Industry || '').trim() || 'Exchange Traded Fund'
+  }));
+}
+
+/**
+ * Fill Security / Sector / Industry from TickerDetails for every row (by symbol).
+ */
+function applyTickerDetailsToRows(rows, detailMap) {
+  return rows.map((r) => {
+    const sym = String(r.Symbol ?? r.symbol ?? '')
+      .toUpperCase()
+      .trim();
+    if (!sym) return r;
+    const d = detailMap.get(sym);
+    if (!d) return r;
+    const cur = normalizeTickerDetailRow(r) || {
+      Symbol: r.Symbol ?? r.symbol,
+      Security: '',
+      Sector: '',
+      Industry: '',
+      Index: ''
+    };
+    return {
+      Symbol: cur.Symbol || d.Symbol,
+      Security: d.Security || cur.Security || r.Security || r.security || '',
+      Sector: d.Sector || cur.Sector || r.Sector || r.sector || '',
+      Industry: d.Industry || cur.Industry || r.Industry || r.industry || '',
+      Index: cur.Index || d.Index || r.Index || r.index || ''
+    };
+  });
+}
+
+async function fetchTickerDetailsRowsByIndexColumn(dbIndex) {
+  const query = `
+    SELECT Symbol, Security, Sector, Industry, \`Index\`
+    FROM \`${TICKER_DETAILS_FQN}\`
+    WHERE \`Index\` = @idx
+    ORDER BY Symbol
+  `;
+  const [rows] = await bigquery.query({ query, params: { idx: dbIndex } });
+  const merged = mergeTickerDetailRowsBySymbol(rows || []);
+  return [...merged.values()].sort((a, b) =>
+    a.Symbol.localeCompare(b.Symbol, undefined, { sensitivity: 'base' })
+  );
 }
 
 async function mapIndexValueToDbIndex(indexValue) {
@@ -106,7 +412,7 @@ async function mapIndexValueToDbIndex(indexValue) {
   if (!val) return 'S&P 500';
   if (val === 'sp500' || val === 's&p 500' || val === 's&p500' || val === 'sp 500') return 'S&P 500';
   if (val === 'nasdaq 100' || val === 'nasdaq100' || val === 'ndx') return 'Nasdaq 100';
-  if (val === 'dow jones' || val === 'dow' || val === 'djia') return 'Dow Jones';
+  if (val === 'dow jones 30' || val === 'dow jones' || val === 'dow' || val === 'djia') return 'Dow Jones 30';
   if (val === 'etf') return 'ETF';
   return indexValue;
 }
@@ -160,28 +466,69 @@ function calculateTotalReturnPercentage(startPrice, endPrice) {
 }
 
 async function getTickerDetailsByIndex(indexValue, periodValue) {
-  const dbIndex = await mapIndexValueToDbIndex(indexValue);
   const [startDate, endDate] = await calculatePeriodDates(periodValue);
 
-  const query = `
-    SELECT Symbol, Security, Sector, Industry, \`Index\`
-    FROM \`${TICKER_DETAILS_FQN}\`
-    WHERE \`Index\` = @idx
-    ORDER BY Symbol
-  `;
+  let rows = [];
+  let groupMeta = null;
 
   try {
-    const [rows] = await bigquery.query({ query, params: { idx: dbIndex } });
-    if (!rows || rows.length === 0) return [];
+    const groups = await fetchMarketGroupsWithCodes();
+    const resolved = resolveMarketGroupFromIndexValue(indexValue, groups);
+    if (resolved) {
+      const members = await getMembersForMarketGroupId(resolved.id);
+      if (!members.length) {
+        return [];
+      }
+      rows = members.map((m) => ({
+        Symbol: m.symbol,
+        Security: m.company_name || '',
+        Sector: '',
+        Industry: '',
+        Index: ''
+      }));
+      groupMeta = resolved;
+    } else {
+      const dbIndex = await mapIndexValueToDbIndex(indexValue);
+      rows = await fetchTickerDetailsRowsByIndexColumn(dbIndex);
+    }
+  } catch (e) {
+    console.error('getTickerDetailsByIndex:', e);
+    try {
+      const dbIndex = await mapIndexValueToDbIndex(indexValue);
+      rows = await fetchTickerDetailsRowsByIndexColumn(dbIndex);
+    } catch (e2) {
+      console.error('getTickerDetailsByIndex fallback:', e2);
+      return [];
+    }
+  }
 
-    const tickerSymbols = rows.map(r => r.Symbol).filter(Boolean);
-    if (!tickerSymbols.length) return [];
+  if (!rows.length) return [];
 
-    const extendedStart = new Date(startDate);
-    extendedStart.setDate(startDate.getDate() - 30);
-    const priceData = await fetchAllTickerCloses(tickerSymbols, extendedStart, endDate);
+  const allSyms = [
+    ...new Set(
+      rows
+        .map((r) => String(r.Symbol ?? r.symbol ?? '').toUpperCase().trim())
+        .filter(Boolean)
+    )
+  ];
+  const detailMap = mergeTickerDetailRowsBySymbol(
+    await fetchTickerDetailsRowsBySymbols(allSyms)
+  );
+  rows = applyTickerDetailsToRows(rows, detailMap);
+  rows = await backfillSecurityFromSupabase(rows);
+  if (groupMeta) {
+    rows = applyEtfSectorIndustryDefaults(rows, groupMeta);
+  }
 
-    return rows.map((row, idx) => {
+  const tickerSymbols = rows.map((r) => r.Symbol).filter(Boolean);
+  if (!tickerSymbols.length) return [];
+
+  const extendedStart = new Date(startDate);
+  extendedStart.setDate(startDate.getDate() - 30);
+  const priceData = await fetchAllTickerCloses(tickerSymbols, extendedStart, endDate);
+
+  return rows
+    .map((row, idx) => {
       const symbol = row.Symbol ? String(row.Symbol).toUpperCase() : '';
       if (!symbol) return null;
 
@@ -194,15 +541,12 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
         security: row.Security || '',
         sector: row.Sector || '',
         industry: row.Industry || '',
-        index: row.Index || '',
+        index: groupMeta ? groupMeta.name : row.Index || '',
         totalReturnPercentage: totalReturnPct,
         price: endClose
       };
-    }).filter(Boolean);
-  } catch (e) {
-    console.error('Error fetching ticker details by index:', e);
-    return [];
-  }
+    })
+    .filter(Boolean);
 }
 
 function yearsBetween(start, end) {
