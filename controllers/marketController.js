@@ -53,7 +53,8 @@ const OHLC_MAX_LIMIT = 500;
 const OHLC_DEFAULT_LIMIT = 100;
 const OHLC_CACHE_TTL_SECS = Number(process.env.OHLC_CACHE_TTL_SECS || 120);
 const OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS = Number(process.env.OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS || 120);
-const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 3650);
+/** Max inclusive calendar span for ohlc-signals-indicator (raise via OHLC_SIGNALS_MAX_RANGE_DAYS). */
+const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 40000);
 
 function bqCellToPlain(v) {
     if (v == null) return null;
@@ -104,11 +105,14 @@ const getOhlcSignalsIndicator = async (req, res) => {
         return res.status(400).json({ success: false, error: 'start_date must be before or equal to end_date' });
     }
 
-    const rangeDays = Math.ceil((endDt - startDt) / (1000 * 60 * 60 * 24)) + 1;
-    if (rangeDays > OHLC_SIGNALS_MAX_RANGE_DAYS) {
+    // Inclusive calendar-day span (matches YYYY-MM-DD + T12:00:00 style ranges from the app).
+    // NOTE: ceil(deltaMs/day)+1 was one day too large vs the frontend cap and rejected full 10Y windows as 400.
+    const msPerDay = 86400000;
+    const inclusiveDays = Math.floor((endDt.getTime() - startDt.getTime()) / msPerDay) + 1;
+    if (inclusiveDays > OHLC_SIGNALS_MAX_RANGE_DAYS) {
         return res.status(400).json({
             success: false,
-            error: `Date range too large (max ${OHLC_SIGNALS_MAX_RANGE_DAYS} days)`
+            error: `Date range too large (max ${OHLC_SIGNALS_MAX_RANGE_DAYS} calendar days inclusive)`
         });
     }
 
@@ -297,6 +301,45 @@ const getStockData = async (req, res) => {
     } catch (error) {
         console.error('BigQuery Error:', error);
         res.status(500).json({ error: 'Failed to fetch market data' });
+    }
+};
+
+/**
+ * GET /api/market/ohlc-ticker-bounds?symbol=AAPL
+ * First / last trade dates in stock_all_data for chart "ALL" range.
+ */
+const getOhlcTickerBounds = async (req, res) => {
+    const symbol = (req.query.symbol || '').toString().trim();
+    if (!symbol) {
+        return res.status(400).json({ success: false, error: 'Query parameter symbol is required' });
+    }
+    const sym = symbol.toUpperCase();
+    try {
+        const cacheKey = makeCacheKey('market:ohlc-ticker-bounds:v1', { sym });
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+        const row = await _fetchDateRange(sym);
+        const min_date = row?.min_date ? rowDateKeyFromBQ(row.min_date) : '';
+        const max_date = row?.max_date ? rowDateKeyFromBQ(row.max_date) : '';
+        if (!min_date || !max_date) {
+            return res.status(404).json({ success: false, error: 'No OHLC data for ticker' });
+        }
+        const payload = {
+            success: true,
+            symbol: sym,
+            min_date,
+            max_date,
+            cache_hit: false
+        };
+        await setCache(cacheKey, payload, OHLC_CACHE_TTL_SECS * 10);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json(payload);
+    } catch (error) {
+        console.error('getOhlcTickerBounds error:', error);
+        res.status(500).json({ success: false, error: 'Failed to load ticker date bounds' });
     }
 };
 
@@ -595,6 +638,7 @@ const getTickerReturns = async (req, res) => {
 
 module.exports = {
     getStockData,
+    getOhlcTickerBounds,
     getMonthlyOHLC,
     getWeeklyOHLC,
     getOhlcSignalsIndicator,

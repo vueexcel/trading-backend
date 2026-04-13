@@ -184,5 +184,115 @@ const getDefaultWatchlists = async (req, res) => {
     }
 };
 
-module.exports = { createWatchlist, getMyWatchlists, addTickerToWatchlist, removeTickerFromWatchlist, getDefaultWatchlists };
+// 6. Delete an entire user watchlist (not used for defaults — those live in market_groups)
+const deleteWatchlist = async (req, res) => {
+    const { watchlist_id } = req.params;
+    const userId = req.user.id;
+    const supabase = req.supabase;
+
+    try {
+        const { data: existing, error: findErr } = await supabase
+            .from('watchlists')
+            .select('id')
+            .eq('id', watchlist_id)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (findErr) throw findErr;
+        if (!existing) {
+            return res.status(404).json({ error: 'Watchlist not found' });
+        }
+
+        const { error: delItemsErr } = await supabase
+            .from('watchlist_items')
+            .delete()
+            .eq('watchlist_id', watchlist_id);
+        if (delItemsErr) throw delItemsErr;
+
+        const { error: delWlErr } = await supabase
+            .from('watchlists')
+            .delete()
+            .eq('id', watchlist_id)
+            .eq('user_id', userId);
+        if (delWlErr) throw delWlErr;
+
+        await bumpVersion(`watchlists:user:${userId}`);
+        res.status(200).json({ message: 'Watchlist deleted' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// 7. Update watchlist name and/or replace all tickers (owned by user)
+const updateWatchlist = async (req, res) => {
+    const { watchlist_id } = req.params;
+    const userId = req.user.id;
+    const supabase = req.supabase;
+    const { name, ticker_ids } = req.body;
+
+    try {
+        const { data: existing, error: findErr } = await supabase
+            .from('watchlists')
+            .select('id')
+            .eq('id', watchlist_id)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (findErr) throw findErr;
+        if (!existing) {
+            return res.status(404).json({ error: 'Watchlist not found' });
+        }
+
+        if (name != null) {
+            const trimmed = String(name).trim();
+            if (!trimmed) {
+                return res.status(400).json({ error: 'Watchlist name cannot be empty' });
+            }
+            const { error: nameErr } = await supabase
+                .from('watchlists')
+                .update({ name: trimmed })
+                .eq('id', watchlist_id)
+                .eq('user_id', userId);
+            if (nameErr) throw nameErr;
+        }
+
+        if (ticker_ids != null) {
+            if (!Array.isArray(ticker_ids)) {
+                return res.status(400).json({ error: 'ticker_ids must be an array when provided' });
+            }
+            const { error: delErr } = await supabase
+                .from('watchlist_items')
+                .delete()
+                .eq('watchlist_id', watchlist_id);
+            if (delErr) throw delErr;
+
+            const uniqueIds = [...new Set(ticker_ids.map((id) => String(id)).filter(Boolean))];
+            if (uniqueIds.length > 0) {
+                const payload = uniqueIds.map((ticker_id) => ({
+                    watchlist_id,
+                    ticker_id
+                }));
+                const { error: insErr } = await supabase
+                    .from('watchlist_items')
+                    .insert(payload);
+                if (insErr) throw insErr;
+            }
+        }
+
+        await bumpVersion(`watchlists:user:${userId}`);
+        res.status(200).json({ message: 'Watchlist updated' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = {
+    createWatchlist,
+    getMyWatchlists,
+    addTickerToWatchlist,
+    removeTickerFromWatchlist,
+    getDefaultWatchlists,
+    deleteWatchlist,
+    updateWatchlist
+};
 

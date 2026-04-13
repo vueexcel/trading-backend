@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     getStockData,
+    getOhlcTickerBounds,
     getMonthlyOHLC,
     getWeeklyOHLC,
     getOhlcSignalsIndicator,
@@ -14,6 +15,7 @@ const requireAuth = require('../middleware/authMiddleware'); // Protect this rou
 
 // Only logged-in users can see stock data
 router.get('/ohlc', requireAuth, getStockData);
+router.get('/ohlc-ticker-bounds', requireAuth, getOhlcTickerBounds);
 
 // monthly aggregated OHLC (used by frontend screen)
 // params: ticker, start_date, end_date (optional)

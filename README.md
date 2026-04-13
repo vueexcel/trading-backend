@@ -64,6 +64,8 @@ BIGQUERY_TABLE=stock_all_data
 TICKER_DETAILS_TABLE=TickerDetails
 SUPABASE_URL=<your-supabase-url>
 SUPABASE_KEY=<your-supabase-anon-key>
+# Strongly recommended on the server: service role key so `tickers.id` is always returned for search/resolve (RLS-safe full reads).
+SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
 REDIS_URL=<your-upstash-redis-url>
 REDIS_TOKEN=<your-upstash-redis-token>
 ```
@@ -105,6 +107,7 @@ curl -X POST http://localhost:5000/api/auth/login \
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|----------------|
 | `GET` | `/ohlc` | Get stock OHLC data (raw rows, limited to 100) | ✅ |
+| `GET` | `/ohlc-ticker-bounds?symbol=AAPL` | Min/max `Date` in OHLC table for a ticker (chart “ALL” range) | ✅ |
 | `POST` | `/monthly-ohlc` | Get monthly aggregated OHLC data | ✅ |
 
 **Get OHLC Data:**
@@ -344,7 +347,8 @@ curl -X POST http://localhost:5000/api/market/ticker-returns \
 |--------|----------|-------------|----------------|
 | `GET` | `/groups` | Get all ticker groups | ✅ |
 | `GET` | `/group/:code` | Get tickers by group code (e.g., ND, DJ) | ✅ |
-| `GET` | `/search` | Search for tickers | ✅ |
+| `GET` | `/search` | Search for tickers (`q` or `query`) | ✅ |
+| `POST` | `/resolve` | Body `{ "symbols": ["AAPL","MSFT"] }` → `{ tickers: [{ id, symbol, company_name }] }` | ✅ |
 
 **Example:**
 ```bash
@@ -356,8 +360,8 @@ curl -X GET http://localhost:5000/api/tickers/groups \
 curl -X GET http://localhost:5000/api/tickers/group/ND \
   -H "Authorization: Bearer <your-token>"
 
-# Search tickers
-curl -X GET "http://localhost:5000/api/tickers/search?query=AAPL" \
+# Search tickers (use `q` or `query` — same parameter)
+curl -X GET "http://localhost:5000/api/tickers/search?q=AAPL" \
   -H "Authorization: Bearer <your-token>"
 ```
 
