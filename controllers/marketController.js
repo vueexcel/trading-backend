@@ -73,8 +73,17 @@ function indexToWeightSource(indexValue) {
     const k = normalizeKey(indexValue);
     if (k === 'dow jones' || k === 'dow' || k === 'djia') return 'dowjones';
     if (k === 'sp500' || k === 's&p 500' || k === 's&p500') return 'sp500';
+    if (k === 'nasdaq 100' || k === 'nasdaq100' || k === 'ndx') return 'nasdaq100';
     if (k === 'all stocks') return 'sp500';
     return null;
+}
+
+function fallbackWeightFromRow(row) {
+    const p = Number(row?.price ?? row?.Price);
+    if (Number.isFinite(p) && p > 0) {
+        return Math.max(Math.pow(p, 0.82), 6);
+    }
+    return 6;
 }
 
 function loadIndexWeights() {
@@ -92,25 +101,28 @@ function loadIndexWeights() {
 }
 
 function enrichRowsWithIndexWeights(indexValue, rows) {
+    if (!Array.isArray(rows) || !rows.length) return rows;
     const sourceKey = indexToWeightSource(indexValue);
-    if (!sourceKey || !Array.isArray(rows) || !rows.length) return rows;
-    const allWeights = loadIndexWeights();
-    const srcRows = allWeights?.sources?.[sourceKey];
-    if (!Array.isArray(srcRows) || !srcRows.length) return rows;
-
-    const bySymbol = new Map();
-    for (const r of srcRows) {
-        const sym = String(r.symbol || '').toUpperCase().trim();
-        const w = Number(r.weight);
-        if (!sym || !Number.isFinite(w) || w <= 0) continue;
-        bySymbol.set(sym, w);
+    let bySymbol = new Map();
+    if (sourceKey) {
+        const allWeights = loadIndexWeights();
+        const srcRows = allWeights?.sources?.[sourceKey];
+        if (Array.isArray(srcRows) && srcRows.length) {
+            for (const r of srcRows) {
+                const sym = String(r.symbol || '').toUpperCase().trim();
+                const w = Number(r.weight);
+                if (!sym || !Number.isFinite(w) || w <= 0) continue;
+                bySymbol.set(sym, w);
+            }
+        }
     }
-    if (!bySymbol.size) return rows;
 
+    // Always emit a `weight` for treemap sizing; if index weight is missing, fall back to deterministic local weight.
     return rows.map((r) => {
         const sym = String(r.symbol || r.Symbol || '').toUpperCase().trim();
         const w = bySymbol.get(sym);
-        return Number.isFinite(w) ? { ...r, weight: w } : r;
+        const wf = Number.isFinite(w) && w > 0 ? w : fallbackWeightFromRow(r);
+        return { ...r, weight: wf };
     });
 }
 

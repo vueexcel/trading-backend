@@ -6,7 +6,8 @@ const fetch = require('node-fetch');
 
 const SOURCES = [
   { key: 'dowjones', url: 'https://www.slickcharts.com/dowjones' },
-  { key: 'sp500', url: 'https://www.slickcharts.com/sp500' }
+  { key: 'sp500', url: 'https://www.slickcharts.com/sp500' },
+  { key: 'nasdaq100', url: 'https://www.slickcharts.com/nasdaq100' }
 ];
 const FALLBACK_PREFIX = 'https://r.jina.ai/http://';
 
@@ -127,9 +128,11 @@ async function main() {
     : path.resolve(process.cwd(), 'data', 'index-weights.json');
   const dowFileArg = argValue('--dow-file');
   const sp500FileArg = argValue('--sp500-file');
+  const nasdaqFileArg = argValue('--nasdaq-file');
   const fileByKey = {
     dowjones: dowFileArg ? path.resolve(process.cwd(), dowFileArg) : null,
-    sp500: sp500FileArg ? path.resolve(process.cwd(), sp500FileArg) : null
+    sp500: sp500FileArg ? path.resolve(process.cwd(), sp500FileArg) : null,
+    nasdaq100: nasdaqFileArg ? path.resolve(process.cwd(), nasdaqFileArg) : null
   };
 
   const fetchedAt = new Date().toISOString();
@@ -162,7 +165,7 @@ async function main() {
 main().catch((err) => {
   console.error('Failed to fetch Slickcharts weights:', err.message);
   console.error(
-    'Tip: if remote fetch is blocked, save each page source locally and run with --dow-file <path> --sp500-file <path>.'
+    'Tip: if remote fetch is blocked, save each page source locally and run with --dow-file <path> --sp500-file <path> --nasdaq-file <path>.'
   );
   process.exit(1);
 });
