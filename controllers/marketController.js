@@ -35,6 +35,8 @@
 const bigquery = require('../config/bigquery');
 const analyticsData = require('../analyticsData');
 const { makeCacheKey, getCache, setCache } = require('../utils/cache');
+const fs = require('fs');
+const path = require('path');
 
 // you can override these with environment variables if you need a different
 // project / dataset / table for testing or production.  leave them hard- coded
@@ -55,6 +57,62 @@ const OHLC_CACHE_TTL_SECS = Number(process.env.OHLC_CACHE_TTL_SECS || 120);
 const OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS = Number(process.env.OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS || 120);
 /** Max inclusive calendar span for ohlc-signals-indicator (raise via OHLC_SIGNALS_MAX_RANGE_DAYS). */
 const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 40000);
+const WEIGHTS_JSON_PATH = path.resolve(__dirname, '..', 'data', 'index-weights.json');
+
+let weightsCache = null;
+let weightsCacheMtime = 0;
+
+function normalizeKey(s) {
+    return String(s || '')
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function indexToWeightSource(indexValue) {
+    const k = normalizeKey(indexValue);
+    if (k === 'dow jones' || k === 'dow' || k === 'djia') return 'dowjones';
+    if (k === 'sp500' || k === 's&p 500' || k === 's&p500') return 'sp500';
+    if (k === 'all stocks') return 'sp500';
+    return null;
+}
+
+function loadIndexWeights() {
+    try {
+        const st = fs.statSync(WEIGHTS_JSON_PATH);
+        if (weightsCache && weightsCacheMtime === st.mtimeMs) return weightsCache;
+        const raw = fs.readFileSync(WEIGHTS_JSON_PATH, 'utf8');
+        const parsed = JSON.parse(raw);
+        weightsCache = parsed;
+        weightsCacheMtime = st.mtimeMs;
+        return parsed;
+    } catch {
+        return null;
+    }
+}
+
+function enrichRowsWithIndexWeights(indexValue, rows) {
+    const sourceKey = indexToWeightSource(indexValue);
+    if (!sourceKey || !Array.isArray(rows) || !rows.length) return rows;
+    const allWeights = loadIndexWeights();
+    const srcRows = allWeights?.sources?.[sourceKey];
+    if (!Array.isArray(srcRows) || !srcRows.length) return rows;
+
+    const bySymbol = new Map();
+    for (const r of srcRows) {
+        const sym = String(r.symbol || '').toUpperCase().trim();
+        const w = Number(r.weight);
+        if (!sym || !Number.isFinite(w) || w <= 0) continue;
+        bySymbol.set(sym, w);
+    }
+    if (!bySymbol.size) return rows;
+
+    return rows.map((r) => {
+        const sym = String(r.symbol || r.Symbol || '').toUpperCase().trim();
+        const w = bySymbol.get(sym);
+        return Number.isFinite(w) ? { ...r, weight: w } : r;
+    });
+}
 
 function bqCellToPlain(v) {
     if (v == null) return null;
@@ -598,7 +656,8 @@ const getTickerDetailsByIndex = async (req, res) => {
     }
     try {
         const details = await analyticsData.getTickerDetailsByIndex(indexValue, periodValue);
-        res.status(200).json({ success: true, index: indexValue, period: periodValue, data: details });
+        const weighted = enrichRowsWithIndexWeights(indexValue, details);
+        res.status(200).json({ success: true, index: indexValue, period: periodValue, data: weighted });
     } catch (error) {
         console.error('Error fetching ticker details by index:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch ticker details' });

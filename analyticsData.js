@@ -422,17 +422,21 @@ async function fetchAllTickerCloses(tickerSymbols, extendedStart, endDate) {
   // Note: this builds an IN (...) list; works with current codebase style but could be parameterized later.
   const tickersParam = tickerSymbols.map(t => `'${String(t).replace(/'/g, "\\'")}'`).join(', ');
   const query = `
-    SELECT Date, Ticker, Close as Close_raw
+    SELECT
+      DATE(Date) AS TradeDate,
+      Ticker,
+      ANY_VALUE(Close) AS Close_raw
     FROM \`${TABLE_FQN}\`
     WHERE Ticker IN (${tickersParam})
       AND Date BETWEEN '${isoDate(extendedStart)}' AND '${isoDate(endDate)}'
-    ORDER BY Ticker, Date
+    GROUP BY Ticker, TradeDate
+    ORDER BY Ticker, TradeDate
   `;
   const [rows] = await bigquery.query({ query });
   if (!rows || rows.length === 0) return [];
   const out = [];
   for (const row of rows) {
-    const dt = parseBqDate(row.Date);
+    const dt = parseBqDate(row.TradeDate ?? row.Date);
     if (!dt) continue;
     out.push({
       Ticker: row.Ticker,
@@ -460,6 +464,28 @@ function getStartEndClose(priceData, ticker, startDate, endDate) {
   return [startClose, endClose];
 }
 
+/**
+ * For "last-date" performance: use the most recent two trading closes on/before `endDate`.
+ * This avoids calendar-day gaps (weekends/holidays) collapsing returns to 0.00% for most symbols.
+ */
+function getLatestTwoCloses(priceData, ticker, endDate) {
+  const t = ticker.toUpperCase();
+  const tickerData = priceData.filter(
+    (row) => String(row.Ticker || '').toUpperCase() === t && row.Date <= endDate && row.Close != null
+  );
+  if (!tickerData.length) return [null, null];
+  // Defensive: ensure prior close comes from a prior trading date (not duplicate same-day rows).
+  const byDay = new Map();
+  for (const r of tickerData) {
+    const d = isoDate(r.Date);
+    byDay.set(d, r.Close);
+  }
+  const days = [...byDay.keys()].sort();
+  const endClose = byDay.get(days[days.length - 1]);
+  const startClose = days.length > 1 ? byDay.get(days[days.length - 2]) : null;
+  return [startClose, endClose];
+}
+
 function calculateTotalReturnPercentage(startPrice, endPrice) {
   if (startPrice == null || startPrice === 0 || endPrice == null) return null;
   return Math.round(((endPrice - startPrice) / startPrice) * 100 * 100) / 100;
@@ -467,6 +493,7 @@ function calculateTotalReturnPercentage(startPrice, endPrice) {
 
 async function getTickerDetailsByIndex(indexValue, periodValue) {
   const [startDate, endDate] = await calculatePeriodDates(periodValue);
+  const isLastDate = String(periodValue || '').toLowerCase() === 'last-date';
 
   let rows = [];
   let groupMeta = null;
@@ -532,7 +559,9 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
       const symbol = row.Symbol ? String(row.Symbol).toUpperCase() : '';
       if (!symbol) return null;
 
-      const [startClose, endClose] = getStartEndClose(priceData, symbol, startDate, endDate);
+      const [startClose, endClose] = isLastDate
+        ? getLatestTwoCloses(priceData, symbol, endDate)
+        : getStartEndClose(priceData, symbol, startDate, endDate);
       const totalReturnPct = calculateTotalReturnPercentage(startClose, endClose);
 
       return {
