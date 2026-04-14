@@ -60,38 +60,58 @@ const getMyWatchlists = async (req, res) => {
 
         if (error) throw error;
 
-        // For each watchlist, fetch OHLC/signals from BigQuery and merge into response
-        const formattedData = await Promise.all(data.map(async (wl) => {
+        const toDateString = (v) =>
+            v && typeof v === 'object' && v.value ? v.value : v != null ? String(v) : null;
+
+        const allIds = [];
+        for (const wl of data) {
+            for (const item of wl.watchlist_items || []) {
+                if (item.ticker_id != null) allIds.push(item.ticker_id);
+            }
+        }
+        const uniqueIds = [...new Set(allIds)];
+
+        /** @type {Map<string, object>} */
+        const rowByTickerId = new Map();
+
+        if (uniqueIds.length > 0) {
+            const tickerInfo = await getTickersInfoByIds(uniqueIds);
+            const byId = new Map(tickerInfo.map((t) => [t.ticker_id, t]));
+            const orderedEntities = uniqueIds.map((id) => byId.get(id)).filter(Boolean);
+            const mergedRows = await buildWatchlistRows(orderedEntities);
+            const infoByTicker = new Map(tickerInfo.map((t) => [t.ticker_id, t]));
+            for (const r of mergedRows) {
+                rowByTickerId.set(r.ticker_id, {
+                    id: r.ticker_id,
+                    symbol: r.symbol,
+                    company_name: (infoByTicker.get(r.ticker_id) || {}).company_name || null,
+                    ohlc_date: toDateString(r.ohlc_date),
+                    open: r.open,
+                    high: r.high,
+                    low: r.low,
+                    close: r.close,
+                    adj_close: r.adj_close,
+                    dma200: r.dma200,
+                    signal_main: r.signal_main,
+                    signal_ma1: r.signal_ma1,
+                    signal_ma2: r.signal_ma2,
+                    change_diff: r.change_diff,
+                    change_pct: r.change_pct,
+                    link_tv: r.link_tv,
+                    link_sc: r.link_sc,
+                    link_yf: r.link_yf
+                });
+            }
+        }
+
+        const formattedData = data.map((wl) => {
             const tickerIds = (wl.watchlist_items || []).map((i) => i.ticker_id);
             if (tickerIds.length === 0) {
                 return { id: wl.id, name: wl.name, tickers: [] };
             }
-            const tickerInfo = await getTickersInfoByIds(tickerIds);
-            const rows = await buildWatchlistRows(tickerInfo);
-            const infoByTicker = new Map(tickerInfo.map((t) => [t.ticker_id, t]));
-            const toDateString = (v) => (v && typeof v === 'object' && v.value) ? v.value : (v != null ? String(v) : null);
-            const tickers = rows.map((r) => ({
-                id: r.ticker_id,
-                symbol: r.symbol,
-                company_name: (infoByTicker.get(r.ticker_id) || {}).company_name || null,
-                ohlc_date: toDateString(r.ohlc_date),
-                open: r.open,
-                high: r.high,
-                low: r.low,
-                close: r.close,
-                adj_close: r.adj_close,
-                dma200: r.dma200,
-                signal_main: r.signal_main,
-                signal_ma1: r.signal_ma1,
-                signal_ma2: r.signal_ma2,
-                change_diff: r.change_diff,
-                change_pct: r.change_pct,
-                link_tv: r.link_tv,
-                link_sc: r.link_sc,
-                link_yf: r.link_yf
-            }));
+            const tickers = tickerIds.map((tid) => rowByTickerId.get(tid)).filter(Boolean);
             return { id: wl.id, name: wl.name, tickers };
-        }));
+        });
 
         await setCache(cacheKey, formattedData, WATCHLIST_CACHE_TTL_SECS);
         res.set('X-Cache-Hit', '0');
@@ -170,12 +190,13 @@ const getDefaultWatchlists = async (req, res) => {
             .select('id, name');
         if (grpErr) throw grpErr;
 
-        const result = [];
-        for (const g of groups) {
-            const tickers = await getTickersByGroupId(g.id);
-            const rows = await buildWatchlistRows(tickers);
-            result.push({ group: g.name, items: rows });
-        }
+        const result = await Promise.all(
+            (groups || []).map(async (g) => {
+                const tickers = await getTickersByGroupId(g.id);
+                const rows = await buildWatchlistRows(tickers);
+                return { group: g.name, items: rows };
+            })
+        );
         await setCache(cacheKey, result, WATCHLIST_CACHE_TTL_SECS);
         res.set('X-Cache-Hit', '0');
         res.status(200).json(result);

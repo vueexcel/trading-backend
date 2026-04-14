@@ -98,41 +98,44 @@ async function getTickersInfoByIds(tickerIds) {
   });
 } 
 
-// 2. fetch tickers belonging to a default group
+// 2. fetch tickers belonging to a default group (indexed query — not full-table scan)
 async function getTickersByGroupId(groupId) {
-  // fetch tickers with their groups, then filter by the specific group
-  const { data: tickRows, error: tickErr } = await supabase
-    .from('tickers')
-    .select(`
-      id,
-      symbol,
-      company_name,
-      ticker_groups(group_id)
-    `);
+  const [{ data: links, error: linkErr }, { data: grp, error: grpErr }] = await Promise.all([
+    supabase
+      .from('ticker_groups')
+      .select(`
+        tickers (
+          id,
+          symbol,
+          company_name
+        )
+      `)
+      .eq('group_id', groupId),
+    supabase.from('market_groups').select('id,name,code').eq('id', groupId).single()
+  ]);
 
-  if (tickErr) throw tickErr;
-
-  // filter to only tickers that have this group_id
-  const filteredTicks = tickRows.filter(row => {
-    return row.ticker_groups && row.ticker_groups.some(tg => tg.group_id === groupId);
-  });
-
-  // get the group metadata
-  const { data: groups, error: grpErr } = await supabase
-    .from('market_groups')
-    .select('id,name,code')
-    .eq('id', groupId)
-    .single();
+  if (linkErr) throw linkErr;
   if (grpErr) throw grpErr;
-  const grp = groups || {};
 
-  return filteredTicks.map(row => ({
-    ticker_id: row.id,
-    symbol: row.symbol,
-    company_name: row.company_name,
-    category: grp.name || 'Other',
-    category_code: grp.code || ''
-  }));
+  const seen = new Set();
+  const out = [];
+  for (const row of links || []) {
+    const t = row.tickers;
+    const list = Array.isArray(t) ? t : t ? [t] : [];
+    for (const tick of list) {
+      if (!tick || tick.id == null) continue;
+      if (seen.has(tick.id)) continue;
+      seen.add(tick.id);
+      out.push({
+        ticker_id: tick.id,
+        symbol: tick.symbol,
+        company_name: tick.company_name,
+        category: grp?.name || 'Other',
+        category_code: grp?.code || ''
+      });
+    }
+  }
+  return out;
 }
 
 // 3. Query OHLC latest for symbols
@@ -187,64 +190,63 @@ async function fetchHistoryChanges(symbols) {
   return map;
 }
 
-// 5. fetch signals for a category
+// 5. fetch signals for a category (main / ma1 / ma2 BigQuery jobs in parallel)
 async function fetchSignals(symbols, category) {
   const result = { main: new Map(), ma1: new Map(), ma2: new Map() };
   if (!symbols || symbols.length === 0) return result;
   const normalizedCat = normalizeCategory(category);
   const tbl = DASHBOARD_TABLES[normalizedCat] || DASHBOARD_TABLES.Other;
-  
-  // dashboard tables have signal_type and signal_days columns
-  for (const key of ['main', 'ma1', 'ma2']) {
-    const tablePath = tbl[key];
-    const q = `
+
+  const keys = ['main', 'ma1', 'ma2'];
+  await Promise.all(
+    keys.map(async (key) => {
+      const tablePath = tbl[key];
+      const q = `
       SELECT DISTINCT ticker, signal_type
       FROM ${tablePath}
       WHERE ticker IN (${bqArray(symbols)})
       ORDER BY ticker, signal_type
     `;
-    try {
-      const [job] = await bigquery.createQueryJob({ query: q });
-      const [rows] = await job.getQueryResults();
-      // map tickers to their signals (concatenate if multiple)
-      const sigMap = new Map();
-      rows.forEach(r => {
-        if (!sigMap.has(r.ticker)) sigMap.set(r.ticker, []);
-        if (r.signal_type) sigMap.get(r.ticker).push(r.signal_type);
-      });
-      sigMap.forEach((sigs, ticker) => {
-        result[key].set(ticker.toUpperCase(), sigs.length > 0 ? sigs.join(', ') : '-');
-      });
-      // ensure all input symbols have an entry
-      symbols.forEach(s => {
-        if (!result[key].has(s.toUpperCase())) result[key].set(s.toUpperCase(), '-');
-      });
-    } catch (e) {
-      console.warn(`signal query error for category="${category}" table=${key}:`, e.message);
-      // fallback: set all inputs to '-'
-      symbols.forEach(s => result[key].set(s.toUpperCase(), '-'));
-    }
-  }
+      try {
+        const [job] = await bigquery.createQueryJob({ query: q });
+        const [rows] = await job.getQueryResults();
+        const sigMap = new Map();
+        rows.forEach((r) => {
+          if (!sigMap.has(r.ticker)) sigMap.set(r.ticker, []);
+          if (r.signal_type) sigMap.get(r.ticker).push(r.signal_type);
+        });
+        sigMap.forEach((sigs, ticker) => {
+          result[key].set(ticker.toUpperCase(), sigs.length > 0 ? sigs.join(', ') : '-');
+        });
+        symbols.forEach((s) => {
+          if (!result[key].has(s.toUpperCase())) result[key].set(s.toUpperCase(), '-');
+        });
+      } catch (e) {
+        console.warn(`signal query error for category="${category}" table=${key}:`, e.message);
+        symbols.forEach((s) => result[key].set(s.toUpperCase(), '-'));
+      }
+    })
+  );
   return result;
 }
 
 // 6. build watchlist rows given an array of ticker metadata objects
 async function buildWatchlistRows(tickerEntities) {
-  const symbols = tickerEntities.map(t => t.symbol.toUpperCase());
-  const ohlcMap = await fetchOHLC(symbols);
-  const changeMap = await fetchHistoryChanges(symbols);
+  const symbols = tickerEntities.map((t) => t.symbol.toUpperCase());
+  const [ohlcMap, changeMap] = await Promise.all([fetchOHLC(symbols), fetchHistoryChanges(symbols)]);
 
   // group by category for signal queries
   const byCategory = {};
-  tickerEntities.forEach(t => {
+  tickerEntities.forEach((t) => {
     if (!byCategory[t.category]) byCategory[t.category] = [];
     byCategory[t.category].push(t.symbol.toUpperCase());
   });
 
-  const signalMaps = {};
-  for (const cat of Object.keys(byCategory)) {
-    signalMaps[cat] = await fetchSignals(byCategory[cat], cat);
-  }
+  const cats = Object.keys(byCategory);
+  const signalPairs = await Promise.all(
+    cats.map(async (cat) => [cat, await fetchSignals(byCategory[cat], cat)])
+  );
+  const signalMaps = Object.fromEntries(signalPairs);
 
   // hyperlink templates
   const LINK_TEMPLATES = {
