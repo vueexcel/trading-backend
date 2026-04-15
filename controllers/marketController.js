@@ -69,11 +69,23 @@ function normalizeKey(s) {
         .trim();
 }
 
+/**
+ * `index-weights.json` rows from Slickcharts sometimes store symbols as markdown links:
+ * `[AAPL](https://...)`. API ticker rows use plain `AAPL`. Normalize for lookup.
+ */
+function normalizeTickerFromWeightCell(raw) {
+    const s = String(raw || '').trim();
+    if (!s) return '';
+    const md = s.match(/^\[([A-Za-z0-9.\-]+)\]\s*\(/);
+    if (md) return md[1].toUpperCase();
+    return s.replace(/[^A-Za-z0-9.\-]/g, '').toUpperCase() || s.toUpperCase().trim();
+}
+
 function indexToWeightSource(indexValue) {
     const k = normalizeKey(indexValue);
-    if (k === 'dow jones' || k === 'dow' || k === 'djia') return 'dowjones';
-    if (k === 'sp500' || k === 's&p 500' || k === 's&p500') return 'sp500';
-    if (k === 'nasdaq 100' || k === 'nasdaq100' || k === 'ndx') return 'nasdaq100';
+    if (k === 'dow jones' || k === 'dow' || k === 'dow jones 30' || k === 'djia') return 'dowjones';
+    if (k === 'sp500' || k === 's&p 500' || k === 's&p500' || k === 'sp 500') return 'sp500';
+    if (k === 'nasdaq 100' || k === 'nasdaq100' || k === 'ndx' || k === 'nasdaq-100') return 'nasdaq100';
     if (k === 'all stocks') return 'sp500';
     return null;
 }
@@ -100,30 +112,83 @@ function loadIndexWeights() {
     }
 }
 
+function buildWeightMaps(allWeights, sourceKey) {
+    const bySource = new Map();
+    const byAnySource = new Map();
+    const sources = allWeights?.sources && typeof allWeights.sources === 'object' ? allWeights.sources : {};
+    const keys = Object.keys(sources);
+    for (const k of keys) {
+        const srcRows = sources[k];
+        if (!Array.isArray(srcRows) || !srcRows.length) continue;
+        const m = new Map();
+        for (const r of srcRows) {
+            const sym = normalizeTickerFromWeightCell(r.symbol);
+            const w = Number(r.weight);
+            if (!sym || !Number.isFinite(w) || w <= 0) continue;
+            m.set(sym, w);
+            // Keep largest weight seen for overlapping symbols across indices.
+            const prev = byAnySource.get(sym);
+            if (!Number.isFinite(prev) || w > prev) byAnySource.set(sym, w);
+        }
+        bySource.set(k, m);
+    }
+    return {
+        bySymbol: sourceKey ? bySource.get(sourceKey) || new Map() : new Map(),
+        byAnySource
+    };
+}
+
 function enrichRowsWithIndexWeights(indexValue, rows) {
     if (!Array.isArray(rows) || !rows.length) return rows;
     const sourceKey = indexToWeightSource(indexValue);
-    let bySymbol = new Map();
-    if (sourceKey) {
-        const allWeights = loadIndexWeights();
-        const srcRows = allWeights?.sources?.[sourceKey];
-        if (Array.isArray(srcRows) && srcRows.length) {
-            for (const r of srcRows) {
-                const sym = String(r.symbol || '').toUpperCase().trim();
-                const w = Number(r.weight);
-                if (!sym || !Number.isFinite(w) || w <= 0) continue;
-                bySymbol.set(sym, w);
-            }
-        }
-    }
+    const allWeights = loadIndexWeights();
+    const { bySymbol, byAnySource } = buildWeightMaps(allWeights, sourceKey);
 
     // Always emit a `weight` for treemap sizing; if index weight is missing, fall back to deterministic local weight.
-    return rows.map((r) => {
+    let matchedSource = 0;
+    let matchedAny = 0;
+    let fallback = 0;
+    const verbose = process.env.DEBUG_INDEX_WEIGHTS_VERBOSE === '1';
+    const out = rows.map((r) => {
         const sym = String(r.symbol || r.Symbol || '').toUpperCase().trim();
-        const w = bySymbol.get(sym);
-        const wf = Number.isFinite(w) && w > 0 ? w : fallbackWeightFromRow(r);
+        const wSource = bySymbol.get(sym);
+        const wAny = byAnySource.get(sym);
+        let wf = null;
+        let sourceUsed = 'fallback';
+        if (Number.isFinite(wSource) && wSource > 0) {
+            wf = wSource;
+            matchedSource += 1;
+            sourceUsed = sourceKey || 'source';
+        } else if (Number.isFinite(wAny) && wAny > 0) {
+            wf = wAny;
+            matchedAny += 1;
+            sourceUsed = 'any-source';
+        } else {
+            wf = fallbackWeightFromRow(r);
+            fallback += 1;
+        }
+        if (verbose) {
+            // eslint-disable-next-line no-console
+            console.log(
+                `[index-weights:ticker] index="${indexValue}" symbol=${sym} ` +
+                    `sourceWeight=${Number.isFinite(wSource) ? wSource : 'na'} ` +
+                    `anySourceWeight=${Number.isFinite(wAny) ? wAny : 'na'} ` +
+                    `finalWeight=${wf} sourceUsed=${sourceUsed}`
+            );
+        }
         return { ...r, weight: wf };
     });
+
+    if (process.env.DEBUG_INDEX_WEIGHTS === '1') {
+        // eslint-disable-next-line no-console
+        console.log(
+            `[index-weights] index="${indexValue}" source=${sourceKey || 'none'} ` +
+                `sourceMap=${bySymbol.size} anySourceMap=${byAnySource.size} rows=${rows.length} ` +
+                `matchedSource=${matchedSource} matchedAnySource=${matchedAny} fallback=${fallback}`
+        );
+    }
+
+    return out;
 }
 
 function bqCellToPlain(v) {

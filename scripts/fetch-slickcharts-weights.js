@@ -30,6 +30,15 @@ function parsePercent(text) {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Normalize symbol cell to plain ticker (Slickcharts may wrap as `[AAPL](url)` in HTML). */
+function normalizeSymbolCell(cell) {
+  const s = String(cell || '').trim();
+  const m = s.match(/^\[([A-Za-z0-9.\-]+)\]\s*\(/i);
+  if (m) return m[1].toUpperCase();
+  const plain = s.replace(/[^A-Za-z0-9.\-]/g, '').toUpperCase();
+  return plain || s.toUpperCase().trim();
+}
+
 function parseRowsFromTable(tableHtml) {
   const rows = [];
   const trMatches = tableHtml.match(/<tr[\s\S]*?<\/tr>/gi) || [];
@@ -42,7 +51,7 @@ function parseRowsFromTable(tableHtml) {
     if (first.includes('company') || first.includes('symbol') || first.includes('weight')) continue;
 
     // Slickcharts columns are typically: #, Company, Symbol, Weight, Price, Chg, % Chg
-    const symbol = String(cells[2] || '').toUpperCase().trim();
+    const symbol = normalizeSymbolCell(cells[2]);
     const weight = parsePercent(cells[3]);
     if (!symbol || weight == null) continue;
 
@@ -72,7 +81,7 @@ function parseRowsFromMarkdown(md) {
       .filter(Boolean);
     if (cols.length < 4) continue;
     if (cols[0] === '#' || cols[0].toLowerCase() === 'company') continue;
-    const symbol = String(cols[2] || '').toUpperCase().trim();
+    const symbol = normalizeSymbolCell(cols[2]);
     const weight = parsePercent(cols[3]);
     if (!symbol || weight == null) continue;
     rows.push({ symbol, company: cols[1] || '', weight });
