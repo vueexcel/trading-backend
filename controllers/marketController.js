@@ -144,17 +144,17 @@ function enrichRowsWithIndexWeights(indexValue, rows) {
     const allWeights = loadIndexWeights();
     const { bySymbol, byAnySource } = buildWeightMaps(allWeights, sourceKey);
 
-    // Always emit a `weight` for treemap sizing; if index weight is missing, fall back to deterministic local weight.
+    // Always emit a `weight` for treemap sizing; if index weight is missing, return 0 (no backend fallback).
     let matchedSource = 0;
     let matchedAny = 0;
-    let fallback = 0;
+    let zeroWeight = 0;
     const verbose = process.env.DEBUG_INDEX_WEIGHTS_VERBOSE === '1';
     const out = rows.map((r) => {
         const sym = String(r.symbol || r.Symbol || '').toUpperCase().trim();
         const wSource = bySymbol.get(sym);
         const wAny = byAnySource.get(sym);
         let wf = null;
-        let sourceUsed = 'fallback';
+        let sourceUsed = 'none';
         if (Number.isFinite(wSource) && wSource > 0) {
             wf = wSource;
             matchedSource += 1;
@@ -164,8 +164,9 @@ function enrichRowsWithIndexWeights(indexValue, rows) {
             matchedAny += 1;
             sourceUsed = 'any-source';
         } else {
-            wf = fallbackWeightFromRow(r);
-            fallback += 1;
+            wf = 0;
+            zeroWeight += 1;
+            sourceUsed = 'zero';
         }
         if (verbose) {
             // eslint-disable-next-line no-console
@@ -184,7 +185,7 @@ function enrichRowsWithIndexWeights(indexValue, rows) {
         console.log(
             `[index-weights] index="${indexValue}" source=${sourceKey || 'none'} ` +
                 `sourceMap=${bySymbol.size} anySourceMap=${byAnySource.size} rows=${rows.length} ` +
-                `matchedSource=${matchedSource} matchedAnySource=${matchedAny} fallback=${fallback}`
+                `matchedSource=${matchedSource} matchedAnySource=${matchedAny} zeroWeight=${zeroWeight}`
         );
     }
 
