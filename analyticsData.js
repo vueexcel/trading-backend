@@ -10,6 +10,8 @@ const TICKER_DETAILS_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${TICKER_DETAILS_T
 const TABLE_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${BIGQUERY_TABLE}`;
 
 const DAYS_IN_YEAR = 365.25;
+const MAX_DATE_CACHE_TTL_MS = Number(process.env.MAX_DATE_CACHE_TTL_MS || 60000);
+let maxDateCache = { value: null, ts: 0 };
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10);
@@ -22,10 +24,19 @@ function parseBqDate(v) {
 }
 
 async function getMaxDate() {
+  const now = Date.now();
+  if (
+    maxDateCache.value &&
+    Number.isFinite(maxDateCache.ts) &&
+    now - maxDateCache.ts < MAX_DATE_CACHE_TTL_MS
+  ) {
+    return new Date(maxDateCache.value);
+  }
   const query = `SELECT MAX(Date) AS max_date FROM \`${TABLE_FQN}\``;
   const [rows] = await bigquery.query({ query });
   const dt = rows && rows[0] ? parseBqDate(rows[0].max_date) : null;
   if (!dt) throw new Error('No dates found in price table.');
+  maxDateCache = { value: dt.toISOString(), ts: now };
   return dt;
 }
 
@@ -448,9 +459,8 @@ async function fetchAllTickerCloses(tickerSymbols, extendedStart, endDate) {
   return out;
 }
 
-function getStartEndClose(priceData, ticker, startDate, endDate) {
-  const t = ticker.toUpperCase();
-  const tickerData = priceData.filter(row => String(row.Ticker || '').toUpperCase() === t);
+function getStartEndClose(priceData, startDate, endDate) {
+  const tickerData = Array.isArray(priceData) ? priceData : [];
   if (!tickerData.length) return [null, null];
 
   const startPrices = tickerData.filter(row => row.Date >= startDate && row.Close != null);
@@ -468,10 +478,9 @@ function getStartEndClose(priceData, ticker, startDate, endDate) {
  * For "last-date" performance: use the most recent two trading closes on/before `endDate`.
  * This avoids calendar-day gaps (weekends/holidays) collapsing returns to 0.00% for most symbols.
  */
-function getLatestTwoCloses(priceData, ticker, endDate) {
-  const t = ticker.toUpperCase();
-  const tickerData = priceData.filter(
-    (row) => String(row.Ticker || '').toUpperCase() === t && row.Date <= endDate && row.Close != null
+function getLatestTwoCloses(priceData, endDate) {
+  const tickerData = (Array.isArray(priceData) ? priceData : []).filter(
+    (row) => row.Date <= endDate && row.Close != null
   );
   if (!tickerData.length) return [null, null];
   // Defensive: ensure prior close comes from a prior trading date (not duplicate same-day rows).
@@ -484,6 +493,18 @@ function getLatestTwoCloses(priceData, ticker, endDate) {
   const endClose = byDay.get(days[days.length - 1]);
   const startClose = days.length > 1 ? byDay.get(days[days.length - 2]) : null;
   return [startClose, endClose];
+}
+
+function buildPriceDataByTicker(priceData) {
+  const map = new Map();
+  for (const row of priceData || []) {
+    const t = String(row.Ticker || '').toUpperCase().trim();
+    if (!t) continue;
+    const cur = map.get(t);
+    if (cur) cur.push(row);
+    else map.set(t, [row]);
+  }
+  return map;
 }
 
 function calculateTotalReturnPercentage(startPrice, endPrice) {
@@ -553,15 +574,17 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
   const extendedStart = new Date(startDate);
   extendedStart.setDate(startDate.getDate() - 30);
   const priceData = await fetchAllTickerCloses(tickerSymbols, extendedStart, endDate);
+  const priceDataByTicker = buildPriceDataByTicker(priceData);
 
   return rows
     .map((row, idx) => {
       const symbol = row.Symbol ? String(row.Symbol).toUpperCase() : '';
       if (!symbol) return null;
+      const symbolPrices = priceDataByTicker.get(symbol) || [];
 
       const [startClose, endClose] = isLastDate
-        ? getLatestTwoCloses(priceData, symbol, endDate)
-        : getStartEndClose(priceData, symbol, startDate, endDate);
+        ? getLatestTwoCloses(symbolPrices, endDate)
+        : getStartEndClose(symbolPrices, startDate, endDate);
       const totalReturnPct = calculateTotalReturnPercentage(startClose, endClose);
 
       return {

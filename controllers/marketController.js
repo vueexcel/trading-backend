@@ -55,6 +55,7 @@ const OHLC_MAX_LIMIT = 500;
 const OHLC_DEFAULT_LIMIT = 100;
 const OHLC_CACHE_TTL_SECS = Number(process.env.OHLC_CACHE_TTL_SECS || 120);
 const OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS = Number(process.env.OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS || 120);
+const TICKER_DETAILS_CACHE_TTL_SECS = Number(process.env.TICKER_DETAILS_CACHE_TTL_SECS || 300);
 /** Max inclusive calendar span for ohlc-signals-indicator (raise via OHLC_SIGNALS_MAX_RANGE_DAYS). */
 const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 40000);
 const WEIGHTS_JSON_PATH = path.resolve(__dirname, '..', 'data', 'index-weights.json');
@@ -733,9 +734,28 @@ const getTickerDetailsByIndex = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Missing required field: period' });
     }
     try {
+        const cacheKey = makeCacheKey('market:ticker-details:v1', {
+            index: indexValue.toLowerCase(),
+            period: periodValue.toLowerCase()
+        });
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+
         const details = await analyticsData.getTickerDetailsByIndex(indexValue, periodValue);
         const weighted = enrichRowsWithIndexWeights(indexValue, details);
-        res.status(200).json({ success: true, index: indexValue, period: periodValue, data: weighted });
+        const payload = {
+            success: true,
+            index: indexValue,
+            period: periodValue,
+            data: weighted,
+            cache_hit: false
+        };
+        await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json(payload);
     } catch (error) {
         console.error('Error fetching ticker details by index:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch ticker details' });
