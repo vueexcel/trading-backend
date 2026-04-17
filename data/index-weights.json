@@ -1,3179 +1,3179 @@
 {
-  "fetchedAt": "2026-04-14T07:59:01.197Z",
+  "fetchedAt": "2026-04-17T07:29:46.039Z",
   "sources": {
     "dowjones": [
       {
-        "symbol": "[GS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GS)",
-        "company": "[The Goldman Sachs Group, Inc.](http://www.slickcharts.com/symbol/GS)",
-        "weight": 11.37
+        "symbol": "GS",
+        "company": "[The Goldman Sachs Group, Inc.](http://slickcharts.com/symbol/GS)",
+        "weight": 11.41
       },
       {
-        "symbol": "[CAT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CAT)",
-        "company": "[Caterpillar Inc.](http://www.slickcharts.com/symbol/CAT)",
-        "weight": 10.11
+        "symbol": "CAT",
+        "company": "[Caterpillar Inc.](http://slickcharts.com/symbol/CAT)",
+        "weight": 9.79
       },
       {
-        "symbol": "[MSFT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSFT)",
-        "company": "[Microsoft Corporation](http://www.slickcharts.com/symbol/MSFT)",
-        "weight": 4.91
+        "symbol": "MSFT",
+        "company": "[Microsoft Corporation](http://slickcharts.com/symbol/MSFT)",
+        "weight": 5.33
       },
       {
-        "symbol": "[AMGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMGN)",
-        "company": "[Amgen Inc.](http://www.slickcharts.com/symbol/AMGN)",
-        "weight": 4.47
+        "symbol": "AMGN",
+        "company": "[Amgen Inc.](http://slickcharts.com/symbol/AMGN)",
+        "weight": 4.43
       },
       {
-        "symbol": "[HD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HD)",
-        "company": "[The Home Depot, Inc.](http://www.slickcharts.com/symbol/HD)",
-        "weight": 4.36
-      },
-      {
-        "symbol": "[SHW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SHW)",
-        "company": "[Sherwin-Williams](http://www.slickcharts.com/symbol/SHW)",
+        "symbol": "HD",
+        "company": "[The Home Depot, Inc.](http://slickcharts.com/symbol/HD)",
         "weight": 4.27
       },
       {
-        "symbol": "[AXP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AXP)",
-        "company": "[American Express Company](http://www.slickcharts.com/symbol/AXP)",
+        "symbol": "SHW",
+        "company": "[Sherwin-Williams](http://slickcharts.com/symbol/SHW)",
+        "weight": 4.22
+      },
+      {
+        "symbol": "AXP",
+        "company": "[American Express Company](http://slickcharts.com/symbol/AXP)",
         "weight": 4.13
       },
       {
-        "symbol": "[JPM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JPM)",
-        "company": "[JPMorgan Chase & Co.](http://www.slickcharts.com/symbol/JPM)",
+        "symbol": "UNH",
+        "company": "[UnitedHealth Group Incorporated](http://slickcharts.com/symbol/UNH)",
         "weight": 4.01
       },
       {
-        "symbol": "[UNH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UNH)",
-        "company": "[UnitedHealth Group Incorporated](http://www.slickcharts.com/symbol/UNH)",
-        "weight": 4
+        "symbol": "V",
+        "company": "[Visa Inc.](http://slickcharts.com/symbol/V)",
+        "weight": 3.99
       },
       {
-        "symbol": "[V](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/V)",
-        "company": "[Visa Inc.](http://www.slickcharts.com/symbol/V)",
-        "weight": 3.95
+        "symbol": "JPM",
+        "company": "[JPMorgan Chase & Co.](http://slickcharts.com/symbol/JPM)",
+        "weight": 3.93
       },
       {
-        "symbol": "[MCD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCD)",
-        "company": "[McDonald's Corporation](http://www.slickcharts.com/symbol/MCD)",
+        "symbol": "MCD",
+        "company": "[McDonald's Corporation](http://slickcharts.com/symbol/MCD)",
         "weight": 3.89
       },
       {
-        "symbol": "[TRV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TRV)",
-        "company": "[The Travelers Companies, Inc.](http://www.slickcharts.com/symbol/TRV)",
-        "weight": 3.85
+        "symbol": "TRV",
+        "company": "[The Travelers Companies, Inc.](http://slickcharts.com/symbol/TRV)",
+        "weight": 3.79
       },
       {
-        "symbol": "[AAPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AAPL)",
-        "company": "[Apple Inc.](http://www.slickcharts.com/symbol/AAPL)",
-        "weight": 3.31
+        "symbol": "AAPL",
+        "company": "[Apple Inc.](http://slickcharts.com/symbol/AAPL)",
+        "weight": 3.34
       },
       {
-        "symbol": "[AMZN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMZN)",
-        "company": "[Amazon.com, Inc.amazon.com](http://www.slickcharts.com/symbol/AMZN)",
-        "weight": 3.06
+        "symbol": "IBM",
+        "company": "[International Business Machines Corporation](http://slickcharts.com/symbol/IBM)",
+        "weight": 3.18
       },
       {
-        "symbol": "[JNJ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JNJ)",
-        "company": "[Johnson & Johnson](http://www.slickcharts.com/symbol/JNJ)",
-        "weight": 3.04
+        "symbol": "AMZN",
+        "company": "[Amazon.com, Inc.amazon.com](http://slickcharts.com/symbol/AMZN)",
+        "weight": 3.16
       },
       {
-        "symbol": "[IBM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IBM)",
-        "company": "[International Business Machines Corporation](http://www.slickcharts.com/symbol/IBM)",
-        "weight": 3.04
+        "symbol": "JNJ",
+        "company": "[Johnson & Johnson](http://slickcharts.com/symbol/JNJ)",
+        "weight": 2.97
       },
       {
-        "symbol": "[HON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HON)",
-        "company": "[Honeywell International Inc.](http://www.slickcharts.com/symbol/HON)",
-        "weight": 2.98
+        "symbol": "HON",
+        "company": "[Honeywell International Inc.](http://slickcharts.com/symbol/HON)",
+        "weight": 2.91
       },
       {
-        "symbol": "[BA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BA)",
-        "company": "[The Boeing Company](http://www.slickcharts.com/symbol/BA)",
-        "weight": 2.84
+        "symbol": "BA",
+        "company": "[The Boeing Company](http://slickcharts.com/symbol/BA)",
+        "weight": 2.77
       },
       {
-        "symbol": "[CVX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CVX)",
-        "company": "[Chevron Corporation](http://www.slickcharts.com/symbol/CVX)",
-        "weight": 2.45
+        "symbol": "NVDA",
+        "company": "[Nvidia](http://slickcharts.com/symbol/NVDA)",
+        "weight": 2.51
       },
       {
-        "symbol": "[NVDA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NVDA)",
-        "company": "[Nvidia](http://www.slickcharts.com/symbol/NVDA)",
-        "weight": 2.42
+        "symbol": "CVX",
+        "company": "[Chevron Corporation](http://slickcharts.com/symbol/CVX)",
+        "weight": 2.38
       },
       {
-        "symbol": "[CRM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRM)",
-        "company": "[Salesforce, Inc.](http://www.slickcharts.com/symbol/CRM)",
-        "weight": 2.21
+        "symbol": "CRM",
+        "company": "[Salesforce, Inc.](http://slickcharts.com/symbol/CRM)",
+        "weight": 2.3
       },
       {
-        "symbol": "[MMM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MMM)",
-        "company": "[3M Company](http://www.slickcharts.com/symbol/MMM)",
-        "weight": 1.95
+        "symbol": "MMM",
+        "company": "[3M Company](http://slickcharts.com/symbol/MMM)",
+        "weight": 1.91
       },
       {
-        "symbol": "[PG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PG)",
-        "company": "[The Procter & Gamble Company](http://www.slickcharts.com/symbol/PG)",
-        "weight": 1.83
+        "symbol": "PG",
+        "company": "[The Procter & Gamble Company](http://slickcharts.com/symbol/PG)",
+        "weight": 1.81
       },
       {
-        "symbol": "[WMT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WMT)",
-        "company": "[Walmart Inc.](http://www.slickcharts.com/symbol/WMT)",
-        "weight": 1.59
+        "symbol": "WMT",
+        "company": "[Walmart Inc.](http://slickcharts.com/symbol/WMT)",
+        "weight": 1.58
       },
       {
-        "symbol": "[MRK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MRK)",
-        "company": "[Merck & Co., Inc.](http://www.slickcharts.com/symbol/MRK)",
-        "weight": 1.53
+        "symbol": "MRK",
+        "company": "[Merck & Co., Inc.](http://slickcharts.com/symbol/MRK)",
+        "weight": 1.46
       },
       {
-        "symbol": "[DIS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DIS)",
-        "company": "[The Walt Disney Company](http://www.slickcharts.com/symbol/DIS)",
-        "weight": 1.29
+        "symbol": "DIS",
+        "company": "[The Walt Disney Company](http://slickcharts.com/symbol/DIS)",
+        "weight": 1.32
       },
       {
-        "symbol": "[CSCO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSCO)",
-        "company": "[Cisco Systems, Inc.](http://www.slickcharts.com/symbol/CSCO)",
-        "weight": 1.05
+        "symbol": "CSCO",
+        "company": "[Cisco Systems, Inc.](http://slickcharts.com/symbol/CSCO)",
+        "weight": 1.07
       },
       {
-        "symbol": "[KO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KO)",
-        "company": "[The Coca-Cola Company](http://www.slickcharts.com/symbol/KO)",
-        "weight": 0.98
+        "symbol": "KO",
+        "company": "[The Coca-Cola Company](http://slickcharts.com/symbol/KO)",
+        "weight": 0.95
       },
       {
-        "symbol": "[VZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VZ)",
-        "company": "[Verizon Communications Inc.](http://www.slickcharts.com/symbol/VZ)",
+        "symbol": "VZ",
+        "company": "[Verizon Communications Inc.](http://slickcharts.com/symbol/VZ)",
+        "weight": 0.59
+      },
+      {
+        "symbol": "NKE",
+        "company": "[Nike, Inc.](http://slickcharts.com/symbol/NKE)",
         "weight": 0.58
-      },
-      {
-        "symbol": "[NKE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NKE)",
-        "company": "[Nike, Inc.](http://www.slickcharts.com/symbol/NKE)",
-        "weight": 0.55
       }
     ],
     "sp500": [
       {
-        "symbol": "[NVDA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NVDA)",
-        "company": "[Nvidia](http://www.slickcharts.com/symbol/NVDA)",
-        "weight": 7.36
+        "symbol": "NVDA",
+        "company": "[Nvidia](https://www.slickcharts.com/symbol/NVDA)",
+        "weight": 7.54
       },
       {
-        "symbol": "[AAPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AAPL)",
-        "company": "[Apple Inc.](http://www.slickcharts.com/symbol/AAPL)",
-        "weight": 6.09
+        "symbol": "AAPL",
+        "company": "[Apple Inc.](https://www.slickcharts.com/symbol/AAPL)",
+        "weight": 6.05
       },
       {
-        "symbol": "[MSFT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSFT)",
-        "company": "[Microsoft](http://www.slickcharts.com/symbol/MSFT)",
-        "weight": 4.57
+        "symbol": "MSFT",
+        "company": "[Microsoft](https://www.slickcharts.com/symbol/MSFT)",
+        "weight": 4.88
       },
       {
-        "symbol": "[AMZN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMZN)",
-        "company": "[Amazon](http://www.slickcharts.com/symbol/AMZN)",
-        "weight": 4.13
+        "symbol": "AMZN",
+        "company": "[Amazon](https://www.slickcharts.com/symbol/AMZN)",
+        "weight": 4.2
       },
       {
-        "symbol": "[GOOGL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GOOGL)",
-        "company": "[Alphabet Inc. (Class A)](http://www.slickcharts.com/symbol/GOOGL)",
-        "weight": 3.22
+        "symbol": "GOOGL",
+        "company": "[Alphabet Inc. (Class A)](https://www.slickcharts.com/symbol/GOOGL)",
+        "weight": 3.29
       },
       {
-        "symbol": "[GOOG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GOOG)",
-        "company": "[Alphabet Inc. (Class C)](http://www.slickcharts.com/symbol/GOOG)",
-        "weight": 2.98
+        "symbol": "GOOG",
+        "company": "[Alphabet Inc. (Class C)](https://www.slickcharts.com/symbol/GOOG)",
+        "weight": 3.04
       },
       {
-        "symbol": "[AVGO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AVGO)",
-        "company": "[Broadcom](http://www.slickcharts.com/symbol/AVGO)",
-        "weight": 2.88
+        "symbol": "AVGO",
+        "company": "[Broadcom](https://www.slickcharts.com/symbol/AVGO)",
+        "weight": 2.95
       },
       {
-        "symbol": "[META](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/META)",
-        "company": "[Meta Platforms](http://www.slickcharts.com/symbol/META)",
-        "weight": 2.57
+        "symbol": "META",
+        "company": "[Meta Platforms](https://www.slickcharts.com/symbol/META)",
+        "weight": 2.68
       },
       {
-        "symbol": "[TSLA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TSLA)",
-        "company": "[Tesla, Inc.](http://www.slickcharts.com/symbol/TSLA)",
-        "weight": 2.12
+        "symbol": "TSLA",
+        "company": "[Tesla, Inc.](https://www.slickcharts.com/symbol/TSLA)",
+        "weight": 2.28
       },
       {
-        "symbol": "[BRK.B](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BRK.B)",
-        "company": "[Berkshire Hathaway](http://www.slickcharts.com/symbol/BRK.B)",
-        "weight": 1.66
+        "symbol": "BRK.B",
+        "company": "[Berkshire Hathaway](https://www.slickcharts.com/symbol/BRK.B)",
+        "weight": 1.6
       },
       {
-        "symbol": "[WMT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WMT)",
-        "company": "[Walmart](http://www.slickcharts.com/symbol/WMT)",
-        "weight": 1.59
+        "symbol": "WMT",
+        "company": "[Walmart](https://www.slickcharts.com/symbol/WMT)",
+        "weight": 1.56
       },
       {
-        "symbol": "[JPM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JPM)",
-        "company": "[JPMorgan Chase](http://www.slickcharts.com/symbol/JPM)",
-        "weight": 1.35
+        "symbol": "JPM",
+        "company": "[JPMorgan Chase](https://www.slickcharts.com/symbol/JPM)",
+        "weight": 1.3
       },
       {
-        "symbol": "[LLY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LLY)",
-        "company": "[Lilly (Eli)](http://www.slickcharts.com/symbol/LLY)",
-        "weight": 1.33
+        "symbol": "LLY",
+        "company": "[Lilly (Eli)](https://www.slickcharts.com/symbol/LLY)",
+        "weight": 1.26
       },
       {
-        "symbol": "[XOM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/XOM)",
-        "company": "[ExxonMobil](http://www.slickcharts.com/symbol/XOM)",
-        "weight": 1.02
+        "symbol": "XOM",
+        "company": "[ExxonMobil](https://www.slickcharts.com/symbol/XOM)",
+        "weight": 0.99
       },
       {
-        "symbol": "[V](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/V)",
-        "company": "[Visa Inc.](http://www.slickcharts.com/symbol/V)",
+        "symbol": "V",
+        "company": "[Visa Inc.](https://www.slickcharts.com/symbol/V)",
         "weight": 0.95
       },
       {
-        "symbol": "[JNJ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JNJ)",
-        "company": "[Johnson & Johnson](http://www.slickcharts.com/symbol/JNJ)",
-        "weight": 0.92
+        "symbol": "JNJ",
+        "company": "[Johnson & Johnson](https://www.slickcharts.com/symbol/JNJ)",
+        "weight": 0.88
       },
       {
-        "symbol": "[MU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MU)",
-        "company": "[Micron Technology](http://www.slickcharts.com/symbol/MU)",
-        "weight": 0.77
+        "symbol": "MU",
+        "company": "[Micron Technology](https://www.slickcharts.com/symbol/MU)",
+        "weight": 0.81
       },
       {
-        "symbol": "[MA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MA)",
-        "company": "[Mastercard](http://www.slickcharts.com/symbol/MA)",
-        "weight": 0.73
+        "symbol": "ORCL",
+        "company": "[Oracle Corporation](https://www.slickcharts.com/symbol/ORCL)",
+        "weight": 0.8
       },
       {
-        "symbol": "[ORCL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ORCL)",
-        "company": "[Oracle Corporation](http://www.slickcharts.com/symbol/ORCL)",
+        "symbol": "MA",
+        "company": "[Mastercard](https://www.slickcharts.com/symbol/MA)",
         "weight": 0.72
       },
       {
-        "symbol": "[NFLX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NFLX)",
-        "company": "[Netflix](http://www.slickcharts.com/symbol/NFLX)",
-        "weight": 0.7
+        "symbol": "NFLX",
+        "company": "[Netflix](https://www.slickcharts.com/symbol/NFLX)",
+        "weight": 0.71
       },
       {
-        "symbol": "[COST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COST)",
-        "company": "[Costco](http://www.slickcharts.com/symbol/COST)",
-        "weight": 0.7
+        "symbol": "AMD",
+        "company": "[Advanced Micro Devices](https://www.slickcharts.com/symbol/AMD)",
+        "weight": 0.71
       },
       {
-        "symbol": "[AMD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMD)",
-        "company": "[Advanced Micro Devices](http://www.slickcharts.com/symbol/AMD)",
-        "weight": 0.64
+        "symbol": "COST",
+        "company": "[Costco](https://www.slickcharts.com/symbol/COST)",
+        "weight": 0.68
       },
       {
-        "symbol": "[CVX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CVX)",
-        "company": "[Chevron Corporation](http://www.slickcharts.com/symbol/CVX)",
-        "weight": 0.61
+        "symbol": "BAC",
+        "company": "[Bank of America](https://www.slickcharts.com/symbol/BAC)",
+        "weight": 0.6
       },
       {
-        "symbol": "[BAC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BAC)",
-        "company": "[Bank of America](http://www.slickcharts.com/symbol/BAC)",
-        "weight": 0.61
-      },
-      {
-        "symbol": "[CAT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CAT)",
-        "company": "[Caterpillar Inc.](http://www.slickcharts.com/symbol/CAT)",
+        "symbol": "CVX",
+        "company": "[Chevron Corporation](https://www.slickcharts.com/symbol/CVX)",
         "weight": 0.59
       },
       {
-        "symbol": "[ABBV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ABBV)",
-        "company": "[AbbVie](http://www.slickcharts.com/symbol/ABBV)",
+        "symbol": "ABBV",
+        "company": "[AbbVie](https://www.slickcharts.com/symbol/ABBV)",
         "weight": 0.58
       },
       {
-        "symbol": "[HD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HD)",
-        "company": "[Home Depot (The)](http://www.slickcharts.com/symbol/HD)",
+        "symbol": "CAT",
+        "company": "[Caterpillar Inc.](https://www.slickcharts.com/symbol/CAT)",
+        "weight": 0.56
+      },
+      {
+        "symbol": "INTC",
+        "company": "[Intel](https://www.slickcharts.com/symbol/INTC)",
         "weight": 0.54
       },
       {
-        "symbol": "[LRCX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LRCX)",
-        "company": "[Lam Research](http://www.slickcharts.com/symbol/LRCX)",
+        "symbol": "PLTR",
+        "company": "[Palantir Technologies](https://www.slickcharts.com/symbol/PLTR)",
         "weight": 0.53
       },
       {
-        "symbol": "[PG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PG)",
-        "company": "[Procter & Gamble](http://www.slickcharts.com/symbol/PG)",
+        "symbol": "HD",
+        "company": "[Home Depot (The)](https://www.slickcharts.com/symbol/HD)",
         "weight": 0.53
       },
       {
-        "symbol": "[KO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KO)",
-        "company": "[Coca-Cola Company (The)](http://www.slickcharts.com/symbol/KO)",
-        "weight": 0.53
-      },
-      {
-        "symbol": "[INTC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INTC)",
-        "company": "[Intel](http://www.slickcharts.com/symbol/INTC)",
+        "symbol": "CSCO",
+        "company": "[Cisco](https://www.slickcharts.com/symbol/CSCO)",
         "weight": 0.52
       },
       {
-        "symbol": "[GE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GE)",
-        "company": "[GE Aerospace](http://www.slickcharts.com/symbol/GE)",
+        "symbol": "PG",
+        "company": "[Procter & Gamble](https://www.slickcharts.com/symbol/PG)",
         "weight": 0.52
       },
       {
-        "symbol": "[CSCO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSCO)",
-        "company": "[Cisco](http://www.slickcharts.com/symbol/CSCO)",
-        "weight": 0.52
-      },
-      {
-        "symbol": "[PLTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PLTR)",
-        "company": "[Palantir Technologies](http://www.slickcharts.com/symbol/PLTR)",
+        "symbol": "LRCX",
+        "company": "[Lam Research](https://www.slickcharts.com/symbol/LRCX)",
         "weight": 0.51
       },
       {
-        "symbol": "[AMAT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMAT)",
-        "company": "[Applied Materials](http://www.slickcharts.com/symbol/AMAT)",
-        "weight": 0.5
+        "symbol": "KO",
+        "company": "[Coca-Cola Company (The)](https://www.slickcharts.com/symbol/KO)",
+        "weight": 0.51
       },
       {
-        "symbol": "[MRK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MRK)",
-        "company": "[Merck & Co.](http://www.slickcharts.com/symbol/MRK)",
-        "weight": 0.47
+        "symbol": "GE",
+        "company": "[GE Aerospace](https://www.slickcharts.com/symbol/GE)",
+        "weight": 0.49
       },
       {
-        "symbol": "[MS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MS)",
-        "company": "[Morgan Stanley](http://www.slickcharts.com/symbol/MS)",
+        "symbol": "AMAT",
+        "company": "[Applied Materials](https://www.slickcharts.com/symbol/AMAT)",
+        "weight": 0.48
+      },
+      {
+        "symbol": "MS",
+        "company": "[Morgan Stanley](https://www.slickcharts.com/symbol/MS)",
         "weight": 0.46
       },
       {
-        "symbol": "[UNH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UNH)",
-        "company": "[UnitedHealth Group](http://www.slickcharts.com/symbol/UNH)",
+        "symbol": "UNH",
+        "company": "[UnitedHealth Group](https://www.slickcharts.com/symbol/UNH)",
         "weight": 0.45
       },
       {
-        "symbol": "[RTX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RTX)",
-        "company": "[RTX Corporation](http://www.slickcharts.com/symbol/RTX)",
-        "weight": 0.43
+        "symbol": "MRK",
+        "company": "[Merck & Co.](https://www.slickcharts.com/symbol/MRK)",
+        "weight": 0.45
       },
       {
-        "symbol": "[GEV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GEV)",
-        "company": "[GE Vernova](http://www.slickcharts.com/symbol/GEV)",
-        "weight": 0.43
-      },
-      {
-        "symbol": "[WFC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WFC)",
-        "company": "[Wells Fargo](http://www.slickcharts.com/symbol/WFC)",
-        "weight": 0.43
-      },
-      {
-        "symbol": "[GS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GS)",
-        "company": "[Goldman Sachs](http://www.slickcharts.com/symbol/GS)",
+        "symbol": "GS",
+        "company": "[Goldman Sachs](https://www.slickcharts.com/symbol/GS)",
         "weight": 0.42
       },
       {
-        "symbol": "[PM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PM)",
-        "company": "[Philip Morris International](http://www.slickcharts.com/symbol/PM)",
+        "symbol": "RTX",
+        "company": "[RTX Corporation](https://www.slickcharts.com/symbol/RTX)",
         "weight": 0.41
       },
       {
-        "symbol": "[LIN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LIN)",
-        "company": "[Linde plc](http://www.slickcharts.com/symbol/LIN)",
+        "symbol": "GEV",
+        "company": "[GE Vernova](https://www.slickcharts.com/symbol/GEV)",
+        "weight": 0.41
+      },
+      {
+        "symbol": "WFC",
+        "company": "[Wells Fargo](https://www.slickcharts.com/symbol/WFC)",
+        "weight": 0.39
+      },
+      {
+        "symbol": "PM",
+        "company": "[Philip Morris International](https://www.slickcharts.com/symbol/PM)",
         "weight": 0.38
       },
       {
-        "symbol": "[KLAC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KLAC)",
-        "company": "[KLA Corporation](http://www.slickcharts.com/symbol/KLAC)",
+        "symbol": "IBM",
+        "company": "[IBM](https://www.slickcharts.com/symbol/IBM)",
         "weight": 0.37
       },
       {
-        "symbol": "[IBM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IBM)",
-        "company": "[IBM](http://www.slickcharts.com/symbol/IBM)",
+        "symbol": "LIN",
+        "company": "[Linde plc](https://www.slickcharts.com/symbol/LIN)",
         "weight": 0.36
       },
       {
-        "symbol": "[AXP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AXP)",
-        "company": "[American Express](http://www.slickcharts.com/symbol/AXP)",
+        "symbol": "KLAC",
+        "company": "[KLA Corporation](https://www.slickcharts.com/symbol/KLAC)",
         "weight": 0.36
       },
       {
-        "symbol": "[C](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/C)",
-        "company": "[Citigroup](http://www.slickcharts.com/symbol/C)",
+        "symbol": "AXP",
+        "company": "[American Express](https://www.slickcharts.com/symbol/AXP)",
         "weight": 0.35
       },
       {
-        "symbol": "[MCD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCD)",
-        "company": "[McDonald's](http://www.slickcharts.com/symbol/MCD)",
+        "symbol": "C",
+        "company": "[Citigroup](https://www.slickcharts.com/symbol/C)",
         "weight": 0.35
       },
       {
-        "symbol": "[PEP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PEP)",
-        "company": "[PepsiCo](http://www.slickcharts.com/symbol/PEP)",
+        "symbol": "MCD",
+        "company": "[McDonald's](https://www.slickcharts.com/symbol/MCD)",
         "weight": 0.34
       },
       {
-        "symbol": "[TMUS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TMUS)",
-        "company": "[T-Mobile US](http://www.slickcharts.com/symbol/TMUS)",
+        "symbol": "TMUS",
+        "company": "[T-Mobile US](https://www.slickcharts.com/symbol/TMUS)",
         "weight": 0.34
       },
       {
-        "symbol": "[TXN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TXN)",
-        "company": "[Texas Instruments](http://www.slickcharts.com/symbol/TXN)",
+        "symbol": "PEP",
+        "company": "[PepsiCo](https://www.slickcharts.com/symbol/PEP)",
+        "weight": 0.34
+      },
+      {
+        "symbol": "TXN",
+        "company": "[Texas Instruments](https://www.slickcharts.com/symbol/TXN)",
         "weight": 0.32
       },
       {
-        "symbol": "[NEE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NEE)",
-        "company": "[NextEra Energy](http://www.slickcharts.com/symbol/NEE)",
+        "symbol": "ANET",
+        "company": "[Arista Networks](https://www.slickcharts.com/symbol/ANET)",
+        "weight": 0.32
+      },
+      {
+        "symbol": "VZ",
+        "company": "[Verizon](https://www.slickcharts.com/symbol/VZ)",
         "weight": 0.31
       },
       {
-        "symbol": "[TMO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TMO)",
-        "company": "[Thermo Fisher Scientific](http://www.slickcharts.com/symbol/TMO)",
-        "weight": 0.31
-      },
-      {
-        "symbol": "[ANET](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ANET)",
-        "company": "[Arista Networks](http://www.slickcharts.com/symbol/ANET)",
-        "weight": 0.31
-      },
-      {
-        "symbol": "[VZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VZ)",
-        "company": "[Verizon](http://www.slickcharts.com/symbol/VZ)",
+        "symbol": "TMO",
+        "company": "[Thermo Fisher Scientific](https://www.slickcharts.com/symbol/TMO)",
         "weight": 0.3
       },
       {
-        "symbol": "[AMGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMGN)",
-        "company": "[Amgen](http://www.slickcharts.com/symbol/AMGN)",
+        "symbol": "NEE",
+        "company": "[NextEra Energy](https://www.slickcharts.com/symbol/NEE)",
         "weight": 0.3
       },
       {
-        "symbol": "[DIS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DIS)",
-        "company": "[Walt Disney Company (The)](http://www.slickcharts.com/symbol/DIS)",
+        "symbol": "AMGN",
+        "company": "[Amgen](https://www.slickcharts.com/symbol/AMGN)",
         "weight": 0.29
       },
       {
-        "symbol": "[T](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/T)",
-        "company": "[AT&T](http://www.slickcharts.com/symbol/T)",
+        "symbol": "T",
+        "company": "[AT&T](https://www.slickcharts.com/symbol/T)",
         "weight": 0.29
       },
       {
-        "symbol": "[APH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APH)",
-        "company": "[Amphenol](http://www.slickcharts.com/symbol/APH)",
+        "symbol": "DIS",
+        "company": "[Walt Disney Company (The)](https://www.slickcharts.com/symbol/DIS)",
         "weight": 0.29
       },
       {
-        "symbol": "[TJX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TJX)",
-        "company": "[TJX Companies](http://www.slickcharts.com/symbol/TJX)",
-        "weight": 0.28
+        "symbol": "APH",
+        "company": "[Amphenol](https://www.slickcharts.com/symbol/APH)",
+        "weight": 0.29
       },
       {
-        "symbol": "[ABT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ABT)",
-        "company": "[Abbott Laboratories](http://www.slickcharts.com/symbol/ABT)",
-        "weight": 0.28
-      },
-      {
-        "symbol": "[BA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BA)",
-        "company": "[Boeing](http://www.slickcharts.com/symbol/BA)",
-        "weight": 0.28
-      },
-      {
-        "symbol": "[GILD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GILD)",
-        "company": "[Gilead Sciences](http://www.slickcharts.com/symbol/GILD)",
-        "weight": 0.28
-      },
-      {
-        "symbol": "[ADI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADI)",
-        "company": "[Analog Devices](http://www.slickcharts.com/symbol/ADI)",
+        "symbol": "TJX",
+        "company": "[TJX Companies](https://www.slickcharts.com/symbol/TJX)",
         "weight": 0.27
       },
       {
-        "symbol": "[SCHW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SCHW)",
-        "company": "[Charles Schwab Corporation](http://www.slickcharts.com/symbol/SCHW)",
+        "symbol": "ADI",
+        "company": "[Analog Devices](https://www.slickcharts.com/symbol/ADI)",
         "weight": 0.27
       },
       {
-        "symbol": "[ISRG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ISRG)",
-        "company": "[Intuitive Surgical](http://www.slickcharts.com/symbol/ISRG)",
+        "symbol": "BA",
+        "company": "[Boeing](https://www.slickcharts.com/symbol/BA)",
+        "weight": 0.27
+      },
+      {
+        "symbol": "GILD",
+        "company": "[Gilead Sciences](https://www.slickcharts.com/symbol/GILD)",
+        "weight": 0.27
+      },
+      {
+        "symbol": "CRM",
+        "company": "[Salesforce](https://www.slickcharts.com/symbol/CRM)",
         "weight": 0.26
       },
       {
-        "symbol": "[DE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DE)",
-        "company": "[Deere & Company](http://www.slickcharts.com/symbol/DE)",
+        "symbol": "ABT",
+        "company": "[Abbott Laboratories](https://www.slickcharts.com/symbol/ABT)",
         "weight": 0.26
       },
       {
-        "symbol": "[CRM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRM)",
-        "company": "[Salesforce](http://www.slickcharts.com/symbol/CRM)",
-        "weight": 0.26
-      },
-      {
-        "symbol": "[BLK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BLK)",
-        "company": "[BlackRock](http://www.slickcharts.com/symbol/BLK)",
+        "symbol": "ISRG",
+        "company": "[Intuitive Surgical](https://www.slickcharts.com/symbol/ISRG)",
         "weight": 0.25
       },
       {
-        "symbol": "[ETN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ETN)",
-        "company": "[Eaton Corporation](http://www.slickcharts.com/symbol/ETN)",
+        "symbol": "SCHW",
+        "company": "[Charles Schwab Corporation](https://www.slickcharts.com/symbol/SCHW)",
         "weight": 0.25
       },
       {
-        "symbol": "[PFE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PFE)",
-        "company": "[Pfizer](http://www.slickcharts.com/symbol/PFE)",
+        "symbol": "BLK",
+        "company": "[BlackRock](https://www.slickcharts.com/symbol/BLK)",
         "weight": 0.25
       },
       {
-        "symbol": "[COP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COP)",
-        "company": "[ConocoPhillips](http://www.slickcharts.com/symbol/COP)",
+        "symbol": "DE",
+        "company": "[Deere & Company](https://www.slickcharts.com/symbol/DE)",
+        "weight": 0.25
+      },
+      {
+        "symbol": "APP",
+        "company": "[AppLovin Corporation](https://www.slickcharts.com/symbol/APP)",
+        "weight": 0.25
+      },
+      {
+        "symbol": "UBER",
+        "company": "[Uber](https://www.slickcharts.com/symbol/UBER)",
         "weight": 0.24
       },
       {
-        "symbol": "[GLW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GLW)",
-        "company": "[Corning Inc.](http://www.slickcharts.com/symbol/GLW)",
+        "symbol": "PFE",
+        "company": "[Pfizer](https://www.slickcharts.com/symbol/PFE)",
         "weight": 0.24
       },
       {
-        "symbol": "[UNP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UNP)",
-        "company": "[Union Pacific Corporation](http://www.slickcharts.com/symbol/UNP)",
+        "symbol": "ETN",
+        "company": "[Eaton Corporation](https://www.slickcharts.com/symbol/ETN)",
         "weight": 0.24
       },
       {
-        "symbol": "[HON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HON)",
-        "company": "[Honeywell](http://www.slickcharts.com/symbol/HON)",
+        "symbol": "WELL",
+        "company": "[Welltower](https://www.slickcharts.com/symbol/WELL)",
         "weight": 0.24
       },
       {
-        "symbol": "[UBER](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UBER)",
-        "company": "[Uber](http://www.slickcharts.com/symbol/UBER)",
-        "weight": 0.24
-      },
-      {
-        "symbol": "[WELL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WELL)",
-        "company": "[Welltower](http://www.slickcharts.com/symbol/WELL)",
+        "symbol": "UNP",
+        "company": "[Union Pacific Corporation](https://www.slickcharts.com/symbol/UNP)",
         "weight": 0.23
       },
       {
-        "symbol": "[LMT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LMT)",
-        "company": "[Lockheed Martin](http://www.slickcharts.com/symbol/LMT)",
+        "symbol": "COP",
+        "company": "[ConocoPhillips](https://www.slickcharts.com/symbol/COP)",
         "weight": 0.23
       },
       {
-        "symbol": "[APP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APP)",
-        "company": "[AppLovin Corporation](http://www.slickcharts.com/symbol/APP)",
+        "symbol": "BKNG",
+        "company": "[Booking Holdings](https://www.slickcharts.com/symbol/BKNG)",
         "weight": 0.23
       },
       {
-        "symbol": "[SNDK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SNDK)",
-        "company": "[Sandisk Corporation](http://www.slickcharts.com/symbol/SNDK)",
+        "symbol": "HON",
+        "company": "[Honeywell](https://www.slickcharts.com/symbol/HON)",
+        "weight": 0.23
+      },
+      {
+        "symbol": "QCOM",
+        "company": "[Qualcomm](https://www.slickcharts.com/symbol/QCOM)",
         "weight": 0.22
       },
       {
-        "symbol": "[BKNG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BKNG)",
-        "company": "[Booking Holdings](http://www.slickcharts.com/symbol/BKNG)",
+        "symbol": "GLW",
+        "company": "[Corning Inc.](https://www.slickcharts.com/symbol/GLW)",
         "weight": 0.22
       },
       {
-        "symbol": "[QCOM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/QCOM)",
-        "company": "[Qualcomm](http://www.slickcharts.com/symbol/QCOM)",
+        "symbol": "LMT",
+        "company": "[Lockheed Martin](https://www.slickcharts.com/symbol/LMT)",
         "weight": 0.22
       },
       {
-        "symbol": "[DHR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DHR)",
-        "company": "[Danaher Corporation](http://www.slickcharts.com/symbol/DHR)",
-        "weight": 0.22
-      },
-      {
-        "symbol": "[LOW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LOW)",
-        "company": "[Lowe's](http://www.slickcharts.com/symbol/LOW)",
-        "weight": 0.22
-      },
-      {
-        "symbol": "[SYK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SYK)",
-        "company": "[Stryker Corporation](http://www.slickcharts.com/symbol/SYK)",
+        "symbol": "DHR",
+        "company": "[Danaher Corporation](https://www.slickcharts.com/symbol/DHR)",
         "weight": 0.21
       },
       {
-        "symbol": "[PANW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PANW)",
-        "company": "[Palo Alto Networks](http://www.slickcharts.com/symbol/PANW)",
+        "symbol": "LOW",
+        "company": "[Lowe's](https://www.slickcharts.com/symbol/LOW)",
         "weight": 0.21
       },
       {
-        "symbol": "[CB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CB)",
-        "company": "[Chubb Limited](http://www.slickcharts.com/symbol/CB)",
+        "symbol": "SNDK",
+        "company": "[Sandisk Corporation](https://www.slickcharts.com/symbol/SNDK)",
         "weight": 0.21
       },
       {
-        "symbol": "[PLD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PLD)",
-        "company": "[Prologis](http://www.slickcharts.com/symbol/PLD)",
+        "symbol": "PANW",
+        "company": "[Palo Alto Networks](https://www.slickcharts.com/symbol/PANW)",
+        "weight": 0.21
+      },
+      {
+        "symbol": "PLD",
+        "company": "[Prologis](https://www.slickcharts.com/symbol/PLD)",
+        "weight": 0.21
+      },
+      {
+        "symbol": "SYK",
+        "company": "[Stryker Corporation](https://www.slickcharts.com/symbol/SYK)",
         "weight": 0.2
       },
       {
-        "symbol": "[SPGI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SPGI)",
-        "company": "[S&P Global](http://www.slickcharts.com/symbol/SPGI)",
+        "symbol": "SPGI",
+        "company": "[S&P Global](https://www.slickcharts.com/symbol/SPGI)",
         "weight": 0.2
       },
       {
-        "symbol": "[NEM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NEM)",
-        "company": "[Newmont](http://www.slickcharts.com/symbol/NEM)",
+        "symbol": "CB",
+        "company": "[Chubb Limited](https://www.slickcharts.com/symbol/CB)",
         "weight": 0.2
       },
       {
-        "symbol": "[PH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PH)",
-        "company": "[Parker Hannifin](http://www.slickcharts.com/symbol/PH)",
+        "symbol": "COF",
+        "company": "[Capital One](https://www.slickcharts.com/symbol/COF)",
         "weight": 0.2
       },
       {
-        "symbol": "[COF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COF)",
-        "company": "[Capital One](http://www.slickcharts.com/symbol/COF)",
-        "weight": 0.2
-      },
-      {
-        "symbol": "[DELL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DELL)",
-        "company": "[Dell Technologies](http://www.slickcharts.com/symbol/DELL)",
-        "weight": 0.2
-      },
-      {
-        "symbol": "[WDC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WDC)",
-        "company": "[Western Digital](http://www.slickcharts.com/symbol/WDC)",
+        "symbol": "DELL",
+        "company": "[Dell Technologies](https://www.slickcharts.com/symbol/DELL)",
         "weight": 0.19
       },
       {
-        "symbol": "[BMY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BMY)",
-        "company": "[Bristol Myers Squibb](http://www.slickcharts.com/symbol/BMY)",
+        "symbol": "WDC",
+        "company": "[Western Digital](https://www.slickcharts.com/symbol/WDC)",
         "weight": 0.19
       },
       {
-        "symbol": "[ACN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ACN)",
-        "company": "[Accenture](http://www.slickcharts.com/symbol/ACN)",
+        "symbol": "NEM",
+        "company": "[Newmont](https://www.slickcharts.com/symbol/NEM)",
         "weight": 0.19
       },
       {
-        "symbol": "[PGR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PGR)",
-        "company": "[Progressive Corporation](http://www.slickcharts.com/symbol/PGR)",
+        "symbol": "PH",
+        "company": "[Parker Hannifin](https://www.slickcharts.com/symbol/PH)",
         "weight": 0.19
       },
       {
-        "symbol": "[STX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STX)",
-        "company": "[Seagate Technology](http://www.slickcharts.com/symbol/STX)",
+        "symbol": "BMY",
+        "company": "[Bristol Myers Squibb](https://www.slickcharts.com/symbol/BMY)",
+        "weight": 0.19
+      },
+      {
+        "symbol": "STX",
+        "company": "[Seagate Technology](https://www.slickcharts.com/symbol/STX)",
+        "weight": 0.19
+      },
+      {
+        "symbol": "ACN",
+        "company": "[Accenture](https://www.slickcharts.com/symbol/ACN)",
+        "weight": 0.19
+      },
+      {
+        "symbol": "PGR",
+        "company": "[Progressive Corporation](https://www.slickcharts.com/symbol/PGR)",
+        "weight": 0.19
+      },
+      {
+        "symbol": "VRT",
+        "company": "[Vertiv Holdings Co](https://www.slickcharts.com/symbol/VRT)",
         "weight": 0.18
       },
       {
-        "symbol": "[VRT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRT)",
-        "company": "[Vertiv Holdings Co](http://www.slickcharts.com/symbol/VRT)",
+        "symbol": "SBUX",
+        "company": "[Starbucks](https://www.slickcharts.com/symbol/SBUX)",
         "weight": 0.18
       },
       {
-        "symbol": "[MDT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MDT)",
-        "company": "[Medtronic](http://www.slickcharts.com/symbol/MDT)",
-        "weight": 0.18
-      },
-      {
-        "symbol": "[VRTX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRTX)",
-        "company": "[Vertex Pharmaceuticals](http://www.slickcharts.com/symbol/VRTX)",
-        "weight": 0.18
-      },
-      {
-        "symbol": "[MO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MO)",
-        "company": "[Altria](http://www.slickcharts.com/symbol/MO)",
-        "weight": 0.18
-      },
-      {
-        "symbol": "[HCA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HCA)",
-        "company": "[HCA Healthcare](http://www.slickcharts.com/symbol/HCA)",
-        "weight": 0.18
-      },
-      {
-        "symbol": "[SBUX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SBUX)",
-        "company": "[Starbucks](http://www.slickcharts.com/symbol/SBUX)",
-        "weight": 0.18
-      },
-      {
-        "symbol": "[CME](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CME)",
-        "company": "[CME Group](http://www.slickcharts.com/symbol/CME)",
+        "symbol": "VRTX",
+        "company": "[Vertex Pharmaceuticals](https://www.slickcharts.com/symbol/VRTX)",
         "weight": 0.17
       },
       {
-        "symbol": "[SO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SO)",
-        "company": "[Southern Company](http://www.slickcharts.com/symbol/SO)",
+        "symbol": "MDT",
+        "company": "[Medtronic](https://www.slickcharts.com/symbol/MDT)",
         "weight": 0.17
       },
       {
-        "symbol": "[MCK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCK)",
-        "company": "[McKesson Corporation](http://www.slickcharts.com/symbol/MCK)",
+        "symbol": "MO",
+        "company": "[Altria](https://www.slickcharts.com/symbol/MO)",
         "weight": 0.17
       },
       {
-        "symbol": "[CEG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CEG)",
-        "company": "[Constellation Energy](http://www.slickcharts.com/symbol/CEG)",
+        "symbol": "CEG",
+        "company": "[Constellation Energy](https://www.slickcharts.com/symbol/CEG)",
         "weight": 0.17
       },
       {
-        "symbol": "[TT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TT)",
-        "company": "[Trane Technologies](http://www.slickcharts.com/symbol/TT)",
+        "symbol": "HCA",
+        "company": "[HCA Healthcare](https://www.slickcharts.com/symbol/HCA)",
         "weight": 0.17
       },
       {
-        "symbol": "[EQIX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EQIX)",
-        "company": "[Equinix](http://www.slickcharts.com/symbol/EQIX)",
+        "symbol": "CME",
+        "company": "[CME Group](https://www.slickcharts.com/symbol/CME)",
         "weight": 0.17
       },
       {
-        "symbol": "[HWM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HWM)",
-        "company": "[Howmet Aerospace](http://www.slickcharts.com/symbol/HWM)",
+        "symbol": "INTU",
+        "company": "[Intuit](https://www.slickcharts.com/symbol/INTU)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "SO",
+        "company": "[Southern Company](https://www.slickcharts.com/symbol/SO)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "MCK",
+        "company": "[McKesson Corporation](https://www.slickcharts.com/symbol/MCK)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "CRWD",
+        "company": "[CrowdStrike](https://www.slickcharts.com/symbol/CRWD)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "EQIX",
+        "company": "[Equinix](https://www.slickcharts.com/symbol/EQIX)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "CMCSA",
+        "company": "[Comcast](https://www.slickcharts.com/symbol/CMCSA)",
+        "weight": 0.17
+      },
+      {
+        "symbol": "TT",
+        "company": "[Trane Technologies](https://www.slickcharts.com/symbol/TT)",
         "weight": 0.16
       },
       {
-        "symbol": "[INTU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INTU)",
-        "company": "[Intuit](http://www.slickcharts.com/symbol/INTU)",
+        "symbol": "ADBE",
+        "company": "[Adobe Inc.](https://www.slickcharts.com/symbol/ADBE)",
         "weight": 0.16
       },
       {
-        "symbol": "[CRWD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRWD)",
-        "company": "[CrowdStrike](http://www.slickcharts.com/symbol/CRWD)",
+        "symbol": "DUK",
+        "company": "[Duke Energy](https://www.slickcharts.com/symbol/DUK)",
         "weight": 0.16
       },
       {
-        "symbol": "[DUK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DUK)",
-        "company": "[Duke Energy](http://www.slickcharts.com/symbol/DUK)",
+        "symbol": "NOW",
+        "company": "[ServiceNow](https://www.slickcharts.com/symbol/NOW)",
         "weight": 0.16
       },
       {
-        "symbol": "[CMCSA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CMCSA)",
-        "company": "[Comcast](http://www.slickcharts.com/symbol/CMCSA)",
+        "symbol": "BX",
+        "company": "[Blackstone Inc.](https://www.slickcharts.com/symbol/BX)",
         "weight": 0.16
       },
       {
-        "symbol": "[CVS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CVS)",
-        "company": "[CVS Health](http://www.slickcharts.com/symbol/CVS)",
+        "symbol": "HWM",
+        "company": "[Howmet Aerospace](https://www.slickcharts.com/symbol/HWM)",
         "weight": 0.16
       },
       {
-        "symbol": "[FCX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FCX)",
-        "company": "[Freeport-McMoRan](http://www.slickcharts.com/symbol/FCX)",
-        "weight": 0.16
-      },
-      {
-        "symbol": "[ADBE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADBE)",
-        "company": "[Adobe Inc.](http://www.slickcharts.com/symbol/ADBE)",
-        "weight": 0.16
-      },
-      {
-        "symbol": "[NOC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NOC)",
-        "company": "[Northrop Grumman](http://www.slickcharts.com/symbol/NOC)",
+        "symbol": "CVS",
+        "company": "[CVS Health](https://www.slickcharts.com/symbol/CVS)",
         "weight": 0.15
       },
       {
-        "symbol": "[MAR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MAR)",
-        "company": "[Marriott International](http://www.slickcharts.com/symbol/MAR)",
+        "symbol": "FCX",
+        "company": "[Freeport-McMoRan](https://www.slickcharts.com/symbol/FCX)",
         "weight": 0.15
       },
       {
-        "symbol": "[BX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BX)",
-        "company": "[Blackstone Inc.](http://www.slickcharts.com/symbol/BX)",
+        "symbol": "MAR",
+        "company": "[Marriott International](https://www.slickcharts.com/symbol/MAR)",
         "weight": 0.15
       },
       {
-        "symbol": "[BSX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BSX)",
-        "company": "[Boston Scientific](http://www.slickcharts.com/symbol/BSX)",
+        "symbol": "NOC",
+        "company": "[Northrop Grumman](https://www.slickcharts.com/symbol/NOC)",
         "weight": 0.15
       },
       {
-        "symbol": "[WM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WM)",
-        "company": "[Waste Management](http://www.slickcharts.com/symbol/WM)",
+        "symbol": "BSX",
+        "company": "[Boston Scientific](https://www.slickcharts.com/symbol/BSX)",
         "weight": 0.15
       },
       {
-        "symbol": "[ICE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ICE)",
-        "company": "[Intercontinental Exchange](http://www.slickcharts.com/symbol/ICE)",
+        "symbol": "BK",
+        "company": "[BNY Mellon](https://www.slickcharts.com/symbol/BK)",
         "weight": 0.15
       },
       {
-        "symbol": "[GD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GD)",
-        "company": "[General Dynamics](http://www.slickcharts.com/symbol/GD)",
+        "symbol": "ICE",
+        "company": "[Intercontinental Exchange](https://www.slickcharts.com/symbol/ICE)",
         "weight": 0.15
       },
       {
-        "symbol": "[NOW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NOW)",
-        "company": "[ServiceNow](http://www.slickcharts.com/symbol/NOW)",
-        "weight": 0.15
-      },
-      {
-        "symbol": "[PNC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PNC)",
-        "company": "[PNC Financial Services](http://www.slickcharts.com/symbol/PNC)",
+        "symbol": "KKR",
+        "company": "[KKR](https://www.slickcharts.com/symbol/KKR)",
         "weight": 0.14
       },
       {
-        "symbol": "[PWR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PWR)",
-        "company": "[Quanta Services](http://www.slickcharts.com/symbol/PWR)",
+        "symbol": "FDX",
+        "company": "[FedEx](https://www.slickcharts.com/symbol/FDX)",
         "weight": 0.14
       },
       {
-        "symbol": "[BK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BK)",
-        "company": "[BNY Mellon](http://www.slickcharts.com/symbol/BK)",
+        "symbol": "GD",
+        "company": "[General Dynamics](https://www.slickcharts.com/symbol/GD)",
         "weight": 0.14
       },
       {
-        "symbol": "[FDX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FDX)",
-        "company": "[FedEx](http://www.slickcharts.com/symbol/FDX)",
+        "symbol": "WM",
+        "company": "[Waste Management](https://www.slickcharts.com/symbol/WM)",
         "weight": 0.14
       },
       {
-        "symbol": "[USB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/USB)",
-        "company": "[U.S. Bancorp](http://www.slickcharts.com/symbol/USB)",
+        "symbol": "UPS",
+        "company": "[United Parcel Service](https://www.slickcharts.com/symbol/UPS)",
         "weight": 0.14
       },
       {
-        "symbol": "[KKR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KKR)",
-        "company": "[KKR](http://www.slickcharts.com/symbol/KKR)",
+        "symbol": "PNC",
+        "company": "[PNC Financial Services](https://www.slickcharts.com/symbol/PNC)",
         "weight": 0.14
       },
       {
-        "symbol": "[WMB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WMB)",
-        "company": "[Williams Companies](http://www.slickcharts.com/symbol/WMB)",
+        "symbol": "MRSH",
+        "company": "[Marsh & McLennan Companies, Inc.](https://www.slickcharts.com/symbol/MRSH)",
         "weight": 0.14
       },
       {
-        "symbol": "[JCI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JCI)",
-        "company": "[Johnson Controls](http://www.slickcharts.com/symbol/JCI)",
+        "symbol": "PWR",
+        "company": "[Quanta Services](https://www.slickcharts.com/symbol/PWR)",
         "weight": 0.14
       },
       {
-        "symbol": "[UPS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UPS)",
-        "company": "[United Parcel Service](http://www.slickcharts.com/symbol/UPS)",
+        "symbol": "WMB",
+        "company": "[Williams Companies](https://www.slickcharts.com/symbol/WMB)",
         "weight": 0.14
       },
       {
-        "symbol": "[CMI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CMI)",
-        "company": "[Cummins](http://www.slickcharts.com/symbol/CMI)",
-        "weight": 0.14
-      },
-      {
-        "symbol": "[AMT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMT)",
-        "company": "[American Tower](http://www.slickcharts.com/symbol/AMT)",
-        "weight": 0.14
-      },
-      {
-        "symbol": "[MRSH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MRSH)",
-        "company": "[Marsh & McLennan Companies, Inc.](http://www.slickcharts.com/symbol/MRSH)",
+        "symbol": "USB",
+        "company": "[U.S. Bancorp](https://www.slickcharts.com/symbol/USB)",
         "weight": 0.13
       },
       {
-        "symbol": "[SHW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SHW)",
-        "company": "[Sherwin-Williams](http://www.slickcharts.com/symbol/SHW)",
+        "symbol": "CDNS",
+        "company": "[Cadence Design Systems](https://www.slickcharts.com/symbol/CDNS)",
         "weight": 0.13
       },
       {
-        "symbol": "[EMR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EMR)",
-        "company": "[Emerson Electric](http://www.slickcharts.com/symbol/EMR)",
+        "symbol": "SNPS",
+        "company": "[Synopsys](https://www.slickcharts.com/symbol/SNPS)",
         "weight": 0.13
       },
       {
-        "symbol": "[SNPS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SNPS)",
-        "company": "[Synopsys](http://www.slickcharts.com/symbol/SNPS)",
+        "symbol": "JCI",
+        "company": "[Johnson Controls](https://www.slickcharts.com/symbol/JCI)",
         "weight": 0.13
       },
       {
-        "symbol": "[MMM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MMM)",
-        "company": "[3M](http://www.slickcharts.com/symbol/MMM)",
+        "symbol": "CMI",
+        "company": "[Cummins](https://www.slickcharts.com/symbol/CMI)",
         "weight": 0.13
       },
       {
-        "symbol": "[CDNS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CDNS)",
-        "company": "[Cadence Design Systems](http://www.slickcharts.com/symbol/CDNS)",
+        "symbol": "AMT",
+        "company": "[American Tower](https://www.slickcharts.com/symbol/AMT)",
         "weight": 0.13
       },
       {
-        "symbol": "[ITW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ITW)",
-        "company": "[Illinois Tool Works](http://www.slickcharts.com/symbol/ITW)",
+        "symbol": "ABNB",
+        "company": "[Airbnb](https://www.slickcharts.com/symbol/ABNB)",
         "weight": 0.13
       },
       {
-        "symbol": "[REGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/REGN)",
-        "company": "[Regeneron Pharmaceuticals](http://www.slickcharts.com/symbol/REGN)",
+        "symbol": "SHW",
+        "company": "[Sherwin-Williams](https://www.slickcharts.com/symbol/SHW)",
         "weight": 0.13
       },
       {
-        "symbol": "[CSX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSX)",
-        "company": "[CSX Corporation](http://www.slickcharts.com/symbol/CSX)",
+        "symbol": "ADP",
+        "company": "[Automatic Data Processing](https://www.slickcharts.com/symbol/ADP)",
         "weight": 0.13
       },
       {
-        "symbol": "[ADP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADP)",
-        "company": "[Automatic Data Processing](http://www.slickcharts.com/symbol/ADP)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[ORLY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ORLY)",
-        "company": "[O'Reilly Auto Parts](http://www.slickcharts.com/symbol/ORLY)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[CRH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRH)",
-        "company": "[CRH plc](http://www.slickcharts.com/symbol/CRH)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[MCO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCO)",
-        "company": "[Moody's Corporation](http://www.slickcharts.com/symbol/MCO)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[ABNB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ABNB)",
-        "company": "[Airbnb](http://www.slickcharts.com/symbol/ABNB)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[SLB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SLB)",
-        "company": "[Schlumberger](http://www.slickcharts.com/symbol/SLB)",
+        "symbol": "MCO",
+        "company": "[Moody's Corporation](https://www.slickcharts.com/symbol/MCO)",
         "weight": 0.12
       },
       {
-        "symbol": "[ECL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ECL)",
-        "company": "[Ecolab](http://www.slickcharts.com/symbol/ECL)",
+        "symbol": "CSX",
+        "company": "[CSX Corporation](https://www.slickcharts.com/symbol/CSX)",
         "weight": 0.12
       },
       {
-        "symbol": "[RCL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RCL)",
-        "company": "[Royal Caribbean Group](http://www.slickcharts.com/symbol/RCL)",
+        "symbol": "EMR",
+        "company": "[Emerson Electric](https://www.slickcharts.com/symbol/EMR)",
         "weight": 0.12
       },
       {
-        "symbol": "[HLT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HLT)",
-        "company": "[Hilton Worldwide](http://www.slickcharts.com/symbol/HLT)",
+        "symbol": "REGN",
+        "company": "[Regeneron Pharmaceuticals](https://www.slickcharts.com/symbol/REGN)",
         "weight": 0.12
       },
       {
-        "symbol": "[MDLZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MDLZ)",
-        "company": "[Mondelez International](http://www.slickcharts.com/symbol/MDLZ)",
+        "symbol": "MMM",
+        "company": "[3M](https://www.slickcharts.com/symbol/MMM)",
         "weight": 0.12
       },
       {
-        "symbol": "[MNST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MNST)",
-        "company": "[Monster Beverage](http://www.slickcharts.com/symbol/MNST)",
+        "symbol": "HOOD",
+        "company": "[Robinhood Markets, Inc.](https://www.slickcharts.com/symbol/HOOD)",
         "weight": 0.12
       },
       {
-        "symbol": "[EOG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EOG)",
-        "company": "[EOG Resources](http://www.slickcharts.com/symbol/EOG)",
+        "symbol": "DASH",
+        "company": "[DoorDash](https://www.slickcharts.com/symbol/DASH)",
         "weight": 0.12
       },
       {
-        "symbol": "[MSI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSI)",
-        "company": "[Motorola Solutions](http://www.slickcharts.com/symbol/MSI)",
+        "symbol": "SLB",
+        "company": "[Schlumberger](https://www.slickcharts.com/symbol/SLB)",
         "weight": 0.12
       },
       {
-        "symbol": "[AEP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AEP)",
-        "company": "[American Electric Power](http://www.slickcharts.com/symbol/AEP)",
+        "symbol": "ORLY",
+        "company": "[O'Reilly Auto Parts](https://www.slickcharts.com/symbol/ORLY)",
         "weight": 0.12
       },
       {
-        "symbol": "[CI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CI)",
-        "company": "[Cigna](http://www.slickcharts.com/symbol/CI)",
+        "symbol": "ITW",
+        "company": "[Illinois Tool Works](https://www.slickcharts.com/symbol/ITW)",
         "weight": 0.12
       },
       {
-        "symbol": "[VLO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VLO)",
-        "company": "[Valero Energy](http://www.slickcharts.com/symbol/VLO)",
+        "symbol": "CRH",
+        "company": "[CRH plc](https://www.slickcharts.com/symbol/CRH)",
         "weight": 0.12
       },
       {
-        "symbol": "[KMI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KMI)",
-        "company": "[Kinder Morgan](http://www.slickcharts.com/symbol/KMI)",
+        "symbol": "ECL",
+        "company": "[Ecolab](https://www.slickcharts.com/symbol/ECL)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "HLT",
+        "company": "[Hilton Worldwide](https://www.slickcharts.com/symbol/HLT)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "MSI",
+        "company": "[Motorola Solutions](https://www.slickcharts.com/symbol/MSI)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "MNST",
+        "company": "[Monster Beverage](https://www.slickcharts.com/symbol/MNST)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "MDLZ",
+        "company": "[Mondelez International](https://www.slickcharts.com/symbol/MDLZ)",
         "weight": 0.11
       },
       {
-        "symbol": "[ROST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROST)",
-        "company": "[Ross Stores](http://www.slickcharts.com/symbol/ROST)",
+        "symbol": "AEP",
+        "company": "[American Electric Power](https://www.slickcharts.com/symbol/AEP)",
         "weight": 0.11
       },
       {
-        "symbol": "[CTAS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTAS)",
-        "company": "[Cintas](http://www.slickcharts.com/symbol/CTAS)",
+        "symbol": "CI",
+        "company": "[Cigna](https://www.slickcharts.com/symbol/CI)",
         "weight": 0.11
       },
       {
-        "symbol": "[AON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AON)",
-        "company": "[Aon](http://www.slickcharts.com/symbol/AON)",
+        "symbol": "VLO",
+        "company": "[Valero Energy](https://www.slickcharts.com/symbol/VLO)",
         "weight": 0.11
       },
       {
-        "symbol": "[TDG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TDG)",
-        "company": "[TransDigm Group](http://www.slickcharts.com/symbol/TDG)",
+        "symbol": "RCL",
+        "company": "[Royal Caribbean Group](https://www.slickcharts.com/symbol/RCL)",
         "weight": 0.11
       },
       {
-        "symbol": "[GM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GM)",
-        "company": "[General Motors](http://www.slickcharts.com/symbol/GM)",
+        "symbol": "AON",
+        "company": "[Aon](https://www.slickcharts.com/symbol/AON)",
         "weight": 0.11
       },
       {
-        "symbol": "[ELV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ELV)",
-        "company": "[Elevance Health](http://www.slickcharts.com/symbol/ELV)",
+        "symbol": "EOG",
+        "company": "[EOG Resources](https://www.slickcharts.com/symbol/EOG)",
         "weight": 0.11
       },
       {
-        "symbol": "[DASH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DASH)",
-        "company": "[DoorDash](http://www.slickcharts.com/symbol/DASH)",
+        "symbol": "ROST",
+        "company": "[Ross Stores](https://www.slickcharts.com/symbol/ROST)",
         "weight": 0.11
       },
       {
-        "symbol": "[TEL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TEL)",
-        "company": "[TE Connectivity](http://www.slickcharts.com/symbol/TEL)",
+        "symbol": "CTAS",
+        "company": "[Cintas](https://www.slickcharts.com/symbol/CTAS)",
         "weight": 0.11
       },
       {
-        "symbol": "[WBD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WBD)",
-        "company": "[Warner Bros. Discovery](http://www.slickcharts.com/symbol/WBD)",
+        "symbol": "KMI",
+        "company": "[Kinder Morgan](https://www.slickcharts.com/symbol/KMI)",
         "weight": 0.11
       },
       {
-        "symbol": "[CIEN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CIEN)",
-        "company": "[Ciena Corporation](http://www.slickcharts.com/symbol/CIEN)",
+        "symbol": "GM",
+        "company": "[General Motors](https://www.slickcharts.com/symbol/GM)",
         "weight": 0.11
       },
       {
-        "symbol": "[MPWR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MPWR)",
-        "company": "[Monolithic Power Systems](http://www.slickcharts.com/symbol/MPWR)",
+        "symbol": "CIEN",
+        "company": "[Ciena Corporation](https://www.slickcharts.com/symbol/CIEN)",
         "weight": 0.11
       },
       {
-        "symbol": "[CL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CL)",
-        "company": "[Colgate-Palmolive](http://www.slickcharts.com/symbol/CL)",
+        "symbol": "APO",
+        "company": "[Apollo Global Management](https://www.slickcharts.com/symbol/APO)",
         "weight": 0.11
       },
       {
-        "symbol": "[PCAR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PCAR)",
-        "company": "[Paccar](http://www.slickcharts.com/symbol/PCAR)",
+        "symbol": "TEL",
+        "company": "[TE Connectivity](https://www.slickcharts.com/symbol/TEL)",
         "weight": 0.11
       },
       {
-        "symbol": "[LHX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LHX)",
-        "company": "[L3Harris](http://www.slickcharts.com/symbol/LHX)",
+        "symbol": "ELV",
+        "company": "[Elevance Health](https://www.slickcharts.com/symbol/ELV)",
         "weight": 0.11
       },
       {
-        "symbol": "[NSC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NSC)",
-        "company": "[Norfolk Southern Railway](http://www.slickcharts.com/symbol/NSC)",
+        "symbol": "TDG",
+        "company": "[TransDigm Group](https://www.slickcharts.com/symbol/TDG)",
         "weight": 0.11
       },
       {
-        "symbol": "[APD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APD)",
-        "company": "[Air Products](http://www.slickcharts.com/symbol/APD)",
+        "symbol": "MPWR",
+        "company": "[Monolithic Power Systems](https://www.slickcharts.com/symbol/MPWR)",
         "weight": 0.11
       },
       {
-        "symbol": "[MPC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MPC)",
-        "company": "[Marathon Petroleum](http://www.slickcharts.com/symbol/MPC)",
+        "symbol": "WBD",
+        "company": "[Warner Bros. Discovery](https://www.slickcharts.com/symbol/WBD)",
         "weight": 0.11
       },
       {
-        "symbol": "[RSG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RSG)",
-        "company": "[Republic Services](http://www.slickcharts.com/symbol/RSG)",
+        "symbol": "DLR",
+        "company": "[Digital Realty](https://www.slickcharts.com/symbol/DLR)",
         "weight": 0.11
       },
       {
-        "symbol": "[DLR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DLR)",
-        "company": "[Digital Realty](http://www.slickcharts.com/symbol/DLR)",
+        "symbol": "NSC",
+        "company": "[Norfolk Southern Railway](https://www.slickcharts.com/symbol/NSC)",
         "weight": 0.11
       },
       {
-        "symbol": "[SPG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SPG)",
-        "company": "[Simon Property Group](http://www.slickcharts.com/symbol/SPG)",
+        "symbol": "NKE",
+        "company": "[Nike, Inc.](https://www.slickcharts.com/symbol/NKE)",
+        "weight": 0.11
+      },
+      {
+        "symbol": "CL",
+        "company": "[Colgate-Palmolive](https://www.slickcharts.com/symbol/CL)",
         "weight": 0.1
       },
       {
-        "symbol": "[HOOD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HOOD)",
-        "company": "[Robinhood Markets, Inc.](http://www.slickcharts.com/symbol/HOOD)",
+        "symbol": "MPC",
+        "company": "[Marathon Petroleum](https://www.slickcharts.com/symbol/MPC)",
         "weight": 0.1
       },
       {
-        "symbol": "[PSX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PSX)",
-        "company": "[Phillips 66](http://www.slickcharts.com/symbol/PSX)",
+        "symbol": "APD",
+        "company": "[Air Products](https://www.slickcharts.com/symbol/APD)",
         "weight": 0.1
       },
       {
-        "symbol": "[TRV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TRV)",
-        "company": "[Travelers Companies (The)](http://www.slickcharts.com/symbol/TRV)",
+        "symbol": "LHX",
+        "company": "[L3Harris](https://www.slickcharts.com/symbol/LHX)",
         "weight": 0.1
       },
       {
-        "symbol": "[APO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APO)",
-        "company": "[Apollo Global Management](http://www.slickcharts.com/symbol/APO)",
+        "symbol": "PSX",
+        "company": "[Phillips 66](https://www.slickcharts.com/symbol/PSX)",
         "weight": 0.1
       },
       {
-        "symbol": "[NKE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NKE)",
-        "company": "[Nike, Inc.](http://www.slickcharts.com/symbol/NKE)",
+        "symbol": "SPG",
+        "company": "[Simon Property Group](https://www.slickcharts.com/symbol/SPG)",
         "weight": 0.1
       },
       {
-        "symbol": "[SRE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SRE)",
-        "company": "[Sempra](http://www.slickcharts.com/symbol/SRE)",
+        "symbol": "PCAR",
+        "company": "[Paccar](https://www.slickcharts.com/symbol/PCAR)",
         "weight": 0.1
       },
       {
-        "symbol": "[LITE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LITE)",
-        "company": "[Lumentum Holdings Inc.](http://www.slickcharts.com/symbol/LITE)",
+        "symbol": "RSG",
+        "company": "[Republic Services](https://www.slickcharts.com/symbol/RSG)",
         "weight": 0.1
       },
       {
-        "symbol": "[COR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COR)",
-        "company": "[Cencora](http://www.slickcharts.com/symbol/COR)",
+        "symbol": "LITE",
+        "company": "[Lumentum Holdings Inc.](https://www.slickcharts.com/symbol/LITE)",
         "weight": 0.1
       },
       {
-        "symbol": "[TFC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TFC)",
-        "company": "[Truist Financial](http://www.slickcharts.com/symbol/TFC)",
+        "symbol": "TRV",
+        "company": "[Travelers Companies (The)](https://www.slickcharts.com/symbol/TRV)",
         "weight": 0.1
       },
       {
-        "symbol": "[BKR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BKR)",
-        "company": "[Baker Hughes](http://www.slickcharts.com/symbol/BKR)",
+        "symbol": "COR",
+        "company": "[Cencora](https://www.slickcharts.com/symbol/COR)",
         "weight": 0.1
       },
       {
-        "symbol": "[O](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/O)",
-        "company": "[Realty Income](http://www.slickcharts.com/symbol/O)",
+        "symbol": "SRE",
+        "company": "[Sempra](https://www.slickcharts.com/symbol/SRE)",
+        "weight": 0.1
+      },
+      {
+        "symbol": "COHR",
+        "company": "[Coherent, Inc.](https://www.slickcharts.com/symbol/COHR)",
+        "weight": 0.1
+      },
+      {
+        "symbol": "TFC",
+        "company": "[Truist Financial](https://www.slickcharts.com/symbol/TFC)",
+        "weight": 0.1
+      },
+      {
+        "symbol": "FTNT",
+        "company": "[Fortinet](https://www.slickcharts.com/symbol/FTNT)",
+        "weight": 0.1
+      },
+      {
+        "symbol": "O",
+        "company": "[Realty Income](https://www.slickcharts.com/symbol/O)",
         "weight": 0.09
       },
       {
-        "symbol": "[FTNT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FTNT)",
-        "company": "[Fortinet](http://www.slickcharts.com/symbol/FTNT)",
+        "symbol": "BKR",
+        "company": "[Baker Hughes](https://www.slickcharts.com/symbol/BKR)",
         "weight": 0.09
       },
       {
-        "symbol": "[TER](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TER)",
-        "company": "[Teradyne](http://www.slickcharts.com/symbol/TER)",
+        "symbol": "AFL",
+        "company": "[Aflac](https://www.slickcharts.com/symbol/AFL)",
         "weight": 0.09
       },
       {
-        "symbol": "[AZO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AZO)",
-        "company": "[AutoZone](http://www.slickcharts.com/symbol/AZO)",
+        "symbol": "AJG",
+        "company": "[Arthur J. Gallagher & Co.](https://www.slickcharts.com/symbol/AJG)",
         "weight": 0.09
       },
       {
-        "symbol": "[AFL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AFL)",
-        "company": "[Aflac](http://www.slickcharts.com/symbol/AFL)",
+        "symbol": "AZO",
+        "company": "[AutoZone](https://www.slickcharts.com/symbol/AZO)",
         "weight": 0.09
       },
       {
-        "symbol": "[COHR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COHR)",
-        "company": "[Coherent, Inc.](http://www.slickcharts.com/symbol/COHR)",
+        "symbol": "TER",
+        "company": "[Teradyne](https://www.slickcharts.com/symbol/TER)",
         "weight": 0.09
       },
       {
-        "symbol": "[OXY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/OXY)",
-        "company": "[Occidental Petroleum](http://www.slickcharts.com/symbol/OXY)",
+        "symbol": "KEYS",
+        "company": "[Keysight Technologies](https://www.slickcharts.com/symbol/KEYS)",
         "weight": 0.09
       },
       {
-        "symbol": "[FIX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FIX)",
-        "company": "[Comfort Systems USA, Inc.](http://www.slickcharts.com/symbol/FIX)",
+        "symbol": "FIX",
+        "company": "[Comfort Systems USA, Inc.](https://www.slickcharts.com/symbol/FIX)",
         "weight": 0.09
       },
       {
-        "symbol": "[AJG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AJG)",
-        "company": "[Arthur J. Gallagher & Co.](http://www.slickcharts.com/symbol/AJG)",
+        "symbol": "OXY",
+        "company": "[Occidental Petroleum](https://www.slickcharts.com/symbol/OXY)",
         "weight": 0.09
       },
       {
-        "symbol": "[KEYS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KEYS)",
-        "company": "[Keysight Technologies](http://www.slickcharts.com/symbol/KEYS)",
+        "symbol": "TGT",
+        "company": "[Target Corporation](https://www.slickcharts.com/symbol/TGT)",
         "weight": 0.09
       },
       {
-        "symbol": "[CTVA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTVA)",
-        "company": "[Corteva](http://www.slickcharts.com/symbol/CTVA)",
+        "symbol": "VST",
+        "company": "[Vistra Corp.](https://www.slickcharts.com/symbol/VST)",
         "weight": 0.09
       },
       {
-        "symbol": "[ALL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ALL)",
-        "company": "[Allstate](http://www.slickcharts.com/symbol/ALL)",
+        "symbol": "ALL",
+        "company": "[Allstate](https://www.slickcharts.com/symbol/ALL)",
         "weight": 0.09
       },
       {
-        "symbol": "[D](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/D)",
-        "company": "[Dominion Energy](http://www.slickcharts.com/symbol/D)",
+        "symbol": "D",
+        "company": "[Dominion Energy](https://www.slickcharts.com/symbol/D)",
         "weight": 0.09
       },
       {
-        "symbol": "[GWW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GWW)",
-        "company": "[W. W. Grainger](http://www.slickcharts.com/symbol/GWW)",
+        "symbol": "CTVA",
+        "company": "[Corteva](https://www.slickcharts.com/symbol/CTVA)",
         "weight": 0.09
       },
       {
-        "symbol": "[OKE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/OKE)",
-        "company": "[ONEOK](http://www.slickcharts.com/symbol/OKE)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[CARR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CARR)",
-        "company": "[Carrier Global](http://www.slickcharts.com/symbol/CARR)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[AME](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AME)",
-        "company": "[Ametek](http://www.slickcharts.com/symbol/AME)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[VST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VST)",
-        "company": "[Vistra Corp.](http://www.slickcharts.com/symbol/VST)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[TGT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TGT)",
-        "company": "[Target Corporation](http://www.slickcharts.com/symbol/TGT)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[FANG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FANG)",
-        "company": "[Diamondback Energy](http://www.slickcharts.com/symbol/FANG)",
-        "weight": 0.09
-      },
-      {
-        "symbol": "[ETR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ETR)",
-        "company": "[Entergy](http://www.slickcharts.com/symbol/ETR)",
+        "symbol": "NXPI",
+        "company": "[NXP Semiconductors](https://www.slickcharts.com/symbol/NXPI)",
         "weight": 0.08
       },
       {
-        "symbol": "[FAST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FAST)",
-        "company": "[Fastenal](http://www.slickcharts.com/symbol/FAST)",
+        "symbol": "OKE",
+        "company": "[ONEOK](https://www.slickcharts.com/symbol/OKE)",
         "weight": 0.08
       },
       {
-        "symbol": "[NXPI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NXPI)",
-        "company": "[NXP Semiconductors](http://www.slickcharts.com/symbol/NXPI)",
+        "symbol": "GWW",
+        "company": "[W. W. Grainger](https://www.slickcharts.com/symbol/GWW)",
         "weight": 0.08
       },
       {
-        "symbol": "[PSA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PSA)",
-        "company": "[Public Storage](http://www.slickcharts.com/symbol/PSA)",
+        "symbol": "PSA",
+        "company": "[Public Storage](https://www.slickcharts.com/symbol/PSA)",
         "weight": 0.08
       },
       {
-        "symbol": "[TRGP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TRGP)",
-        "company": "[Targa Resources](http://www.slickcharts.com/symbol/TRGP)",
+        "symbol": "ETR",
+        "company": "[Entergy](https://www.slickcharts.com/symbol/ETR)",
         "weight": 0.08
       },
       {
-        "symbol": "[CVNA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CVNA)",
-        "company": "[Carvana Co.](http://www.slickcharts.com/symbol/CVNA)",
+        "symbol": "COIN",
+        "company": "[Coinbase Global](https://www.slickcharts.com/symbol/COIN)",
         "weight": 0.08
       },
       {
-        "symbol": "[EA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EA)",
-        "company": "[Electronic Arts](http://www.slickcharts.com/symbol/EA)",
+        "symbol": "AME",
+        "company": "[Ametek](https://www.slickcharts.com/symbol/AME)",
         "weight": 0.08
       },
       {
-        "symbol": "[ZTS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ZTS)",
-        "company": "[Zoetis](http://www.slickcharts.com/symbol/ZTS)",
+        "symbol": "FANG",
+        "company": "[Diamondback Energy](https://www.slickcharts.com/symbol/FANG)",
         "weight": 0.08
       },
       {
-        "symbol": "[CAH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CAH)",
-        "company": "[Cardinal Health](http://www.slickcharts.com/symbol/CAH)",
+        "symbol": "CVNA",
+        "company": "[Carvana Co.](https://www.slickcharts.com/symbol/CVNA)",
         "weight": 0.08
       },
       {
-        "symbol": "[GRMN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GRMN)",
-        "company": "[Garmin](http://www.slickcharts.com/symbol/GRMN)",
+        "symbol": "TRGP",
+        "company": "[Targa Resources](https://www.slickcharts.com/symbol/TRGP)",
         "weight": 0.08
       },
       {
-        "symbol": "[XEL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/XEL)",
-        "company": "[Xcel Energy](http://www.slickcharts.com/symbol/XEL)",
+        "symbol": "FAST",
+        "company": "[Fastenal](https://www.slickcharts.com/symbol/FAST)",
         "weight": 0.08
       },
       {
-        "symbol": "[EXC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXC)",
-        "company": "[Exelon](http://www.slickcharts.com/symbol/EXC)",
+        "symbol": "ADSK",
+        "company": "[Autodesk](https://www.slickcharts.com/symbol/ADSK)",
         "weight": 0.08
       },
       {
-        "symbol": "[MET](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MET)",
-        "company": "[MetLife](http://www.slickcharts.com/symbol/MET)",
+        "symbol": "EA",
+        "company": "[Electronic Arts](https://www.slickcharts.com/symbol/EA)",
         "weight": 0.08
       },
       {
-        "symbol": "[URI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/URI)",
-        "company": "[United Rentals](http://www.slickcharts.com/symbol/URI)",
+        "symbol": "GRMN",
+        "company": "[Garmin](https://www.slickcharts.com/symbol/GRMN)",
         "weight": 0.08
       },
       {
-        "symbol": "[NDAQ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NDAQ)",
-        "company": "[Nasdaq, Inc.](http://www.slickcharts.com/symbol/NDAQ)",
+        "symbol": "XEL",
+        "company": "[Xcel Energy](https://www.slickcharts.com/symbol/XEL)",
         "weight": 0.08
       },
       {
-        "symbol": "[F](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/F)",
-        "company": "[Ford Motor Company](http://www.slickcharts.com/symbol/F)",
+        "symbol": "NDAQ",
+        "company": "[Nasdaq, Inc.](https://www.slickcharts.com/symbol/NDAQ)",
         "weight": 0.08
       },
       {
-        "symbol": "[ADSK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADSK)",
-        "company": "[Autodesk](http://www.slickcharts.com/symbol/ADSK)",
+        "symbol": "MET",
+        "company": "[MetLife](https://www.slickcharts.com/symbol/MET)",
         "weight": 0.08
       },
       {
-        "symbol": "[COIN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COIN)",
-        "company": "[Coinbase Global](http://www.slickcharts.com/symbol/COIN)",
+        "symbol": "CAH",
+        "company": "[Cardinal Health](https://www.slickcharts.com/symbol/CAH)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "ZTS",
+        "company": "[Zoetis](https://www.slickcharts.com/symbol/ZTS)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "F",
+        "company": "[Ford Motor Company](https://www.slickcharts.com/symbol/F)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "CARR",
+        "company": "[Carrier Global](https://www.slickcharts.com/symbol/CARR)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "URI",
+        "company": "[United Rentals](https://www.slickcharts.com/symbol/URI)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "EXC",
+        "company": "[Exelon](https://www.slickcharts.com/symbol/EXC)",
+        "weight": 0.08
+      },
+      {
+        "symbol": "DAL",
+        "company": "[Delta Air Lines](https://www.slickcharts.com/symbol/DAL)",
         "weight": 0.07
       },
       {
-        "symbol": "[ROK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROK)",
-        "company": "[Rockwell Automation](http://www.slickcharts.com/symbol/ROK)",
+        "symbol": "CMG",
+        "company": "[Chipotle Mexican Grill](https://www.slickcharts.com/symbol/CMG)",
         "weight": 0.07
       },
       {
-        "symbol": "[WAB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WAB)",
-        "company": "[Wabtec](http://www.slickcharts.com/symbol/WAB)",
+        "symbol": "EBAY",
+        "company": "[eBay](https://www.slickcharts.com/symbol/EBAY)",
         "weight": 0.07
       },
       {
-        "symbol": "[IDXX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IDXX)",
-        "company": "[Idexx Laboratories](http://www.slickcharts.com/symbol/IDXX)",
+        "symbol": "EW",
+        "company": "[Edwards Lifesciences](https://www.slickcharts.com/symbol/EW)",
         "weight": 0.07
       },
       {
-        "symbol": "[FITB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FITB)",
-        "company": "[Fifth Third Bancorp](http://www.slickcharts.com/symbol/FITB)",
+        "symbol": "IDXX",
+        "company": "[Idexx Laboratories](https://www.slickcharts.com/symbol/IDXX)",
         "weight": 0.07
       },
       {
-        "symbol": "[CMG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CMG)",
-        "company": "[Chipotle Mexican Grill](http://www.slickcharts.com/symbol/CMG)",
+        "symbol": "ROK",
+        "company": "[Rockwell Automation](https://www.slickcharts.com/symbol/ROK)",
         "weight": 0.07
       },
       {
-        "symbol": "[EW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EW)",
-        "company": "[Edwards Lifesciences](http://www.slickcharts.com/symbol/EW)",
+        "symbol": "FITB",
+        "company": "[Fifth Third Bancorp](https://www.slickcharts.com/symbol/FITB)",
         "weight": 0.07
       },
       {
-        "symbol": "[YUM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/YUM)",
-        "company": "[Yum! Brands](http://www.slickcharts.com/symbol/YUM)",
+        "symbol": "PYPL",
+        "company": "[PayPal](https://www.slickcharts.com/symbol/PYPL)",
         "weight": 0.07
       },
       {
-        "symbol": "[BDX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BDX)",
-        "company": "[Becton Dickinson](http://www.slickcharts.com/symbol/BDX)",
+        "symbol": "ODFL",
+        "company": "[Old Dominion](https://www.slickcharts.com/symbol/ODFL)",
         "weight": 0.07
       },
       {
-        "symbol": "[DAL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DAL)",
-        "company": "[Delta Air Lines](http://www.slickcharts.com/symbol/DAL)",
+        "symbol": "YUM",
+        "company": "[Yum! Brands](https://www.slickcharts.com/symbol/YUM)",
         "weight": 0.07
       },
       {
-        "symbol": "[EBAY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EBAY)",
-        "company": "[eBay](http://www.slickcharts.com/symbol/EBAY)",
+        "symbol": "BDX",
+        "company": "[Becton Dickinson](https://www.slickcharts.com/symbol/BDX)",
         "weight": 0.07
       },
       {
-        "symbol": "[ODFL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ODFL)",
-        "company": "[Old Dominion](http://www.slickcharts.com/symbol/ODFL)",
+        "symbol": "NUE",
+        "company": "[Nucor](https://www.slickcharts.com/symbol/NUE)",
         "weight": 0.07
       },
       {
-        "symbol": "[NUE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NUE)",
-        "company": "[Nucor](http://www.slickcharts.com/symbol/NUE)",
+        "symbol": "DDOG",
+        "company": "[Datadog](https://www.slickcharts.com/symbol/DDOG)",
         "weight": 0.07
       },
       {
-        "symbol": "[CBRE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CBRE)",
-        "company": "[CBRE Group](http://www.slickcharts.com/symbol/CBRE)",
+        "symbol": "WAB",
+        "company": "[Wabtec](https://www.slickcharts.com/symbol/WAB)",
         "weight": 0.07
       },
       {
-        "symbol": "[PYPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PYPL)",
-        "company": "[PayPal](http://www.slickcharts.com/symbol/PYPL)",
+        "symbol": "CBRE",
+        "company": "[CBRE Group](https://www.slickcharts.com/symbol/CBRE)",
         "weight": 0.07
       },
       {
-        "symbol": "[DHI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DHI)",
-        "company": "[D. R. Horton](http://www.slickcharts.com/symbol/DHI)",
+        "symbol": "AIG",
+        "company": "[American International Group](https://www.slickcharts.com/symbol/AIG)",
         "weight": 0.07
       },
       {
-        "symbol": "[KR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KR)",
-        "company": "[Kroger](http://www.slickcharts.com/symbol/KR)",
+        "symbol": "AMP",
+        "company": "[Ameriprise Financial](https://www.slickcharts.com/symbol/AMP)",
         "weight": 0.07
       },
       {
-        "symbol": "[AIG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AIG)",
-        "company": "[American International Group](http://www.slickcharts.com/symbol/AIG)",
+        "symbol": "MCHP",
+        "company": "[Microchip Technology](https://www.slickcharts.com/symbol/MCHP)",
         "weight": 0.07
       },
       {
-        "symbol": "[AMP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMP)",
-        "company": "[Ameriprise Financial](http://www.slickcharts.com/symbol/AMP)",
-        "weight": 0.07
-      },
-      {
-        "symbol": "[ED](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ED)",
-        "company": "[Consolidated Edison](http://www.slickcharts.com/symbol/ED)",
-        "weight": 0.07
-      },
-      {
-        "symbol": "[PEG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PEG)",
-        "company": "[Public Service Enterprise Group](http://www.slickcharts.com/symbol/PEG)",
+        "symbol": "DHI",
+        "company": "[D. R. Horton](https://www.slickcharts.com/symbol/DHI)",
         "weight": 0.06
       },
       {
-        "symbol": "[MSCI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSCI)",
-        "company": "[MSCI](http://www.slickcharts.com/symbol/MSCI)",
+        "symbol": "KR",
+        "company": "[Kroger](https://www.slickcharts.com/symbol/KR)",
         "weight": 0.06
       },
       {
-        "symbol": "[VTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VTR)",
-        "company": "[Ventas](http://www.slickcharts.com/symbol/VTR)",
+        "symbol": "MSCI",
+        "company": "[MSCI](https://www.slickcharts.com/symbol/MSCI)",
         "weight": 0.06
       },
       {
-        "symbol": "[HSY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HSY)",
-        "company": "[Hershey Company (The)](http://www.slickcharts.com/symbol/HSY)",
+        "symbol": "XYZ",
+        "company": "[Block, Inc.](https://www.slickcharts.com/symbol/XYZ)",
         "weight": 0.06
       },
       {
-        "symbol": "[MCHP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCHP)",
-        "company": "[Microchip Technology](http://www.slickcharts.com/symbol/MCHP)",
+        "symbol": "PEG",
+        "company": "[Public Service Enterprise Group](https://www.slickcharts.com/symbol/PEG)",
         "weight": 0.06
       },
       {
-        "symbol": "[STT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STT)",
-        "company": "[State Street Corporation](http://www.slickcharts.com/symbol/STT)",
+        "symbol": "ED",
+        "company": "[Consolidated Edison](https://www.slickcharts.com/symbol/ED)",
         "weight": 0.06
       },
       {
-        "symbol": "[PCG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PCG)",
-        "company": "[PG&E Corporation](http://www.slickcharts.com/symbol/PCG)",
+        "symbol": "VTR",
+        "company": "[Ventas](https://www.slickcharts.com/symbol/VTR)",
         "weight": 0.06
       },
       {
-        "symbol": "[DDOG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DDOG)",
-        "company": "[Datadog](http://www.slickcharts.com/symbol/DDOG)",
+        "symbol": "TTWO",
+        "company": "[Take-Two Interactive](https://www.slickcharts.com/symbol/TTWO)",
         "weight": 0.06
       },
       {
-        "symbol": "[LYV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LYV)",
-        "company": "[Live Nation Entertainment](http://www.slickcharts.com/symbol/LYV)",
+        "symbol": "STT",
+        "company": "[State Street Corporation](https://www.slickcharts.com/symbol/STT)",
         "weight": 0.06
       },
       {
-        "symbol": "[VMC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VMC)",
-        "company": "[Vulcan Materials Company](http://www.slickcharts.com/symbol/VMC)",
+        "symbol": "HSY",
+        "company": "[Hershey Company (The)](https://www.slickcharts.com/symbol/HSY)",
         "weight": 0.06
       },
       {
-        "symbol": "[XYZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/XYZ)",
-        "company": "[Block, Inc.](http://www.slickcharts.com/symbol/XYZ)",
+        "symbol": "SATS",
+        "company": "[EchoStar Corporation](https://www.slickcharts.com/symbol/SATS)",
         "weight": 0.06
       },
       {
-        "symbol": "[CCL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CCL)",
-        "company": "[Carnival](http://www.slickcharts.com/symbol/CCL)",
+        "symbol": "PCG",
+        "company": "[PG&E Corporation](https://www.slickcharts.com/symbol/PCG)",
         "weight": 0.06
       },
       {
-        "symbol": "[MLM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MLM)",
-        "company": "[Martin Marietta Materials](http://www.slickcharts.com/symbol/MLM)",
+        "symbol": "HIG",
+        "company": "[Hartford (The)](https://www.slickcharts.com/symbol/HIG)",
         "weight": 0.06
       },
       {
-        "symbol": "[HIG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HIG)",
-        "company": "[Hartford (The)](http://www.slickcharts.com/symbol/HIG)",
+        "symbol": "WEC",
+        "company": "[WEC Energy Group](https://www.slickcharts.com/symbol/WEC)",
         "weight": 0.06
       },
       {
-        "symbol": "[CCI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CCI)",
-        "company": "[Crown Castle](http://www.slickcharts.com/symbol/CCI)",
+        "symbol": "CCI",
+        "company": "[Crown Castle](https://www.slickcharts.com/symbol/CCI)",
         "weight": 0.06
       },
       {
-        "symbol": "[WEC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WEC)",
-        "company": "[WEC Energy Group](http://www.slickcharts.com/symbol/WEC)",
+        "symbol": "CCL",
+        "company": "[Carnival](https://www.slickcharts.com/symbol/CCL)",
         "weight": 0.06
       },
       {
-        "symbol": "[TTWO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TTWO)",
-        "company": "[Take-Two Interactive](http://www.slickcharts.com/symbol/TTWO)",
+        "symbol": "LYV",
+        "company": "[Live Nation Entertainment](https://www.slickcharts.com/symbol/LYV)",
         "weight": 0.06
       },
       {
-        "symbol": "[ROP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROP)",
-        "company": "[Roper Technologies](http://www.slickcharts.com/symbol/ROP)",
+        "symbol": "LVS",
+        "company": "[Las Vegas Sands](https://www.slickcharts.com/symbol/LVS)",
         "weight": 0.06
       },
       {
-        "symbol": "[LVS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LVS)",
-        "company": "[Las Vegas Sands](http://www.slickcharts.com/symbol/LVS)",
+        "symbol": "VMC",
+        "company": "[Vulcan Materials Company](https://www.slickcharts.com/symbol/VMC)",
         "weight": 0.06
       },
       {
-        "symbol": "[SATS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SATS)",
-        "company": "[EchoStar Corporation](http://www.slickcharts.com/symbol/SATS)",
+        "symbol": "ROP",
+        "company": "[Roper Technologies](https://www.slickcharts.com/symbol/ROP)",
         "weight": 0.06
       },
       {
-        "symbol": "[EME](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EME)",
-        "company": "[EMCOR Group, Inc.](http://www.slickcharts.com/symbol/EME)",
+        "symbol": "MLM",
+        "company": "[Martin Marietta Materials](https://www.slickcharts.com/symbol/MLM)",
         "weight": 0.06
       },
       {
-        "symbol": "[NRG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NRG)",
-        "company": "[NRG Energy](http://www.slickcharts.com/symbol/NRG)",
+        "symbol": "EQT",
+        "company": "[EQT Corporation](https://www.slickcharts.com/symbol/EQT)",
         "weight": 0.06
       },
       {
-        "symbol": "[EQT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EQT)",
-        "company": "[EQT Corporation](http://www.slickcharts.com/symbol/EQT)",
+        "symbol": "NRG",
+        "company": "[NRG Energy](https://www.slickcharts.com/symbol/NRG)",
         "weight": 0.06
       },
       {
-        "symbol": "[KDP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KDP)",
-        "company": "[Keurig Dr Pepper](http://www.slickcharts.com/symbol/KDP)",
+        "symbol": "SYY",
+        "company": "[Sysco](https://www.slickcharts.com/symbol/SYY)",
         "weight": 0.06
       },
       {
-        "symbol": "[SYY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SYY)",
-        "company": "[Sysco](http://www.slickcharts.com/symbol/SYY)",
+        "symbol": "KDP",
+        "company": "[Keurig Dr Pepper](https://www.slickcharts.com/symbol/KDP)",
         "weight": 0.06
       },
       {
-        "symbol": "[ACGL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ACGL)",
-        "company": "[Arch Capital Group](http://www.slickcharts.com/symbol/ACGL)",
+        "symbol": "IBKR",
+        "company": "[Interactive Brokers Group](https://www.slickcharts.com/symbol/IBKR)",
         "weight": 0.06
       },
       {
-        "symbol": "[IR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IR)",
-        "company": "[Ingersoll Rand](http://www.slickcharts.com/symbol/IR)",
+        "symbol": "EME",
+        "company": "[EMCOR Group, Inc.](https://www.slickcharts.com/symbol/EME)",
+        "weight": 0.06
+      },
+      {
+        "symbol": "IRM",
+        "company": "[Iron Mountain](https://www.slickcharts.com/symbol/IRM)",
         "weight": 0.05
       },
       {
-        "symbol": "[PRU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PRU)",
-        "company": "[Prudential Financial](http://www.slickcharts.com/symbol/PRU)",
+        "symbol": "PRU",
+        "company": "[Prudential Financial](https://www.slickcharts.com/symbol/PRU)",
         "weight": 0.05
       },
       {
-        "symbol": "[HBAN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HBAN)",
-        "company": "[Huntington Bancshares](http://www.slickcharts.com/symbol/HBAN)",
+        "symbol": "ACGL",
+        "company": "[Arch Capital Group](https://www.slickcharts.com/symbol/ACGL)",
         "weight": 0.05
       },
       {
-        "symbol": "[GEHC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GEHC)",
-        "company": "[GE HealthCare](http://www.slickcharts.com/symbol/GEHC)",
+        "symbol": "HPE",
+        "company": "[Hewlett Packard Enterprise](https://www.slickcharts.com/symbol/HPE)",
         "weight": 0.05
       },
       {
-        "symbol": "[ADM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADM)",
-        "company": "[Archer Daniels Midland](http://www.slickcharts.com/symbol/ADM)",
+        "symbol": "HBAN",
+        "company": "[Huntington Bancshares](https://www.slickcharts.com/symbol/HBAN)",
         "weight": 0.05
       },
       {
-        "symbol": "[RMD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RMD)",
-        "company": "[ResMed](http://www.slickcharts.com/symbol/RMD)",
+        "symbol": "KVUE",
+        "company": "[Kenvue](https://www.slickcharts.com/symbol/KVUE)",
         "weight": 0.05
       },
       {
-        "symbol": "[IRM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IRM)",
-        "company": "[Iron Mountain](http://www.slickcharts.com/symbol/IRM)",
+        "symbol": "A",
+        "company": "[Agilent Technologies](https://www.slickcharts.com/symbol/A)",
         "weight": 0.05
       },
       {
-        "symbol": "[IBKR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IBKR)",
-        "company": "[Interactive Brokers Group](http://www.slickcharts.com/symbol/IBKR)",
+        "symbol": "GEHC",
+        "company": "[GE HealthCare](https://www.slickcharts.com/symbol/GEHC)",
         "weight": 0.05
       },
       {
-        "symbol": "[A](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/A)",
-        "company": "[Agilent Technologies](http://www.slickcharts.com/symbol/A)",
+        "symbol": "FISV",
+        "company": "[Fiserv, Inc.](https://www.slickcharts.com/symbol/FISV)",
         "weight": 0.05
       },
       {
-        "symbol": "[KVUE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KVUE)",
-        "company": "[Kenvue](http://www.slickcharts.com/symbol/KVUE)",
+        "symbol": "ADM",
+        "company": "[Archer Daniels Midland](https://www.slickcharts.com/symbol/ADM)",
         "weight": 0.05
       },
       {
-        "symbol": "[HPE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HPE)",
-        "company": "[Hewlett Packard Enterprise](http://www.slickcharts.com/symbol/HPE)",
+        "symbol": "PAYX",
+        "company": "[Paychex](https://www.slickcharts.com/symbol/PAYX)",
         "weight": 0.05
       },
       {
-        "symbol": "[MTB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MTB)",
-        "company": "[M&T Bank](http://www.slickcharts.com/symbol/MTB)",
+        "symbol": "IR",
+        "company": "[Ingersoll Rand](https://www.slickcharts.com/symbol/IR)",
         "weight": 0.05
       },
       {
-        "symbol": "[HAL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HAL)",
-        "company": "[Halliburton](http://www.slickcharts.com/symbol/HAL)",
+        "symbol": "RMD",
+        "company": "[ResMed](https://www.slickcharts.com/symbol/RMD)",
         "weight": 0.05
       },
       {
-        "symbol": "[JBL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JBL)",
-        "company": "[Jabil](http://www.slickcharts.com/symbol/JBL)",
+        "symbol": "JBL",
+        "company": "[Jabil](https://www.slickcharts.com/symbol/JBL)",
         "weight": 0.05
       },
       {
-        "symbol": "[KMB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KMB)",
-        "company": "[Kimberly-Clark](http://www.slickcharts.com/symbol/KMB)",
+        "symbol": "KMB",
+        "company": "[Kimberly-Clark](https://www.slickcharts.com/symbol/KMB)",
         "weight": 0.05
       },
       {
-        "symbol": "[CPRT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CPRT)",
-        "company": "[Copart](http://www.slickcharts.com/symbol/CPRT)",
+        "symbol": "CBOE",
+        "company": "[Cboe Global Markets](https://www.slickcharts.com/symbol/CBOE)",
         "weight": 0.05
       },
       {
-        "symbol": "[PAYX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PAYX)",
-        "company": "[Paychex](http://www.slickcharts.com/symbol/PAYX)",
+        "symbol": "MTB",
+        "company": "[M&T Bank](https://www.slickcharts.com/symbol/MTB)",
         "weight": 0.05
       },
       {
-        "symbol": "[WAT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WAT)",
-        "company": "[Waters Corporation](http://www.slickcharts.com/symbol/WAT)",
+        "symbol": "WDAY",
+        "company": "[Workday, Inc.](https://www.slickcharts.com/symbol/WDAY)",
         "weight": 0.05
       },
       {
-        "symbol": "[OTIS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/OTIS)",
-        "company": "[Otis Worldwide](http://www.slickcharts.com/symbol/OTIS)",
+        "symbol": "CPRT",
+        "company": "[Copart](https://www.slickcharts.com/symbol/CPRT)",
         "weight": 0.05
       },
       {
-        "symbol": "[CBOE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CBOE)",
-        "company": "[Cboe Global Markets](http://www.slickcharts.com/symbol/CBOE)",
+        "symbol": "HAL",
+        "company": "[Halliburton](https://www.slickcharts.com/symbol/HAL)",
         "weight": 0.05
       },
       {
-        "symbol": "[FISV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FISV)",
-        "company": "[Fiserv, Inc.](http://www.slickcharts.com/symbol/FISV)",
+        "symbol": "AXON",
+        "company": "[Axon Enterprise](https://www.slickcharts.com/symbol/AXON)",
         "weight": 0.05
       },
       {
-        "symbol": "[ATO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ATO)",
-        "company": "[Atmos Energy](http://www.slickcharts.com/symbol/ATO)",
+        "symbol": "ON",
+        "company": "[ON Semiconductor](https://www.slickcharts.com/symbol/ON)",
         "weight": 0.05
       },
       {
-        "symbol": "[XYL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/XYL)",
-        "company": "[Xylem Inc.](http://www.slickcharts.com/symbol/XYL)",
+        "symbol": "OTIS",
+        "company": "[Otis Worldwide](https://www.slickcharts.com/symbol/OTIS)",
         "weight": 0.05
       },
       {
-        "symbol": "[AEE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AEE)",
-        "company": "[Ameren](http://www.slickcharts.com/symbol/AEE)",
+        "symbol": "WAT",
+        "company": "[Waters Corporation](https://www.slickcharts.com/symbol/WAT)",
         "weight": 0.05
       },
       {
-        "symbol": "[UAL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UAL)",
-        "company": "[United Airlines Holdings](http://www.slickcharts.com/symbol/UAL)",
+        "symbol": "EXPE",
+        "company": "[Expedia Group](https://www.slickcharts.com/symbol/EXPE)",
         "weight": 0.05
       },
       {
-        "symbol": "[WDAY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WDAY)",
-        "company": "[Workday, Inc.](http://www.slickcharts.com/symbol/WDAY)",
+        "symbol": "ATO",
+        "company": "[Atmos Energy](https://www.slickcharts.com/symbol/ATO)",
         "weight": 0.05
       },
       {
-        "symbol": "[DTE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DTE)",
-        "company": "[DTE Energy](http://www.slickcharts.com/symbol/DTE)",
+        "symbol": "AEE",
+        "company": "[Ameren](https://www.slickcharts.com/symbol/AEE)",
         "weight": 0.05
       },
       {
-        "symbol": "[TDY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TDY)",
-        "company": "[Teledyne Technologies](http://www.slickcharts.com/symbol/TDY)",
+        "symbol": "UAL",
+        "company": "[United Airlines Holdings](https://www.slickcharts.com/symbol/UAL)",
         "weight": 0.05
       },
       {
-        "symbol": "[TPR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TPR)",
-        "company": "[Tapestry, Inc.](http://www.slickcharts.com/symbol/TPR)",
+        "symbol": "DTE",
+        "company": "[DTE Energy](https://www.slickcharts.com/symbol/DTE)",
         "weight": 0.05
       },
       {
-        "symbol": "[VICI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VICI)",
-        "company": "[Vici Properties](http://www.slickcharts.com/symbol/VICI)",
+        "symbol": "TPR",
+        "company": "[Tapestry, Inc.](https://www.slickcharts.com/symbol/TPR)",
         "weight": 0.05
       },
       {
-        "symbol": "[PPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PPL)",
-        "company": "[PPL Corporation](http://www.slickcharts.com/symbol/PPL)",
+        "symbol": "VICI",
+        "company": "[Vici Properties](https://www.slickcharts.com/symbol/VICI)",
         "weight": 0.05
       },
       {
-        "symbol": "[RJF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RJF)",
-        "company": "[Raymond James Financial](http://www.slickcharts.com/symbol/RJF)",
+        "symbol": "XYL",
+        "company": "[Xylem Inc.](https://www.slickcharts.com/symbol/XYL)",
         "weight": 0.05
       },
       {
-        "symbol": "[DOV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DOV)",
-        "company": "[Dover Corporation](http://www.slickcharts.com/symbol/DOV)",
+        "symbol": "EXR",
+        "company": "[Extra Space Storage](https://www.slickcharts.com/symbol/EXR)",
         "weight": 0.05
       },
       {
-        "symbol": "[FE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FE)",
-        "company": "[FirstEnergy](http://www.slickcharts.com/symbol/FE)",
+        "symbol": "RJF",
+        "company": "[Raymond James Financial](https://www.slickcharts.com/symbol/RJF)",
         "weight": 0.05
       },
       {
-        "symbol": "[EXR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXR)",
-        "company": "[Extra Space Storage](http://www.slickcharts.com/symbol/EXR)",
+        "symbol": "PPL",
+        "company": "[PPL Corporation](https://www.slickcharts.com/symbol/PPL)",
         "weight": 0.05
       },
       {
-        "symbol": "[EXPE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXPE)",
-        "company": "[Expedia Group](http://www.slickcharts.com/symbol/EXPE)",
+        "symbol": "TDY",
+        "company": "[Teledyne Technologies](https://www.slickcharts.com/symbol/TDY)",
         "weight": 0.05
       },
       {
-        "symbol": "[DVN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DVN)",
-        "company": "[Devon Energy](http://www.slickcharts.com/symbol/DVN)",
+        "symbol": "CHTR",
+        "company": "[Charter Communications](https://www.slickcharts.com/symbol/CHTR)",
         "weight": 0.05
       },
       {
-        "symbol": "[CTSH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTSH)",
-        "company": "[Cognizant](http://www.slickcharts.com/symbol/CTSH)",
+        "symbol": "TPL",
+        "company": "[Texas Pacific Land Corporation](https://www.slickcharts.com/symbol/TPL)",
         "weight": 0.05
       },
       {
-        "symbol": "[AXON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AXON)",
-        "company": "[Axon Enterprise](http://www.slickcharts.com/symbol/AXON)",
+        "symbol": "FE",
+        "company": "[FirstEnergy](https://www.slickcharts.com/symbol/FE)",
         "weight": 0.05
       },
       {
-        "symbol": "[IQV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IQV)",
-        "company": "[IQVIA](http://www.slickcharts.com/symbol/IQV)",
+        "symbol": "NTRS",
+        "company": "[Northern Trust](https://www.slickcharts.com/symbol/NTRS)",
         "weight": 0.05
       },
       {
-        "symbol": "[DOW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DOW)",
-        "company": "[Dow Inc.](http://www.slickcharts.com/symbol/DOW)",
+        "symbol": "CTSH",
+        "company": "[Cognizant](https://www.slickcharts.com/symbol/CTSH)",
         "weight": 0.05
       },
       {
-        "symbol": "[TPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TPL)",
-        "company": "[Texas Pacific Land Corporation](http://www.slickcharts.com/symbol/TPL)",
+        "symbol": "DOV",
+        "company": "[Dover Corporation](https://www.slickcharts.com/symbol/DOV)",
         "weight": 0.05
       },
       {
-        "symbol": "[HUBB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HUBB)",
-        "company": "[Hubbell Incorporated](http://www.slickcharts.com/symbol/HUBB)",
+        "symbol": "IQV",
+        "company": "[IQVIA](https://www.slickcharts.com/symbol/IQV)",
         "weight": 0.05
       },
       {
-        "symbol": "[STZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STZ)",
-        "company": "[Constellation Brands](http://www.slickcharts.com/symbol/STZ)",
-        "weight": 0.05
-      },
-      {
-        "symbol": "[NTRS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NTRS)",
-        "company": "[Northern Trust](http://www.slickcharts.com/symbol/NTRS)",
-        "weight": 0.05
-      },
-      {
-        "symbol": "[STLD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STLD)",
-        "company": "[Steel Dynamics](http://www.slickcharts.com/symbol/STLD)",
-        "weight": 0.05
-      },
-      {
-        "symbol": "[Q](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/Q)",
-        "company": "[Qnity Electronics](http://www.slickcharts.com/symbol/Q)",
-        "weight": 0.05
-      },
-      {
-        "symbol": "[CHTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CHTR)",
-        "company": "[Charter Communications](http://www.slickcharts.com/symbol/CHTR)",
-        "weight": 0.05
-      },
-      {
-        "symbol": "[CNP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CNP)",
-        "company": "[CenterPoint Energy](http://www.slickcharts.com/symbol/CNP)",
+        "symbol": "DOW",
+        "company": "[Dow Inc.](https://www.slickcharts.com/symbol/DOW)",
         "weight": 0.04
       },
       {
-        "symbol": "[ON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ON)",
-        "company": "[ON Semiconductor](http://www.slickcharts.com/symbol/ON)",
+        "symbol": "STZ",
+        "company": "[Constellation Brands](https://www.slickcharts.com/symbol/STZ)",
         "weight": 0.04
       },
       {
-        "symbol": "[EIX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EIX)",
-        "company": "[Edison International](http://www.slickcharts.com/symbol/EIX)",
+        "symbol": "DVN",
+        "company": "[Devon Energy](https://www.slickcharts.com/symbol/DVN)",
         "weight": 0.04
       },
       {
-        "symbol": "[CFG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CFG)",
-        "company": "[Citizens Financial Group](http://www.slickcharts.com/symbol/CFG)",
+        "symbol": "STLD",
+        "company": "[Steel Dynamics](https://www.slickcharts.com/symbol/STLD)",
         "weight": 0.04
       },
       {
-        "symbol": "[MTD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MTD)",
-        "company": "[Mettler Toledo](http://www.slickcharts.com/symbol/MTD)",
+        "symbol": "CNP",
+        "company": "[CenterPoint Energy](https://www.slickcharts.com/symbol/CNP)",
         "weight": 0.04
       },
       {
-        "symbol": "[CASY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CASY)",
-        "company": "[Casey's General Stores, Inc.](http://www.slickcharts.com/symbol/CASY)",
+        "symbol": "WTW",
+        "company": "[Willis Towers Watson](https://www.slickcharts.com/symbol/WTW)",
         "weight": 0.04
       },
       {
-        "symbol": "[WTW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WTW)",
-        "company": "[Willis Towers Watson](http://www.slickcharts.com/symbol/WTW)",
+        "symbol": "HUBB",
+        "company": "[Hubbell Incorporated](https://www.slickcharts.com/symbol/HUBB)",
         "weight": 0.04
       },
       {
-        "symbol": "[EL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EL)",
-        "company": "[Estée Lauder Companies (The)](http://www.slickcharts.com/symbol/EL)",
+        "symbol": "EIX",
+        "company": "[Edison International](https://www.slickcharts.com/symbol/EIX)",
         "weight": 0.04
       },
       {
-        "symbol": "[KHC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KHC)",
-        "company": "[Kraft Heinz](http://www.slickcharts.com/symbol/KHC)",
+        "symbol": "Q",
+        "company": "[Qnity Electronics](https://www.slickcharts.com/symbol/Q)",
         "weight": 0.04
       },
       {
-        "symbol": "[ROL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROL)",
-        "company": "[Rollins, Inc.](http://www.slickcharts.com/symbol/ROL)",
+        "symbol": "CFG",
+        "company": "[Citizens Financial Group](https://www.slickcharts.com/symbol/CFG)",
         "weight": 0.04
       },
       {
-        "symbol": "[DG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DG)",
-        "company": "[Dollar General](http://www.slickcharts.com/symbol/DG)",
+        "symbol": "EL",
+        "company": "[Estée Lauder Companies (The)](https://www.slickcharts.com/symbol/EL)",
         "weight": 0.04
       },
       {
-        "symbol": "[AWK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AWK)",
-        "company": "[American Water Works](http://www.slickcharts.com/symbol/AWK)",
+        "symbol": "CASY",
+        "company": "[Casey's General Stores, Inc.](https://www.slickcharts.com/symbol/CASY)",
         "weight": 0.04
       },
       {
-        "symbol": "[BIIB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BIIB)",
-        "company": "[Biogen](http://www.slickcharts.com/symbol/BIIB)",
+        "symbol": "DG",
+        "company": "[Dollar General](https://www.slickcharts.com/symbol/DG)",
         "weight": 0.04
       },
       {
-        "symbol": "[ES](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ES)",
-        "company": "[Eversource Energy](http://www.slickcharts.com/symbol/ES)",
+        "symbol": "KHC",
+        "company": "[Kraft Heinz](https://www.slickcharts.com/symbol/KHC)",
         "weight": 0.04
       },
       {
-        "symbol": "[SYF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SYF)",
-        "company": "[Synchrony Financial](http://www.slickcharts.com/symbol/SYF)",
+        "symbol": "ROL",
+        "company": "[Rollins, Inc.](https://www.slickcharts.com/symbol/ROL)",
         "weight": 0.04
       },
       {
-        "symbol": "[CINF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CINF)",
-        "company": "[Cincinnati Financial](http://www.slickcharts.com/symbol/CINF)",
+        "symbol": "MTD",
+        "company": "[Mettler Toledo](https://www.slickcharts.com/symbol/MTD)",
         "weight": 0.04
       },
       {
-        "symbol": "[WRB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WRB)",
-        "company": "[W. R. Berkley Corporation](http://www.slickcharts.com/symbol/WRB)",
+        "symbol": "SYF",
+        "company": "[Synchrony Financial](https://www.slickcharts.com/symbol/SYF)",
         "weight": 0.04
       },
       {
-        "symbol": "[CTRA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTRA)",
-        "company": "[Coterra](http://www.slickcharts.com/symbol/CTRA)",
+        "symbol": "ARES",
+        "company": "[Ares Management Corporation](https://www.slickcharts.com/symbol/ARES)",
         "weight": 0.04
       },
       {
-        "symbol": "[VRSN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRSN)",
-        "company": "[Verisign](http://www.slickcharts.com/symbol/VRSN)",
+        "symbol": "ES",
+        "company": "[Eversource Energy](https://www.slickcharts.com/symbol/ES)",
         "weight": 0.04
       },
       {
-        "symbol": "[PPG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PPG)",
-        "company": "[PPG Industries](http://www.slickcharts.com/symbol/PPG)",
+        "symbol": "BIIB",
+        "company": "[Biogen](https://www.slickcharts.com/symbol/BIIB)",
         "weight": 0.04
       },
       {
-        "symbol": "[LYB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LYB)",
-        "company": "[LyondellBasell](http://www.slickcharts.com/symbol/LYB)",
+        "symbol": "AWK",
+        "company": "[American Water Works](https://www.slickcharts.com/symbol/AWK)",
         "weight": 0.04
       },
       {
-        "symbol": "[DXCM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DXCM)",
-        "company": "[Dexcom](http://www.slickcharts.com/symbol/DXCM)",
+        "symbol": "CINF",
+        "company": "[Cincinnati Financial](https://www.slickcharts.com/symbol/CINF)",
         "weight": 0.04
       },
       {
-        "symbol": "[CMS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CMS)",
-        "company": "[CMS Energy](http://www.slickcharts.com/symbol/CMS)",
+        "symbol": "ALB",
+        "company": "[Albemarle Corporation](https://www.slickcharts.com/symbol/ALB)",
         "weight": 0.04
       },
       {
-        "symbol": "[ARES](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ARES)",
-        "company": "[Ares Management Corporation](http://www.slickcharts.com/symbol/ARES)",
+        "symbol": "FICO",
+        "company": "[Fair Isaac](https://www.slickcharts.com/symbol/FICO)",
         "weight": 0.04
       },
       {
-        "symbol": "[TSCO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TSCO)",
-        "company": "[Tractor Supply](http://www.slickcharts.com/symbol/TSCO)",
+        "symbol": "PPG",
+        "company": "[PPG Industries](https://www.slickcharts.com/symbol/PPG)",
         "weight": 0.04
       },
       {
-        "symbol": "[BG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BG)",
-        "company": "[Bunge Global](http://www.slickcharts.com/symbol/BG)",
+        "symbol": "FIS",
+        "company": "[Fidelity National Information Services](https://www.slickcharts.com/symbol/FIS)",
         "weight": 0.04
       },
       {
-        "symbol": "[FIS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FIS)",
-        "company": "[Fidelity National Information Services](http://www.slickcharts.com/symbol/FIS)",
+        "symbol": "VRSN",
+        "company": "[Verisign](https://www.slickcharts.com/symbol/VRSN)",
         "weight": 0.04
       },
       {
-        "symbol": "[HUM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HUM)",
-        "company": "[Humana](http://www.slickcharts.com/symbol/HUM)",
+        "symbol": "WRB",
+        "company": "[W. R. Berkley Corporation](https://www.slickcharts.com/symbol/WRB)",
         "weight": 0.04
       },
       {
-        "symbol": "[RF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RF)",
-        "company": "[Regions Financial Corporation](http://www.slickcharts.com/symbol/RF)",
+        "symbol": "LYB",
+        "company": "[LyondellBasell](https://www.slickcharts.com/symbol/LYB)",
         "weight": 0.04
       },
       {
-        "symbol": "[FICO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FICO)",
-        "company": "[Fair Isaac](http://www.slickcharts.com/symbol/FICO)",
+        "symbol": "CTRA",
+        "company": "[Coterra](https://www.slickcharts.com/symbol/CTRA)",
         "weight": 0.04
       },
       {
-        "symbol": "[AVB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AVB)",
-        "company": "[AvalonBay Communities](http://www.slickcharts.com/symbol/AVB)",
+        "symbol": "HUM",
+        "company": "[Humana](https://www.slickcharts.com/symbol/HUM)",
         "weight": 0.04
       },
       {
-        "symbol": "[EXE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXE)",
-        "company": "[Expand Energy](http://www.slickcharts.com/symbol/EXE)",
+        "symbol": "CMS",
+        "company": "[CMS Energy](https://www.slickcharts.com/symbol/CMS)",
         "weight": 0.04
       },
       {
-        "symbol": "[SBAC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SBAC)",
-        "company": "[SBA Communications](http://www.slickcharts.com/symbol/SBAC)",
+        "symbol": "RF",
+        "company": "[Regions Financial Corporation](https://www.slickcharts.com/symbol/RF)",
         "weight": 0.04
       },
       {
-        "symbol": "[PHM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PHM)",
-        "company": "[PulteGroup](http://www.slickcharts.com/symbol/PHM)",
+        "symbol": "BG",
+        "company": "[Bunge Global](https://www.slickcharts.com/symbol/BG)",
         "weight": 0.04
       },
       {
-        "symbol": "[KEY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KEY)",
-        "company": "[KeyCorp](http://www.slickcharts.com/symbol/KEY)",
+        "symbol": "AVB",
+        "company": "[AvalonBay Communities](https://www.slickcharts.com/symbol/AVB)",
         "weight": 0.04
       },
       {
-        "symbol": "[ULTA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ULTA)",
-        "company": "[Ulta Beauty](http://www.slickcharts.com/symbol/ULTA)",
+        "symbol": "ULTA",
+        "company": "[Ulta Beauty](https://www.slickcharts.com/symbol/ULTA)",
         "weight": 0.04
       },
       {
-        "symbol": "[WSM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WSM)",
-        "company": "[Williams-Sonoma](http://www.slickcharts.com/symbol/WSM)",
+        "symbol": "DXCM",
+        "company": "[Dexcom](https://www.slickcharts.com/symbol/DXCM)",
         "weight": 0.04
       },
       {
-        "symbol": "[EQR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EQR)",
-        "company": "[Equity Residential](http://www.slickcharts.com/symbol/EQR)",
+        "symbol": "SBAC",
+        "company": "[SBA Communications](https://www.slickcharts.com/symbol/SBAC)",
         "weight": 0.04
       },
       {
-        "symbol": "[BRO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BRO)",
-        "company": "[Brown & Brown](http://www.slickcharts.com/symbol/BRO)",
+        "symbol": "TSCO",
+        "company": "[Tractor Supply](https://www.slickcharts.com/symbol/TSCO)",
         "weight": 0.04
       },
       {
-        "symbol": "[RL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RL)",
-        "company": "[Ralph Lauren Corporation](http://www.slickcharts.com/symbol/RL)",
+        "symbol": "EXE",
+        "company": "[Expand Energy](https://www.slickcharts.com/symbol/EXE)",
         "weight": 0.04
       },
       {
-        "symbol": "[TSN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TSN)",
-        "company": "[Tyson Foods](http://www.slickcharts.com/symbol/TSN)",
+        "symbol": "BRO",
+        "company": "[Brown & Brown](https://www.slickcharts.com/symbol/BRO)",
         "weight": 0.04
       },
       {
-        "symbol": "[L](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/L)",
-        "company": "[Loews Corporation](http://www.slickcharts.com/symbol/L)",
+        "symbol": "VRSK",
+        "company": "[Verisk Analytics](https://www.slickcharts.com/symbol/VRSK)",
         "weight": 0.04
       },
       {
-        "symbol": "[NI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NI)",
-        "company": "[NiSource](http://www.slickcharts.com/symbol/NI)",
+        "symbol": "KEY",
+        "company": "[KeyCorp](https://www.slickcharts.com/symbol/KEY)",
         "weight": 0.04
       },
       {
-        "symbol": "[CHD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CHD)",
-        "company": "[Church & Dwight](http://www.slickcharts.com/symbol/CHD)",
+        "symbol": "PHM",
+        "company": "[PulteGroup](https://www.slickcharts.com/symbol/PHM)",
         "weight": 0.04
       },
       {
-        "symbol": "[EFX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EFX)",
-        "company": "[Equifax](http://www.slickcharts.com/symbol/EFX)",
+        "symbol": "EFX",
+        "company": "[Equifax](https://www.slickcharts.com/symbol/EFX)",
         "weight": 0.04
       },
       {
-        "symbol": "[VLTO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VLTO)",
-        "company": "[Veralto](http://www.slickcharts.com/symbol/VLTO)",
+        "symbol": "EQR",
+        "company": "[Equity Residential](https://www.slickcharts.com/symbol/EQR)",
         "weight": 0.04
       },
       {
-        "symbol": "[LEN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LEN)",
-        "company": "[Lennar](http://www.slickcharts.com/symbol/LEN)",
+        "symbol": "NI",
+        "company": "[NiSource](https://www.slickcharts.com/symbol/NI)",
         "weight": 0.04
       },
       {
-        "symbol": "[SW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SW)",
-        "company": "[Smurfit WestRock](http://www.slickcharts.com/symbol/SW)",
+        "symbol": "WSM",
+        "company": "[Williams-Sonoma](https://www.slickcharts.com/symbol/WSM)",
         "weight": 0.04
       },
       {
-        "symbol": "[STE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STE)",
-        "company": "[Steris](http://www.slickcharts.com/symbol/STE)",
+        "symbol": "L",
+        "company": "[Loews Corporation](https://www.slickcharts.com/symbol/L)",
         "weight": 0.04
       },
       {
-        "symbol": "[VRSK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRSK)",
-        "company": "[Verisk Analytics](http://www.slickcharts.com/symbol/VRSK)",
+        "symbol": "JBHT",
+        "company": "[J.B. Hunt](https://www.slickcharts.com/symbol/JBHT)",
         "weight": 0.04
       },
       {
-        "symbol": "[DRI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DRI)",
-        "company": "[Darden Restaurants](http://www.slickcharts.com/symbol/DRI)",
+        "symbol": "TSN",
+        "company": "[Tyson Foods](https://www.slickcharts.com/symbol/TSN)",
         "weight": 0.04
       },
       {
-        "symbol": "[ALB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ALB)",
-        "company": "[Albemarle Corporation](http://www.slickcharts.com/symbol/ALB)",
+        "symbol": "DRI",
+        "company": "[Darden Restaurants](https://www.slickcharts.com/symbol/DRI)",
+        "weight": 0.04
+      },
+      {
+        "symbol": "OMC",
+        "company": "[Omnicom Group](https://www.slickcharts.com/symbol/OMC)",
+        "weight": 0.04
+      },
+      {
+        "symbol": "CHD",
+        "company": "[Church & Dwight](https://www.slickcharts.com/symbol/CHD)",
+        "weight": 0.04
+      },
+      {
+        "symbol": "RL",
+        "company": "[Ralph Lauren Corporation](https://www.slickcharts.com/symbol/RL)",
         "weight": 0.03
       },
       {
-        "symbol": "[LH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LH)",
-        "company": "[LabCorp](http://www.slickcharts.com/symbol/LH)",
+        "symbol": "VLTO",
+        "company": "[Veralto](https://www.slickcharts.com/symbol/VLTO)",
         "weight": 0.03
       },
       {
-        "symbol": "[OMC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/OMC)",
-        "company": "[Omnicom Group](http://www.slickcharts.com/symbol/OMC)",
+        "symbol": "CPAY",
+        "company": "[Corpay](https://www.slickcharts.com/symbol/CPAY)",
         "weight": 0.03
       },
       {
-        "symbol": "[JBHT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JBHT)",
-        "company": "[J.B. Hunt](http://www.slickcharts.com/symbol/JBHT)",
+        "symbol": "LH",
+        "company": "[LabCorp](https://www.slickcharts.com/symbol/LH)",
         "weight": 0.03
       },
       {
-        "symbol": "[FSLR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FSLR)",
-        "company": "[First Solar](http://www.slickcharts.com/symbol/FSLR)",
+        "symbol": "LEN",
+        "company": "[Lennar](https://www.slickcharts.com/symbol/LEN)",
         "weight": 0.03
       },
       {
-        "symbol": "[CPAY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CPAY)",
-        "company": "[Corpay](http://www.slickcharts.com/symbol/CPAY)",
+        "symbol": "MRNA",
+        "company": "[Moderna](https://www.slickcharts.com/symbol/MRNA)",
         "weight": 0.03
       },
       {
-        "symbol": "[DGX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DGX)",
-        "company": "[Quest Diagnostics](http://www.slickcharts.com/symbol/DGX)",
+        "symbol": "SW",
+        "company": "[Smurfit WestRock](https://www.slickcharts.com/symbol/SW)",
         "weight": 0.03
       },
       {
-        "symbol": "[TROW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TROW)",
-        "company": "[T. Rowe Price](http://www.slickcharts.com/symbol/TROW)",
+        "symbol": "STE",
+        "company": "[Steris](https://www.slickcharts.com/symbol/STE)",
         "weight": 0.03
       },
       {
-        "symbol": "[PFG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PFG)",
-        "company": "[Principal Financial Group](http://www.slickcharts.com/symbol/PFG)",
+        "symbol": "CHRW",
+        "company": "[C.H. Robinson](https://www.slickcharts.com/symbol/CHRW)",
         "weight": 0.03
       },
       {
-        "symbol": "[DLTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DLTR)",
-        "company": "[Dollar Tree](http://www.slickcharts.com/symbol/DLTR)",
+        "symbol": "DGX",
+        "company": "[Quest Diagnostics](https://www.slickcharts.com/symbol/DGX)",
         "weight": 0.03
       },
       {
-        "symbol": "[MRNA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MRNA)",
-        "company": "[Moderna](http://www.slickcharts.com/symbol/MRNA)",
+        "symbol": "TROW",
+        "company": "[T. Rowe Price](https://www.slickcharts.com/symbol/TROW)",
         "weight": 0.03
       },
       {
-        "symbol": "[SNA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SNA)",
-        "company": "[Snap-on](http://www.slickcharts.com/symbol/SNA)",
+        "symbol": "FSLR",
+        "company": "[First Solar](https://www.slickcharts.com/symbol/FSLR)",
         "weight": 0.03
       },
       {
-        "symbol": "[LDOS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LDOS)",
-        "company": "[Leidos](http://www.slickcharts.com/symbol/LDOS)",
+        "symbol": "NTAP",
+        "company": "[NetApp](https://www.slickcharts.com/symbol/NTAP)",
         "weight": 0.03
       },
       {
-        "symbol": "[CHRW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CHRW)",
-        "company": "[C.H. Robinson](http://www.slickcharts.com/symbol/CHRW)",
+        "symbol": "PFG",
+        "company": "[Principal Financial Group](https://www.slickcharts.com/symbol/PFG)",
         "weight": 0.03
       },
       {
-        "symbol": "[NTAP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NTAP)",
-        "company": "[NetApp](http://www.slickcharts.com/symbol/NTAP)",
+        "symbol": "LUV",
+        "company": "[Southwest Airlines](https://www.slickcharts.com/symbol/LUV)",
         "weight": 0.03
       },
       {
-        "symbol": "[IP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IP)",
-        "company": "[International Paper](http://www.slickcharts.com/symbol/IP)",
+        "symbol": "DLTR",
+        "company": "[Dollar Tree](https://www.slickcharts.com/symbol/DLTR)",
         "weight": 0.03
       },
       {
-        "symbol": "[LUV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LUV)",
-        "company": "[Southwest Airlines](http://www.slickcharts.com/symbol/LUV)",
+        "symbol": "LDOS",
+        "company": "[Leidos](https://www.slickcharts.com/symbol/LDOS)",
         "weight": 0.03
       },
       {
-        "symbol": "[DD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DD)",
-        "company": "[DuPont](http://www.slickcharts.com/symbol/DD)",
+        "symbol": "EXPD",
+        "company": "[Expeditors International](https://www.slickcharts.com/symbol/EXPD)",
         "weight": 0.03
       },
       {
-        "symbol": "[EXPD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXPD)",
-        "company": "[Expeditors International](http://www.slickcharts.com/symbol/EXPD)",
+        "symbol": "GPN",
+        "company": "[Global Payments](https://www.slickcharts.com/symbol/GPN)",
         "weight": 0.03
       },
       {
-        "symbol": "[INCY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INCY)",
-        "company": "[Incyte](http://www.slickcharts.com/symbol/INCY)",
+        "symbol": "WST",
+        "company": "[West Pharmaceutical Services](https://www.slickcharts.com/symbol/WST)",
         "weight": 0.03
       },
       {
-        "symbol": "[EVRG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EVRG)",
-        "company": "[Evergy](http://www.slickcharts.com/symbol/EVRG)",
+        "symbol": "CNC",
+        "company": "[Centene Corporation](https://www.slickcharts.com/symbol/CNC)",
         "weight": 0.03
       },
       {
-        "symbol": "[AMCR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMCR)",
-        "company": "[Amcor](http://www.slickcharts.com/symbol/AMCR)",
+        "symbol": "IP",
+        "company": "[International Paper](https://www.slickcharts.com/symbol/IP)",
         "weight": 0.03
       },
       {
-        "symbol": "[NVR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NVR)",
-        "company": "[NVR, Inc.](http://www.slickcharts.com/symbol/NVR)",
+        "symbol": "DD",
+        "company": "[DuPont](https://www.slickcharts.com/symbol/DD)",
         "weight": 0.03
       },
       {
-        "symbol": "[LULU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LULU)",
-        "company": "[Lululemon Athletica](http://www.slickcharts.com/symbol/LULU)",
+        "symbol": "CF",
+        "company": "[CF Industries](https://www.slickcharts.com/symbol/CF)",
         "weight": 0.03
       },
       {
-        "symbol": "[GPN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GPN)",
-        "company": "[Global Payments](http://www.slickcharts.com/symbol/GPN)",
+        "symbol": "SNA",
+        "company": "[Snap-on](https://www.slickcharts.com/symbol/SNA)",
         "weight": 0.03
       },
       {
-        "symbol": "[PKG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PKG)",
-        "company": "[Packaging Corporation of America](http://www.slickcharts.com/symbol/PKG)",
+        "symbol": "INCY",
+        "company": "[Incyte](https://www.slickcharts.com/symbol/INCY)",
         "weight": 0.03
       },
       {
-        "symbol": "[WST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WST)",
-        "company": "[West Pharmaceutical Services](http://www.slickcharts.com/symbol/WST)",
+        "symbol": "BR",
+        "company": "[Broadridge Financial Solutions](https://www.slickcharts.com/symbol/BR)",
         "weight": 0.03
       },
       {
-        "symbol": "[LNT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LNT)",
-        "company": "[Alliant Energy](http://www.slickcharts.com/symbol/LNT)",
+        "symbol": "EVRG",
+        "company": "[Evergy](https://www.slickcharts.com/symbol/EVRG)",
         "weight": 0.03
       },
       {
-        "symbol": "[CF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CF)",
-        "company": "[CF Industries](http://www.slickcharts.com/symbol/CF)",
+        "symbol": "GIS",
+        "company": "[General Mills](https://www.slickcharts.com/symbol/GIS)",
         "weight": 0.03
       },
       {
-        "symbol": "[ZBH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ZBH)",
-        "company": "[Zimmer Biomet](http://www.slickcharts.com/symbol/ZBH)",
+        "symbol": "LULU",
+        "company": "[Lululemon Athletica](https://www.slickcharts.com/symbol/LULU)",
         "weight": 0.03
       },
       {
-        "symbol": "[GIS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GIS)",
-        "company": "[General Mills](http://www.slickcharts.com/symbol/GIS)",
+        "symbol": "LNT",
+        "company": "[Alliant Energy](https://www.slickcharts.com/symbol/LNT)",
         "weight": 0.03
       },
       {
-        "symbol": "[CNC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CNC)",
-        "company": "[Centene Corporation](http://www.slickcharts.com/symbol/CNC)",
+        "symbol": "NVR",
+        "company": "[NVR, Inc.](https://www.slickcharts.com/symbol/NVR)",
         "weight": 0.03
       },
       {
-        "symbol": "[FTV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FTV)",
-        "company": "[Fortive](http://www.slickcharts.com/symbol/FTV)",
+        "symbol": "AMCR",
+        "company": "[Amcor](https://www.slickcharts.com/symbol/AMCR)",
         "weight": 0.03
       },
       {
-        "symbol": "[BR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BR)",
-        "company": "[Broadridge Financial Solutions](http://www.slickcharts.com/symbol/BR)",
+        "symbol": "PKG",
+        "company": "[Packaging Corporation of America](https://www.slickcharts.com/symbol/PKG)",
         "weight": 0.03
       },
       {
-        "symbol": "[IFF](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IFF)",
-        "company": "[International Flavors & Fragrances](http://www.slickcharts.com/symbol/IFF)",
+        "symbol": "IFF",
+        "company": "[International Flavors & Fragrances](https://www.slickcharts.com/symbol/IFF)",
         "weight": 0.03
       },
       {
-        "symbol": "[LII](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LII)",
-        "company": "[Lennox International](http://www.slickcharts.com/symbol/LII)",
+        "symbol": "FTV",
+        "company": "[Fortive](https://www.slickcharts.com/symbol/FTV)",
         "weight": 0.03
       },
       {
-        "symbol": "[WY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WY)",
-        "company": "[Weyerhaeuser](http://www.slickcharts.com/symbol/WY)",
+        "symbol": "ZBH",
+        "company": "[Zimmer Biomet](https://www.slickcharts.com/symbol/ZBH)",
         "weight": 0.03
       },
       {
-        "symbol": "[HPQ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HPQ)",
-        "company": "[HP Inc.](http://www.slickcharts.com/symbol/HPQ)",
+        "symbol": "HPQ",
+        "company": "[HP Inc.](https://www.slickcharts.com/symbol/HPQ)",
         "weight": 0.03
       },
       {
-        "symbol": "[CDW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CDW)",
-        "company": "[CDW](http://www.slickcharts.com/symbol/CDW)",
+        "symbol": "WY",
+        "company": "[Weyerhaeuser](https://www.slickcharts.com/symbol/WY)",
         "weight": 0.03
       },
       {
-        "symbol": "[BALL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BALL)",
-        "company": "[Ball Corporation](http://www.slickcharts.com/symbol/BALL)",
+        "symbol": "FFIV",
+        "company": "[F5, Inc.](https://www.slickcharts.com/symbol/FFIV)",
         "weight": 0.03
       },
       {
-        "symbol": "[FFIV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FFIV)",
-        "company": "[F5, Inc.](http://www.slickcharts.com/symbol/FFIV)",
+        "symbol": "CDW",
+        "company": "[CDW](https://www.slickcharts.com/symbol/CDW)",
         "weight": 0.03
       },
       {
-        "symbol": "[TXT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TXT)",
-        "company": "[Textron](http://www.slickcharts.com/symbol/TXT)",
+        "symbol": "SMCI",
+        "company": "[Supermicro](https://www.slickcharts.com/symbol/SMCI)",
         "weight": 0.03
       },
       {
-        "symbol": "[VTRS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VTRS)",
-        "company": "[Viatris](http://www.slickcharts.com/symbol/VTRS)",
+        "symbol": "BALL",
+        "company": "[Ball Corporation](https://www.slickcharts.com/symbol/BALL)",
         "weight": 0.03
       },
       {
-        "symbol": "[ESS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ESS)",
-        "company": "[Essex Property Trust](http://www.slickcharts.com/symbol/ESS)",
+        "symbol": "CSGP",
+        "company": "[CoStar Group](https://www.slickcharts.com/symbol/CSGP)",
         "weight": 0.03
       },
       {
-        "symbol": "[PTC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PTC)",
-        "company": "[PTC Inc.](http://www.slickcharts.com/symbol/PTC)",
+        "symbol": "LII",
+        "company": "[Lennox International](https://www.slickcharts.com/symbol/LII)",
         "weight": 0.03
       },
       {
-        "symbol": "[KIM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KIM)",
-        "company": "[Kimco Realty](http://www.slickcharts.com/symbol/KIM)",
+        "symbol": "PTC",
+        "company": "[PTC Inc.](https://www.slickcharts.com/symbol/PTC)",
         "weight": 0.03
       },
       {
-        "symbol": "[SMCI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SMCI)",
-        "company": "[Supermicro](http://www.slickcharts.com/symbol/SMCI)",
+        "symbol": "VTRS",
+        "company": "[Viatris](https://www.slickcharts.com/symbol/VTRS)",
+        "weight": 0.03
+      },
+      {
+        "symbol": "KIM",
+        "company": "[Kimco Realty](https://www.slickcharts.com/symbol/KIM)",
+        "weight": 0.03
+      },
+      {
+        "symbol": "ESS",
+        "company": "[Essex Property Trust](https://www.slickcharts.com/symbol/ESS)",
+        "weight": 0.03
+      },
+      {
+        "symbol": "INVH",
+        "company": "[Invitation Homes](https://www.slickcharts.com/symbol/INVH)",
         "weight": 0.02
       },
       {
-        "symbol": "[INVH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INVH)",
-        "company": "[Invitation Homes](http://www.slickcharts.com/symbol/INVH)",
+        "symbol": "TXT",
+        "company": "[Textron](https://www.slickcharts.com/symbol/TXT)",
         "weight": 0.02
       },
       {
-        "symbol": "[CSGP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSGP)",
-        "company": "[CoStar Group](http://www.slickcharts.com/symbol/CSGP)",
+        "symbol": "TRMB",
+        "company": "[Trimble Inc.](https://www.slickcharts.com/symbol/TRMB)",
         "weight": 0.02
       },
       {
-        "symbol": "[HII](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HII)",
-        "company": "[Huntington Ingalls Industries](http://www.slickcharts.com/symbol/HII)",
+        "symbol": "HII",
+        "company": "[Huntington Ingalls Industries](https://www.slickcharts.com/symbol/HII)",
         "weight": 0.02
       },
       {
-        "symbol": "[TRMB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TRMB)",
-        "company": "[Trimble Inc.](http://www.slickcharts.com/symbol/TRMB)",
+        "symbol": "GPC",
+        "company": "[Genuine Parts Company](https://www.slickcharts.com/symbol/GPC)",
         "weight": 0.02
       },
       {
-        "symbol": "[NDSN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NDSN)",
-        "company": "[Nordson Corporation](http://www.slickcharts.com/symbol/NDSN)",
+        "symbol": "NDSN",
+        "company": "[Nordson Corporation](https://www.slickcharts.com/symbol/NDSN)",
         "weight": 0.02
       },
       {
-        "symbol": "[DECK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DECK)",
-        "company": "[Deckers Brands](http://www.slickcharts.com/symbol/DECK)",
+        "symbol": "DECK",
+        "company": "[Deckers Brands](https://www.slickcharts.com/symbol/DECK)",
         "weight": 0.02
       },
       {
-        "symbol": "[GPC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GPC)",
-        "company": "[Genuine Parts Company](http://www.slickcharts.com/symbol/GPC)",
+        "symbol": "IEX",
+        "company": "[IDEX Corporation](https://www.slickcharts.com/symbol/IEX)",
         "weight": 0.02
       },
       {
-        "symbol": "[TKO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TKO)",
-        "company": "[TKO Group Holdings](http://www.slickcharts.com/symbol/TKO)",
+        "symbol": "J",
+        "company": "[Jacobs Solutions](https://www.slickcharts.com/symbol/J)",
         "weight": 0.02
       },
       {
-        "symbol": "[IEX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IEX)",
-        "company": "[IDEX Corporation](http://www.slickcharts.com/symbol/IEX)",
+        "symbol": "REG",
+        "company": "[Regency Centers](https://www.slickcharts.com/symbol/REG)",
         "weight": 0.02
       },
       {
-        "symbol": "[PNR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PNR)",
-        "company": "[Pentair](http://www.slickcharts.com/symbol/PNR)",
+        "symbol": "TYL",
+        "company": "[Tyler Technologies](https://www.slickcharts.com/symbol/TYL)",
         "weight": 0.02
       },
       {
-        "symbol": "[J](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/J)",
-        "company": "[Jacobs Solutions](http://www.slickcharts.com/symbol/J)",
+        "symbol": "TKO",
+        "company": "[TKO Group Holdings](https://www.slickcharts.com/symbol/TKO)",
         "weight": 0.02
       },
       {
-        "symbol": "[MAA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MAA)",
-        "company": "[Mid-America Apartment Communities](http://www.slickcharts.com/symbol/MAA)",
+        "symbol": "PNR",
+        "company": "[Pentair](https://www.slickcharts.com/symbol/PNR)",
         "weight": 0.02
       },
       {
-        "symbol": "[MKC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MKC)",
-        "company": "[McCormick & Company](http://www.slickcharts.com/symbol/MKC)",
+        "symbol": "MAA",
+        "company": "[Mid-America Apartment Communities](https://www.slickcharts.com/symbol/MAA)",
         "weight": 0.02
       },
       {
-        "symbol": "[REG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/REG)",
-        "company": "[Regency Centers](http://www.slickcharts.com/symbol/REG)",
+        "symbol": "MKC",
+        "company": "[McCormick & Company](https://www.slickcharts.com/symbol/MKC)",
         "weight": 0.02
       },
       {
-        "symbol": "[COO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COO)",
-        "company": "[Cooper Companies (The)](http://www.slickcharts.com/symbol/COO)",
+        "symbol": "AKAM",
+        "company": "[Akamai Technologies](https://www.slickcharts.com/symbol/AKAM)",
         "weight": 0.02
       },
       {
-        "symbol": "[AKAM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AKAM)",
-        "company": "[Akamai Technologies](http://www.slickcharts.com/symbol/AKAM)",
+        "symbol": "HST",
+        "company": "[Host Hotels & Resorts](https://www.slickcharts.com/symbol/HST)",
         "weight": 0.02
       },
       {
-        "symbol": "[APA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APA)",
-        "company": "[APA Corporation](http://www.slickcharts.com/symbol/APA)",
+        "symbol": "PODD",
+        "company": "[Insulet Corporation](https://www.slickcharts.com/symbol/PODD)",
         "weight": 0.02
       },
       {
-        "symbol": "[HST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HST)",
-        "company": "[Host Hotels & Resorts](http://www.slickcharts.com/symbol/HST)",
+        "symbol": "BEN",
+        "company": "[Franklin Resources](https://www.slickcharts.com/symbol/BEN)",
         "weight": 0.02
       },
       {
-        "symbol": "[PODD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PODD)",
-        "company": "[Insulet Corporation](http://www.slickcharts.com/symbol/PODD)",
+        "symbol": "EG",
+        "company": "[Everest Group](https://www.slickcharts.com/symbol/EG)",
         "weight": 0.02
       },
       {
-        "symbol": "[ERIE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ERIE)",
-        "company": "[Erie Indemnity](http://www.slickcharts.com/symbol/ERIE)",
+        "symbol": "COO",
+        "company": "[Cooper Companies (The)](https://www.slickcharts.com/symbol/COO)",
         "weight": 0.02
       },
       {
-        "symbol": "[TYL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TYL)",
-        "company": "[Tyler Technologies](http://www.slickcharts.com/symbol/TYL)",
+        "symbol": "BBY",
+        "company": "[Best Buy](https://www.slickcharts.com/symbol/BBY)",
         "weight": 0.02
       },
       {
-        "symbol": "[EG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EG)",
-        "company": "[Everest Group](http://www.slickcharts.com/symbol/EG)",
+        "symbol": "BF.B",
+        "company": "[Brown–Forman](https://www.slickcharts.com/symbol/BF.B)",
         "weight": 0.02
       },
       {
-        "symbol": "[BF.B](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BF.B)",
-        "company": "[Brown–Forman](http://www.slickcharts.com/symbol/BF.B)",
+        "symbol": "APA",
+        "company": "[APA Corporation](https://www.slickcharts.com/symbol/APA)",
         "weight": 0.02
       },
       {
-        "symbol": "[BEN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BEN)",
-        "company": "[Franklin Resources](http://www.slickcharts.com/symbol/BEN)",
+        "symbol": "ALGN",
+        "company": "[Align Technology](https://www.slickcharts.com/symbol/ALGN)",
         "weight": 0.02
       },
       {
-        "symbol": "[AVY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AVY)",
-        "company": "[Avery Dennison](http://www.slickcharts.com/symbol/AVY)",
+        "symbol": "HAS",
+        "company": "[Hasbro](https://www.slickcharts.com/symbol/HAS)",
         "weight": 0.02
       },
       {
-        "symbol": "[MAS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MAS)",
-        "company": "[Masco](http://www.slickcharts.com/symbol/MAS)",
+        "symbol": "PSKY",
+        "company": "[Paramount Skydance Corp](https://www.slickcharts.com/symbol/PSKY)",
         "weight": 0.02
       },
       {
-        "symbol": "[HAS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HAS)",
-        "company": "[Hasbro](http://www.slickcharts.com/symbol/HAS)",
+        "symbol": "FOX",
+        "company": "[Fox Corporation (Class B)](https://www.slickcharts.com/symbol/FOX)",
         "weight": 0.02
       },
       {
-        "symbol": "[ALGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ALGN)",
-        "company": "[Align Technology](http://www.slickcharts.com/symbol/ALGN)",
+        "symbol": "FOXA",
+        "company": "[Fox Corporation (Class A)](https://www.slickcharts.com/symbol/FOXA)",
         "weight": 0.02
       },
       {
-        "symbol": "[BBY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BBY)",
-        "company": "[Best Buy](http://www.slickcharts.com/symbol/BBY)",
+        "symbol": "MAS",
+        "company": "[Masco](https://www.slickcharts.com/symbol/MAS)",
         "weight": 0.02
       },
       {
-        "symbol": "[ALLE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ALLE)",
-        "company": "[Allegion](http://www.slickcharts.com/symbol/ALLE)",
+        "symbol": "AVY",
+        "company": "[Avery Dennison](https://www.slickcharts.com/symbol/AVY)",
         "weight": 0.02
       },
       {
-        "symbol": "[APTV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APTV)",
-        "company": "[Aptiv](http://www.slickcharts.com/symbol/APTV)",
+        "symbol": "ERIE",
+        "company": "[Erie Indemnity](https://www.slickcharts.com/symbol/ERIE)",
         "weight": 0.02
       },
       {
-        "symbol": "[FOX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FOX)",
-        "company": "[Fox Corporation (Class B)](http://www.slickcharts.com/symbol/FOX)",
+        "symbol": "PNW",
+        "company": "[Pinnacle West](https://www.slickcharts.com/symbol/PNW)",
         "weight": 0.02
       },
       {
-        "symbol": "[FOXA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FOXA)",
-        "company": "[Fox Corporation (Class A)](http://www.slickcharts.com/symbol/FOXA)",
+        "symbol": "DPZ",
+        "company": "[Domino's](https://www.slickcharts.com/symbol/DPZ)",
         "weight": 0.02
       },
       {
-        "symbol": "[CLX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CLX)",
-        "company": "[Clorox](http://www.slickcharts.com/symbol/CLX)",
+        "symbol": "CLX",
+        "company": "[Clorox](https://www.slickcharts.com/symbol/CLX)",
         "weight": 0.02
       },
       {
-        "symbol": "[PNW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PNW)",
-        "company": "[Pinnacle West](http://www.slickcharts.com/symbol/PNW)",
+        "symbol": "APTV",
+        "company": "[Aptiv](https://www.slickcharts.com/symbol/APTV)",
         "weight": 0.02
       },
       {
-        "symbol": "[DPZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DPZ)",
-        "company": "[Domino's](http://www.slickcharts.com/symbol/DPZ)",
+        "symbol": "ALLE",
+        "company": "[Allegion](https://www.slickcharts.com/symbol/ALLE)",
         "weight": 0.02
       },
       {
-        "symbol": "[GNRC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GNRC)",
-        "company": "[Generac](http://www.slickcharts.com/symbol/GNRC)",
+        "symbol": "GNRC",
+        "company": "[Generac](https://www.slickcharts.com/symbol/GNRC)",
         "weight": 0.02
       },
       {
-        "symbol": "[PSKY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PSKY)",
-        "company": "[Paramount Skydance Corp](http://www.slickcharts.com/symbol/PSKY)",
+        "symbol": "GEN",
+        "company": "[Gen Digital](https://www.slickcharts.com/symbol/GEN)",
         "weight": 0.02
       },
       {
-        "symbol": "[SOLV](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SOLV)",
-        "company": "[Solventum](http://www.slickcharts.com/symbol/SOLV)",
+        "symbol": "DOC",
+        "company": "[Healthpeak Properties](https://www.slickcharts.com/symbol/DOC)",
         "weight": 0.02
       },
       {
-        "symbol": "[GL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GL)",
-        "company": "[Globe Life](http://www.slickcharts.com/symbol/GL)",
+        "symbol": "SOLV",
+        "company": "[Solventum](https://www.slickcharts.com/symbol/SOLV)",
         "weight": 0.02
       },
       {
-        "symbol": "[DOC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DOC)",
-        "company": "[Healthpeak Properties](http://www.slickcharts.com/symbol/DOC)",
+        "symbol": "GL",
+        "company": "[Globe Life](https://www.slickcharts.com/symbol/GL)",
         "weight": 0.02
       },
       {
-        "symbol": "[GEN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GEN)",
-        "company": "[Gen Digital](http://www.slickcharts.com/symbol/GEN)",
+        "symbol": "HRL",
+        "company": "[Hormel Foods](https://www.slickcharts.com/symbol/HRL)",
         "weight": 0.02
       },
       {
-        "symbol": "[UDR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UDR)",
-        "company": "[UDR, Inc.](http://www.slickcharts.com/symbol/UDR)",
+        "symbol": "ZBRA",
+        "company": "[Zebra Technologies](https://www.slickcharts.com/symbol/ZBRA)",
         "weight": 0.02
       },
       {
-        "symbol": "[HRL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HRL)",
-        "company": "[Hormel Foods](http://www.slickcharts.com/symbol/HRL)",
+        "symbol": "UDR",
+        "company": "[UDR, Inc.](https://www.slickcharts.com/symbol/UDR)",
         "weight": 0.02
       },
       {
-        "symbol": "[SWK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SWK)",
-        "company": "[Stanley Black & Decker](http://www.slickcharts.com/symbol/SWK)",
+        "symbol": "GDDY",
+        "company": "[GoDaddy](https://www.slickcharts.com/symbol/GDDY)",
         "weight": 0.02
       },
       {
-        "symbol": "[UHS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/UHS)",
-        "company": "[Universal Health Services](http://www.slickcharts.com/symbol/UHS)",
+        "symbol": "AIZ",
+        "company": "[Assurant](https://www.slickcharts.com/symbol/AIZ)",
         "weight": 0.02
       },
       {
-        "symbol": "[AIZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AIZ)",
-        "company": "[Assurant](http://www.slickcharts.com/symbol/AIZ)",
+        "symbol": "JKHY",
+        "company": "[Jack Henry & Associates](https://www.slickcharts.com/symbol/JKHY)",
         "weight": 0.02
       },
       {
-        "symbol": "[ZBRA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ZBRA)",
-        "company": "[Zebra Technologies](http://www.slickcharts.com/symbol/ZBRA)",
+        "symbol": "WYNN",
+        "company": "[Wynn Resorts](https://www.slickcharts.com/symbol/WYNN)",
         "weight": 0.02
       },
       {
-        "symbol": "[GDDY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GDDY)",
-        "company": "[GoDaddy](http://www.slickcharts.com/symbol/GDDY)",
+        "symbol": "IT",
+        "company": "[Gartner](https://www.slickcharts.com/symbol/IT)",
         "weight": 0.02
       },
       {
-        "symbol": "[JKHY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/JKHY)",
-        "company": "[Jack Henry & Associates](http://www.slickcharts.com/symbol/JKHY)",
+        "symbol": "UHS",
+        "company": "[Universal Health Services](https://www.slickcharts.com/symbol/UHS)",
         "weight": 0.02
       },
       {
-        "symbol": "[IT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IT)",
-        "company": "[Gartner](http://www.slickcharts.com/symbol/IT)",
+        "symbol": "TTD",
+        "company": "[The Trade Desk, Inc.](https://www.slickcharts.com/symbol/TTD)",
         "weight": 0.02
       },
       {
-        "symbol": "[IVZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IVZ)",
-        "company": "[Invesco](http://www.slickcharts.com/symbol/IVZ)",
+        "symbol": "IVZ",
+        "company": "[Invesco](https://www.slickcharts.com/symbol/IVZ)",
         "weight": 0.02
       },
       {
-        "symbol": "[WYNN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WYNN)",
-        "company": "[Wynn Resorts](http://www.slickcharts.com/symbol/WYNN)",
+        "symbol": "SWK",
+        "company": "[Stanley Black & Decker](https://www.slickcharts.com/symbol/SWK)",
         "weight": 0.02
       },
       {
-        "symbol": "[CPT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CPT)",
-        "company": "[Camden Property Trust](http://www.slickcharts.com/symbol/CPT)",
+        "symbol": "CPT",
+        "company": "[Camden Property Trust](https://www.slickcharts.com/symbol/CPT)",
         "weight": 0.02
       },
       {
-        "symbol": "[RVTY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/RVTY)",
-        "company": "[Revvity](http://www.slickcharts.com/symbol/RVTY)",
+        "symbol": "AES",
+        "company": "[AES Corporation](https://www.slickcharts.com/symbol/AES)",
         "weight": 0.02
       },
       {
-        "symbol": "[AES](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AES)",
-        "company": "[AES Corporation](http://www.slickcharts.com/symbol/AES)",
+        "symbol": "SJM",
+        "company": "[J.M. Smucker Company (The)](https://www.slickcharts.com/symbol/SJM)",
         "weight": 0.02
       },
       {
-        "symbol": "[DVA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DVA)",
-        "company": "[DaVita](http://www.slickcharts.com/symbol/DVA)",
+        "symbol": "RVTY",
+        "company": "[Revvity](https://www.slickcharts.com/symbol/RVTY)",
         "weight": 0.02
       },
       {
-        "symbol": "[TTD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TTD)",
-        "company": "[The Trade Desk, Inc.](http://www.slickcharts.com/symbol/TTD)",
+        "symbol": "DVA",
+        "company": "[DaVita](https://www.slickcharts.com/symbol/DVA)",
         "weight": 0.02
       },
       {
-        "symbol": "[SJM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SJM)",
-        "company": "[J.M. Smucker Company (The)](http://www.slickcharts.com/symbol/SJM)",
+        "symbol": "MGM",
+        "company": "[MGM Resorts](https://www.slickcharts.com/symbol/MGM)",
         "weight": 0.02
       },
       {
-        "symbol": "[FRT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FRT)",
-        "company": "[Federal Realty Investment Trust](http://www.slickcharts.com/symbol/FRT)",
-        "weight": 0.02
-      },
-      {
-        "symbol": "[BLDR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BLDR)",
-        "company": "[Builders FirstSource](http://www.slickcharts.com/symbol/BLDR)",
-        "weight": 0.02
-      },
-      {
-        "symbol": "[MGM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MGM)",
-        "company": "[MGM Resorts](http://www.slickcharts.com/symbol/MGM)",
-        "weight": 0.02
-      },
-      {
-        "symbol": "[AOS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AOS)",
-        "company": "[A. O. Smith](http://www.slickcharts.com/symbol/AOS)",
+        "symbol": "FRT",
+        "company": "[Federal Realty Investment Trust](https://www.slickcharts.com/symbol/FRT)",
         "weight": 0.01
       },
       {
-        "symbol": "[NCLH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NCLH)",
-        "company": "[Norwegian Cruise Line Holdings](http://www.slickcharts.com/symbol/NCLH)",
+        "symbol": "NWSA",
+        "company": "[News Corp (Class A)](https://www.slickcharts.com/symbol/NWSA)",
         "weight": 0.01
       },
       {
-        "symbol": "[NWSA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NWSA)",
-        "company": "[News Corp (Class A)](http://www.slickcharts.com/symbol/NWSA)",
+        "symbol": "BAX",
+        "company": "[Baxter International](https://www.slickcharts.com/symbol/BAX)",
         "weight": 0.01
       },
       {
-        "symbol": "[BAX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BAX)",
-        "company": "[Baxter International](http://www.slickcharts.com/symbol/BAX)",
+        "symbol": "NCLH",
+        "company": "[Norwegian Cruise Line Holdings](https://www.slickcharts.com/symbol/NCLH)",
         "weight": 0.01
       },
       {
-        "symbol": "[TECH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TECH)",
-        "company": "[Bio-Techne](http://www.slickcharts.com/symbol/TECH)",
+        "symbol": "BLDR",
+        "company": "[Builders FirstSource](https://www.slickcharts.com/symbol/BLDR)",
         "weight": 0.01
       },
       {
-        "symbol": "[CRL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRL)",
-        "company": "[Charles River Laboratories](http://www.slickcharts.com/symbol/CRL)",
+        "symbol": "TECH",
+        "company": "[Bio-Techne](https://www.slickcharts.com/symbol/TECH)",
         "weight": 0.01
       },
       {
-        "symbol": "[HSIC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HSIC)",
-        "company": "[Henry Schein](http://www.slickcharts.com/symbol/HSIC)",
+        "symbol": "BXP",
+        "company": "[BXP, Inc.](https://www.slickcharts.com/symbol/BXP)",
         "weight": 0.01
       },
       {
-        "symbol": "[SWKS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SWKS)",
-        "company": "[Skyworks Solutions](http://www.slickcharts.com/symbol/SWKS)",
+        "symbol": "HSIC",
+        "company": "[Henry Schein](https://www.slickcharts.com/symbol/HSIC)",
         "weight": 0.01
       },
       {
-        "symbol": "[BXP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BXP)",
-        "company": "[BXP, Inc.](http://www.slickcharts.com/symbol/BXP)",
+        "symbol": "SWKS",
+        "company": "[Skyworks Solutions](https://www.slickcharts.com/symbol/SWKS)",
         "weight": 0.01
       },
       {
-        "symbol": "[TAP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TAP)",
-        "company": "[Molson Coors Beverage Company](http://www.slickcharts.com/symbol/TAP)",
+        "symbol": "AOS",
+        "company": "[A. O. Smith](https://www.slickcharts.com/symbol/AOS)",
         "weight": 0.01
       },
       {
-        "symbol": "[FDS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FDS)",
-        "company": "[FactSet](http://www.slickcharts.com/symbol/FDS)",
+        "symbol": "CRL",
+        "company": "[Charles River Laboratories](https://www.slickcharts.com/symbol/CRL)",
         "weight": 0.01
       },
       {
-        "symbol": "[POOL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/POOL)",
-        "company": "[Pool Corporation](http://www.slickcharts.com/symbol/POOL)",
+        "symbol": "FDS",
+        "company": "[FactSet](https://www.slickcharts.com/symbol/FDS)",
         "weight": 0.01
       },
       {
-        "symbol": "[MOS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MOS)",
-        "company": "[Mosaic Company (The)](http://www.slickcharts.com/symbol/MOS)",
+        "symbol": "TAP",
+        "company": "[Molson Coors Beverage Company](https://www.slickcharts.com/symbol/TAP)",
         "weight": 0.01
       },
       {
-        "symbol": "[ARE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ARE)",
-        "company": "[Alexandria Real Estate Equities](http://www.slickcharts.com/symbol/ARE)",
+        "symbol": "ARE",
+        "company": "[Alexandria Real Estate Equities](https://www.slickcharts.com/symbol/ARE)",
         "weight": 0.01
       },
       {
-        "symbol": "[CAG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CAG)",
-        "company": "[Conagra Brands](http://www.slickcharts.com/symbol/CAG)",
+        "symbol": "POOL",
+        "company": "[Pool Corporation](https://www.slickcharts.com/symbol/POOL)",
         "weight": 0.01
       },
       {
-        "symbol": "[EPAM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EPAM)",
-        "company": "[EPAM Systems](http://www.slickcharts.com/symbol/EPAM)",
+        "symbol": "MOS",
+        "company": "[Mosaic Company (The)](https://www.slickcharts.com/symbol/MOS)",
         "weight": 0.01
       },
       {
-        "symbol": "[CPB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CPB)",
-        "company": "[Campbell Soup Company](http://www.slickcharts.com/symbol/CPB)",
+        "symbol": "CAG",
+        "company": "[Conagra Brands](https://www.slickcharts.com/symbol/CAG)",
         "weight": 0.01
       },
       {
-        "symbol": "[NWS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NWS)",
-        "company": "[News Corp (Class B)](http://www.slickcharts.com/symbol/NWS)",
+        "symbol": "EPAM",
+        "company": "[EPAM Systems](https://www.slickcharts.com/symbol/EPAM)",
+        "weight": 0.01
+      },
+      {
+        "symbol": "CPB",
+        "company": "[Campbell Soup Company](https://www.slickcharts.com/symbol/CPB)",
+        "weight": 0.01
+      },
+      {
+        "symbol": "NWS",
+        "company": "[News Corp (Class B)](https://www.slickcharts.com/symbol/NWS)",
         "weight": 0.01
       }
     ],
     "nasdaq100": [
       {
-        "symbol": "[NVDA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NVDA)",
-        "company": "[Nvidia](http://www.slickcharts.com/symbol/NVDA)",
-        "weight": 13.46
+        "symbol": "NVDA",
+        "company": "[Nvidia](http://slickcharts.com/symbol/NVDA)",
+        "weight": 13.54
       },
       {
-        "symbol": "[AAPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AAPL)",
-        "company": "[Apple Inc.](http://www.slickcharts.com/symbol/AAPL)",
-        "weight": 11.13
+        "symbol": "AAPL",
+        "company": "[Apple Inc.](http://slickcharts.com/symbol/AAPL)",
+        "weight": 10.87
       },
       {
-        "symbol": "[MSFT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSFT)",
-        "company": "[Microsoft](http://www.slickcharts.com/symbol/MSFT)",
-        "weight": 8.35
+        "symbol": "MSFT",
+        "company": "[Microsoft](http://slickcharts.com/symbol/MSFT)",
+        "weight": 8.77
       },
       {
-        "symbol": "[AMZN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMZN)",
-        "company": "[Amazon](http://www.slickcharts.com/symbol/AMZN)",
+        "symbol": "AMZN",
+        "company": "[Amazon](http://slickcharts.com/symbol/AMZN)",
         "weight": 7.55
       },
       {
-        "symbol": "[GOOGL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GOOGL)",
-        "company": "[Alphabet Inc. (Class A)](http://www.slickcharts.com/symbol/GOOGL)",
-        "weight": 5.88
+        "symbol": "GOOGL",
+        "company": "[Alphabet Inc. (Class A)](http://slickcharts.com/symbol/GOOGL)",
+        "weight": 5.91
       },
       {
-        "symbol": "[GOOG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GOOG)",
-        "company": "[Alphabet Inc. (Class C)](http://www.slickcharts.com/symbol/GOOG)",
+        "symbol": "GOOG",
+        "company": "[Alphabet Inc. (Class C)](http://slickcharts.com/symbol/GOOG)",
         "weight": 5.46
       },
       {
-        "symbol": "[AVGO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AVGO)",
-        "company": "[Broadcom Inc.](http://www.slickcharts.com/symbol/AVGO)",
-        "weight": 5.26
+        "symbol": "AVGO",
+        "company": "[Broadcom Inc.](http://slickcharts.com/symbol/AVGO)",
+        "weight": 5.3
       },
       {
-        "symbol": "[META](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/META)",
-        "company": "[Meta Platforms](http://www.slickcharts.com/symbol/META)",
-        "weight": 4.7
+        "symbol": "META",
+        "company": "[Meta Platforms](http://slickcharts.com/symbol/META)",
+        "weight": 4.81
       },
       {
-        "symbol": "[TSLA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TSLA)",
-        "company": "[Tesla, Inc.](http://www.slickcharts.com/symbol/TSLA)",
-        "weight": 3.87
+        "symbol": "TSLA",
+        "company": "[Tesla, Inc.](http://slickcharts.com/symbol/TSLA)",
+        "weight": 4.1
       },
       {
-        "symbol": "[WMT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WMT)",
-        "company": "[Walmart](http://www.slickcharts.com/symbol/WMT)",
-        "weight": 2.91
+        "symbol": "WMT",
+        "company": "[Walmart](http://slickcharts.com/symbol/WMT)",
+        "weight": 2.8
       },
       {
-        "symbol": "[ASML](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ASML)",
-        "company": "[ASML Holding](http://www.slickcharts.com/symbol/ASML)",
-        "weight": 1.69
+        "symbol": "ASML",
+        "company": "[ASML Holding](http://slickcharts.com/symbol/ASML)",
+        "weight": 1.53
       },
       {
-        "symbol": "[MU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MU)",
-        "company": "[Micron Technology](http://www.slickcharts.com/symbol/MU)",
-        "weight": 1.41
+        "symbol": "MU",
+        "company": "[Micron Technology](http://slickcharts.com/symbol/MU)",
+        "weight": 1.45
       },
       {
-        "symbol": "[NFLX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NFLX)",
-        "company": "[Netflix](http://www.slickcharts.com/symbol/NFLX)",
+        "symbol": "NFLX",
+        "company": "[Netflix](http://slickcharts.com/symbol/NFLX)",
+        "weight": 1.28
+      },
+      {
+        "symbol": "AMD",
+        "company": "[Advanced Micro Devices Inc.](http://slickcharts.com/symbol/AMD)",
         "weight": 1.27
       },
       {
-        "symbol": "[COST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/COST)",
-        "company": "[Costco](http://www.slickcharts.com/symbol/COST)",
-        "weight": 1.27
+        "symbol": "COST",
+        "company": "[Costco](http://slickcharts.com/symbol/COST)",
+        "weight": 1.23
       },
       {
-        "symbol": "[AMD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMD)",
-        "company": "[Advanced Micro Devices Inc.](http://www.slickcharts.com/symbol/AMD)",
-        "weight": 1.18
+        "symbol": "INTC",
+        "company": "[Intel](http://slickcharts.com/symbol/INTC)",
+        "weight": 0.97
       },
       {
-        "symbol": "[LRCX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LRCX)",
-        "company": "[Lam Research](http://www.slickcharts.com/symbol/LRCX)",
-        "weight": 0.98
-      },
-      {
-        "symbol": "[INTC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INTC)",
-        "company": "[Intel](http://www.slickcharts.com/symbol/INTC)",
+        "symbol": "PLTR",
+        "company": "[Palantir Technologies](http://slickcharts.com/symbol/PLTR)",
         "weight": 0.96
       },
       {
-        "symbol": "[CSCO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSCO)",
-        "company": "[Cisco](http://www.slickcharts.com/symbol/CSCO)",
-        "weight": 0.95
+        "symbol": "CSCO",
+        "company": "[Cisco](http://slickcharts.com/symbol/CSCO)",
+        "weight": 0.94
       },
       {
-        "symbol": "[PLTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PLTR)",
-        "company": "[Palantir Technologies](http://www.slickcharts.com/symbol/PLTR)",
-        "weight": 0.93
-      },
-      {
-        "symbol": "[AMAT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMAT)",
-        "company": "[Applied Materials](http://www.slickcharts.com/symbol/AMAT)",
+        "symbol": "LRCX",
+        "company": "[Lam Research](http://slickcharts.com/symbol/LRCX)",
         "weight": 0.92
       },
       {
-        "symbol": "[LIN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/LIN)",
-        "company": "[Linde plc](http://www.slickcharts.com/symbol/LIN)",
-        "weight": 0.69
+        "symbol": "AMAT",
+        "company": "[Applied Materials](http://slickcharts.com/symbol/AMAT)",
+        "weight": 0.87
       },
       {
-        "symbol": "[KLAC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KLAC)",
-        "company": "[KLA Corporation](http://www.slickcharts.com/symbol/KLAC)",
-        "weight": 0.68
+        "symbol": "LIN",
+        "company": "[Linde plc](http://slickcharts.com/symbol/LIN)",
+        "weight": 0.65
       },
       {
-        "symbol": "[PEP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PEP)",
-        "company": "[PepsiCo](http://www.slickcharts.com/symbol/PEP)",
-        "weight": 0.62
+        "symbol": "KLAC",
+        "company": "[KLA Corporation](http://slickcharts.com/symbol/KLAC)",
+        "weight": 0.64
       },
       {
-        "symbol": "[TMUS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TMUS)",
-        "company": "[T-Mobile US](http://www.slickcharts.com/symbol/TMUS)",
-        "weight": 0.62
+        "symbol": "TMUS",
+        "company": "[T-Mobile US](http://slickcharts.com/symbol/TMUS)",
+        "weight": 0.61
       },
       {
-        "symbol": "[TXN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TXN)",
-        "company": "[Texas Instruments](http://www.slickcharts.com/symbol/TXN)",
-        "weight": 0.58
+        "symbol": "PEP",
+        "company": "[PepsiCo](http://slickcharts.com/symbol/PEP)",
+        "weight": 0.61
       },
       {
-        "symbol": "[AMGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AMGN)",
-        "company": "[Amgen](http://www.slickcharts.com/symbol/AMGN)",
-        "weight": 0.55
+        "symbol": "TXN",
+        "company": "[Texas Instruments](http://slickcharts.com/symbol/TXN)",
+        "weight": 0.57
       },
       {
-        "symbol": "[GILD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GILD)",
-        "company": "[Gilead Sciences](http://www.slickcharts.com/symbol/GILD)",
-        "weight": 0.5
+        "symbol": "AMGN",
+        "company": "[Amgen](http://slickcharts.com/symbol/AMGN)",
+        "weight": 0.53
       },
       {
-        "symbol": "[ADI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADI)",
-        "company": "[Analog Devices](http://www.slickcharts.com/symbol/ADI)",
-        "weight": 0.5
-      },
-      {
-        "symbol": "[ARM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ARM)",
-        "company": "[Arm Holdings](http://www.slickcharts.com/symbol/ARM)",
+        "symbol": "ADI",
+        "company": "[Analog Devices](http://slickcharts.com/symbol/ADI)",
         "weight": 0.49
       },
       {
-        "symbol": "[ISRG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ISRG)",
-        "company": "[Intuitive Surgical](http://www.slickcharts.com/symbol/ISRG)",
+        "symbol": "ARM",
+        "company": "[Arm Holdings](http://slickcharts.com/symbol/ARM)",
         "weight": 0.48
       },
       {
-        "symbol": "[SHOP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SHOP)",
-        "company": "[Shopify](http://www.slickcharts.com/symbol/SHOP)",
+        "symbol": "GILD",
+        "company": "[Gilead Sciences](http://slickcharts.com/symbol/GILD)",
+        "weight": 0.48
+      },
+      {
+        "symbol": "SHOP",
+        "company": "[Shopify](http://slickcharts.com/symbol/SHOP)",
+        "weight": 0.46
+      },
+      {
+        "symbol": "ISRG",
+        "company": "[Intuitive Surgical](http://slickcharts.com/symbol/ISRG)",
+        "weight": 0.46
+      },
+      {
+        "symbol": "APP",
+        "company": "[Applovin Corp](http://slickcharts.com/symbol/APP)",
         "weight": 0.44
       },
       {
-        "symbol": "[HON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/HON)",
-        "company": "[Honeywell](http://www.slickcharts.com/symbol/HON)",
-        "weight": 0.43
-      },
-      {
-        "symbol": "[PDD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PDD)",
-        "company": "[PDD Holdings](http://www.slickcharts.com/symbol/PDD)",
-        "weight": 0.42
-      },
-      {
-        "symbol": "[APP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/APP)",
-        "company": "[Applovin Corp](http://www.slickcharts.com/symbol/APP)",
+        "symbol": "PDD",
+        "company": "[PDD Holdings](http://slickcharts.com/symbol/PDD)",
         "weight": 0.41
       },
       {
-        "symbol": "[BKNG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BKNG)",
-        "company": "[Booking Holdings](http://www.slickcharts.com/symbol/BKNG)",
+        "symbol": "BKNG",
+        "company": "[Booking Holdings](http://slickcharts.com/symbol/BKNG)",
         "weight": 0.41
       },
       {
-        "symbol": "[QCOM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/QCOM)",
-        "company": "[Qualcomm](http://www.slickcharts.com/symbol/QCOM)",
+        "symbol": "HON",
+        "company": "[Honeywell](http://slickcharts.com/symbol/HON)",
         "weight": 0.41
       },
       {
-        "symbol": "[PANW](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PANW)",
-        "company": "[Palo Alto Networks](http://www.slickcharts.com/symbol/PANW)",
-        "weight": 0.39
+        "symbol": "QCOM",
+        "company": "[Qualcomm](http://slickcharts.com/symbol/QCOM)",
+        "weight": 0.4
       },
       {
-        "symbol": "[WDC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WDC)",
-        "company": "[Western Digital](http://www.slickcharts.com/symbol/WDC)",
-        "weight": 0.35
+        "symbol": "PANW",
+        "company": "[Palo Alto Networks](http://slickcharts.com/symbol/PANW)",
+        "weight": 0.38
       },
       {
-        "symbol": "[STX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/STX)",
-        "company": "[Seagate Technology Holdings](http://www.slickcharts.com/symbol/STX)",
+        "symbol": "WDC",
+        "company": "[Western Digital](http://slickcharts.com/symbol/WDC)",
         "weight": 0.34
       },
       {
-        "symbol": "[MRVL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MRVL)",
-        "company": "[Marvell Technology](http://www.slickcharts.com/symbol/MRVL)",
-        "weight": 0.34
-      },
-      {
-        "symbol": "[VRTX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRTX)",
-        "company": "[Vertex Pharmaceuticals](http://www.slickcharts.com/symbol/VRTX)",
+        "symbol": "STX",
+        "company": "[Seagate Technology Holdings](http://slickcharts.com/symbol/STX)",
         "weight": 0.33
       },
       {
-        "symbol": "[SBUX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SBUX)",
-        "company": "[Starbucks](http://www.slickcharts.com/symbol/SBUX)",
-        "weight": 0.32
+        "symbol": "MRVL",
+        "company": "[Marvell Technology](http://slickcharts.com/symbol/MRVL)",
+        "weight": 0.33
       },
       {
-        "symbol": "[CEG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CEG)",
-        "company": "[Constellation Energy](http://www.slickcharts.com/symbol/CEG)",
+        "symbol": "SBUX",
+        "company": "[Starbucks](http://slickcharts.com/symbol/SBUX)",
         "weight": 0.31
       },
       {
-        "symbol": "[INTU](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INTU)",
-        "company": "[Intuit](http://www.slickcharts.com/symbol/INTU)",
+        "symbol": "VRTX",
+        "company": "[Vertex Pharmaceuticals](http://slickcharts.com/symbol/VRTX)",
+        "weight": 0.31
+      },
+      {
+        "symbol": "CEG",
+        "company": "[Constellation Energy](http://slickcharts.com/symbol/CEG)",
         "weight": 0.3
       },
       {
-        "symbol": "[CRWD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CRWD)",
-        "company": "[CrowdStrike](http://www.slickcharts.com/symbol/CRWD)",
+        "symbol": "INTU",
+        "company": "[Intuit](http://slickcharts.com/symbol/INTU)",
         "weight": 0.3
       },
       {
-        "symbol": "[CMCSA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CMCSA)",
-        "company": "[Comcast](http://www.slickcharts.com/symbol/CMCSA)",
+        "symbol": "CRWD",
+        "company": "[CrowdStrike](http://slickcharts.com/symbol/CRWD)",
         "weight": 0.3
       },
       {
-        "symbol": "[ADBE](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADBE)",
-        "company": "[Adobe Inc.](http://www.slickcharts.com/symbol/ADBE)",
+        "symbol": "CMCSA",
+        "company": "[Comcast](http://slickcharts.com/symbol/CMCSA)",
+        "weight": 0.3
+      },
+      {
+        "symbol": "ADBE",
+        "company": "[Adobe Inc.](http://slickcharts.com/symbol/ADBE)",
         "weight": 0.28
       },
       {
-        "symbol": "[MAR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MAR)",
-        "company": "[Marriott International](http://www.slickcharts.com/symbol/MAR)",
-        "weight": 0.28
-      },
-      {
-        "symbol": "[MELI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MELI)",
-        "company": "[MercadoLibre](http://www.slickcharts.com/symbol/MELI)",
+        "symbol": "MAR",
+        "company": "[Marriott International](http://slickcharts.com/symbol/MAR)",
         "weight": 0.27
       },
       {
-        "symbol": "[SNPS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/SNPS)",
-        "company": "[Synopsys](http://www.slickcharts.com/symbol/SNPS)",
+        "symbol": "MELI",
+        "company": "[MercadoLibre](http://slickcharts.com/symbol/MELI)",
+        "weight": 0.26
+      },
+      {
+        "symbol": "CDNS",
+        "company": "[Cadence Design Systems](http://slickcharts.com/symbol/CDNS)",
+        "weight": 0.24
+      },
+      {
+        "symbol": "SNPS",
+        "company": "[Synopsys](http://slickcharts.com/symbol/SNPS)",
+        "weight": 0.24
+      },
+      {
+        "symbol": "ABNB",
+        "company": "[Airbnb](http://slickcharts.com/symbol/ABNB)",
         "weight": 0.23
       },
       {
-        "symbol": "[CDNS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CDNS)",
-        "company": "[Cadence Design Systems](http://www.slickcharts.com/symbol/CDNS)",
+        "symbol": "ADP",
+        "company": "[ADP](http://slickcharts.com/symbol/ADP)",
         "weight": 0.23
       },
       {
-        "symbol": "[REGN](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/REGN)",
-        "company": "[Regeneron Pharmaceuticals](http://www.slickcharts.com/symbol/REGN)",
-        "weight": 0.23
-      },
-      {
-        "symbol": "[CSX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSX)",
-        "company": "[CSX Corporation](http://www.slickcharts.com/symbol/CSX)",
-        "weight": 0.23
-      },
-      {
-        "symbol": "[ADP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADP)",
-        "company": "[ADP](http://www.slickcharts.com/symbol/ADP)",
-        "weight": 0.23
-      },
-      {
-        "symbol": "[ORLY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ORLY)",
-        "company": "[O'Reilly Automotive](http://www.slickcharts.com/symbol/ORLY)",
-        "weight": 0.23
-      },
-      {
-        "symbol": "[ABNB](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ABNB)",
-        "company": "[Airbnb](http://www.slickcharts.com/symbol/ABNB)",
-        "weight": 0.23
-      },
-      {
-        "symbol": "[MDLZ](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MDLZ)",
-        "company": "[Mondelez International](http://www.slickcharts.com/symbol/MDLZ)",
+        "symbol": "CSX",
+        "company": "[CSX Corporation](http://slickcharts.com/symbol/CSX)",
         "weight": 0.22
       },
       {
-        "symbol": "[MNST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MNST)",
-        "company": "[Monster Beverage](http://www.slickcharts.com/symbol/MNST)",
+        "symbol": "REGN",
+        "company": "[Regeneron Pharmaceuticals](http://slickcharts.com/symbol/REGN)",
         "weight": 0.22
       },
       {
-        "symbol": "[AEP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AEP)",
-        "company": "[American Electric Power](http://www.slickcharts.com/symbol/AEP)",
+        "symbol": "DASH",
+        "company": "[DoorDash](http://slickcharts.com/symbol/DASH)",
+        "weight": 0.22
+      },
+      {
+        "symbol": "ORLY",
+        "company": "[O'Reilly Automotive](http://slickcharts.com/symbol/ORLY)",
+        "weight": 0.22
+      },
+      {
+        "symbol": "MNST",
+        "company": "[Monster Beverage](http://slickcharts.com/symbol/MNST)",
         "weight": 0.21
       },
       {
-        "symbol": "[ROST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROST)",
-        "company": "[Ross Stores](http://www.slickcharts.com/symbol/ROST)",
+        "symbol": "MDLZ",
+        "company": "[Mondelez International](http://slickcharts.com/symbol/MDLZ)",
         "weight": 0.21
       },
       {
-        "symbol": "[CTAS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTAS)",
-        "company": "[Cintas](http://www.slickcharts.com/symbol/CTAS)",
+        "symbol": "AEP",
+        "company": "[American Electric Power](http://slickcharts.com/symbol/AEP)",
         "weight": 0.21
       },
       {
-        "symbol": "[DASH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DASH)",
-        "company": "[DoorDash](http://www.slickcharts.com/symbol/DASH)",
+        "symbol": "ROST",
+        "company": "[Ross Stores](http://slickcharts.com/symbol/ROST)",
         "weight": 0.2
       },
       {
-        "symbol": "[WBD](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WBD)",
-        "company": "[Warner Bros. Discovery](http://www.slickcharts.com/symbol/WBD)",
+        "symbol": "CTAS",
+        "company": "[Cintas](http://slickcharts.com/symbol/CTAS)",
         "weight": 0.2
       },
       {
-        "symbol": "[MPWR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MPWR)",
-        "company": "[Monolithic Power Systems](http://www.slickcharts.com/symbol/MPWR)",
-        "weight": 0.2
+        "symbol": "MPWR",
+        "company": "[Monolithic Power Systems](http://slickcharts.com/symbol/MPWR)",
+        "weight": 0.19
       },
       {
-        "symbol": "[PCAR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PCAR)",
-        "company": "[Paccar](http://www.slickcharts.com/symbol/PCAR)",
-        "weight": 0.2
+        "symbol": "WBD",
+        "company": "[Warner Bros. Discovery](http://slickcharts.com/symbol/WBD)",
+        "weight": 0.19
       },
       {
-        "symbol": "[BKR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/BKR)",
-        "company": "[Baker Hughes](http://www.slickcharts.com/symbol/BKR)",
+        "symbol": "PCAR",
+        "company": "[Paccar](http://slickcharts.com/symbol/PCAR)",
         "weight": 0.18
       },
       {
-        "symbol": "[FTNT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FTNT)",
-        "company": "[Fortinet](http://www.slickcharts.com/symbol/FTNT)",
+        "symbol": "FTNT",
+        "company": "[Fortinet](http://slickcharts.com/symbol/FTNT)",
         "weight": 0.17
       },
       {
-        "symbol": "[FANG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FANG)",
-        "company": "[Diamondback Energy](http://www.slickcharts.com/symbol/FANG)",
-        "weight": 0.16
+        "symbol": "BKR",
+        "company": "[Baker Hughes](http://slickcharts.com/symbol/BKR)",
+        "weight": 0.17
       },
       {
-        "symbol": "[FAST](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FAST)",
-        "company": "[Fastenal](http://www.slickcharts.com/symbol/FAST)",
+        "symbol": "NXPI",
+        "company": "[NXP Semiconductors](http://slickcharts.com/symbol/NXPI)",
         "weight": 0.15
       },
       {
-        "symbol": "[NXPI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/NXPI)",
-        "company": "[NXP Semiconductors](http://www.slickcharts.com/symbol/NXPI)",
+        "symbol": "FANG",
+        "company": "[Diamondback Energy](http://slickcharts.com/symbol/FANG)",
         "weight": 0.15
       },
       {
-        "symbol": "[FER](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/FER)",
-        "company": "[Ferrovial SE](http://www.slickcharts.com/symbol/FER)",
+        "symbol": "MSTR",
+        "company": "[MicroStrategy Inc.](http://slickcharts.com/symbol/MSTR)",
         "weight": 0.15
       },
       {
-        "symbol": "[EA](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EA)",
-        "company": "[Electronic Arts](http://www.slickcharts.com/symbol/EA)",
-        "weight": 0.15
-      },
-      {
-        "symbol": "[XEL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/XEL)",
-        "company": "[Xcel Energy](http://www.slickcharts.com/symbol/XEL)",
-        "weight": 0.15
-      },
-      {
-        "symbol": "[EXC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/EXC)",
-        "company": "[Exelon](http://www.slickcharts.com/symbol/EXC)",
+        "symbol": "FAST",
+        "company": "[Fastenal](http://slickcharts.com/symbol/FAST)",
         "weight": 0.14
       },
       {
-        "symbol": "[ADSK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ADSK)",
-        "company": "[Autodesk](http://www.slickcharts.com/symbol/ADSK)",
+        "symbol": "ADSK",
+        "company": "[Autodesk](http://slickcharts.com/symbol/ADSK)",
         "weight": 0.14
       },
       {
-        "symbol": "[MSTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MSTR)",
-        "company": "[MicroStrategy Inc.](http://www.slickcharts.com/symbol/MSTR)",
+        "symbol": "EA",
+        "company": "[Electronic Arts](http://slickcharts.com/symbol/EA)",
+        "weight": 0.14
+      },
+      {
+        "symbol": "XEL",
+        "company": "[Xcel Energy](http://slickcharts.com/symbol/XEL)",
+        "weight": 0.14
+      },
+      {
+        "symbol": "FER",
+        "company": "[Ferrovial SE](http://slickcharts.com/symbol/FER)",
+        "weight": 0.14
+      },
+      {
+        "symbol": "EXC",
+        "company": "[Exelon](http://slickcharts.com/symbol/EXC)",
+        "weight": 0.14
+      },
+      {
+        "symbol": "IDXX",
+        "company": "[Idexx Laboratories](http://slickcharts.com/symbol/IDXX)",
         "weight": 0.13
       },
       {
-        "symbol": "[IDXX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/IDXX)",
-        "company": "[Idexx Laboratories](http://www.slickcharts.com/symbol/IDXX)",
+        "symbol": "PYPL",
+        "company": "[PayPal](http://slickcharts.com/symbol/PYPL)",
         "weight": 0.13
       },
       {
-        "symbol": "[ALNY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ALNY)",
-        "company": "[Alnylam Pharmaceuticals](http://www.slickcharts.com/symbol/ALNY)",
+        "symbol": "ODFL",
+        "company": "[Old Dominion Freight Line](http://slickcharts.com/symbol/ODFL)",
         "weight": 0.13
       },
       {
-        "symbol": "[CCEP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CCEP)",
-        "company": "[Coca-Cola Europacific Partners](http://www.slickcharts.com/symbol/CCEP)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[ODFL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ODFL)",
-        "company": "[Old Dominion Freight Line](http://www.slickcharts.com/symbol/ODFL)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[PYPL](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PYPL)",
-        "company": "[PayPal](http://www.slickcharts.com/symbol/PYPL)",
-        "weight": 0.13
-      },
-      {
-        "symbol": "[MCHP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/MCHP)",
-        "company": "[Microchip Technology](http://www.slickcharts.com/symbol/MCHP)",
+        "symbol": "DDOG",
+        "company": "[Datadog](http://slickcharts.com/symbol/DDOG)",
         "weight": 0.12
       },
       {
-        "symbol": "[DDOG](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DDOG)",
-        "company": "[Datadog](http://www.slickcharts.com/symbol/DDOG)",
+        "symbol": "CCEP",
+        "company": "[Coca-Cola Europacific Partners](http://slickcharts.com/symbol/CCEP)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "ALNY",
+        "company": "[Alnylam Pharmaceuticals](http://slickcharts.com/symbol/ALNY)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "MCHP",
+        "company": "[Microchip Technology](http://slickcharts.com/symbol/MCHP)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "TRI",
+        "company": "[Thomson Reuters Corporation](http://slickcharts.com/symbol/TRI)",
+        "weight": 0.12
+      },
+      {
+        "symbol": "TTWO",
+        "company": "[Take-Two Interactive](http://slickcharts.com/symbol/TTWO)",
         "weight": 0.11
       },
       {
-        "symbol": "[TRI](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TRI)",
-        "company": "[Thomson Reuters Corporation](http://www.slickcharts.com/symbol/TRI)",
-        "weight": 0.11
-      },
-      {
-        "symbol": "[TTWO](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TTWO)",
-        "company": "[Take-Two Interactive](http://www.slickcharts.com/symbol/TTWO)",
-        "weight": 0.11
-      },
-      {
-        "symbol": "[ROP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ROP)",
-        "company": "[Roper Technologies](http://www.slickcharts.com/symbol/ROP)",
-        "weight": 0.11
-      },
-      {
-        "symbol": "[KDP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KDP)",
-        "company": "[Keurig Dr Pepper](http://www.slickcharts.com/symbol/KDP)",
+        "symbol": "ROP",
+        "company": "[Roper Technologies](http://slickcharts.com/symbol/ROP)",
         "weight": 0.1
       },
       {
-        "symbol": "[GEHC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/GEHC)",
-        "company": "[GE HealthCare](http://www.slickcharts.com/symbol/GEHC)",
+        "symbol": "KDP",
+        "company": "[Keurig Dr Pepper](http://slickcharts.com/symbol/KDP)",
         "weight": 0.1
       },
       {
-        "symbol": "[INSM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/INSM)",
-        "company": "[Insmed Incorporated](http://www.slickcharts.com/symbol/INSM)",
-        "weight": 0.1
-      },
-      {
-        "symbol": "[CPRT](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CPRT)",
-        "company": "[Copart](http://www.slickcharts.com/symbol/CPRT)",
+        "symbol": "GEHC",
+        "company": "[GE HealthCare](http://slickcharts.com/symbol/GEHC)",
         "weight": 0.09
       },
       {
-        "symbol": "[PAYX](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/PAYX)",
-        "company": "[Paychex](http://www.slickcharts.com/symbol/PAYX)",
+        "symbol": "PAYX",
+        "company": "[Paychex](http://slickcharts.com/symbol/PAYX)",
         "weight": 0.09
       },
       {
-        "symbol": "[WDAY](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/WDAY)",
-        "company": "[Workday, Inc.](http://www.slickcharts.com/symbol/WDAY)",
+        "symbol": "WDAY",
+        "company": "[Workday, Inc.](http://slickcharts.com/symbol/WDAY)",
         "weight": 0.09
       },
       {
-        "symbol": "[CTSH](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CTSH)",
-        "company": "[Cognizant](http://www.slickcharts.com/symbol/CTSH)",
+        "symbol": "CPRT",
+        "company": "[Copart](http://slickcharts.com/symbol/CPRT)",
+        "weight": 0.09
+      },
+      {
+        "symbol": "AXON",
+        "company": "[Axon Enterprise Inc.](http://slickcharts.com/symbol/AXON)",
+        "weight": 0.09
+      },
+      {
+        "symbol": "INSM",
+        "company": "[Insmed Incorporated](http://slickcharts.com/symbol/INSM)",
+        "weight": 0.09
+      },
+      {
+        "symbol": "CHTR",
+        "company": "[Charter Communications](http://slickcharts.com/symbol/CHTR)",
         "weight": 0.08
       },
       {
-        "symbol": "[AXON](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/AXON)",
-        "company": "[Axon Enterprise Inc.](http://www.slickcharts.com/symbol/AXON)",
+        "symbol": "CTSH",
+        "company": "[Cognizant](http://slickcharts.com/symbol/CTSH)",
         "weight": 0.08
       },
       {
-        "symbol": "[CHTR](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CHTR)",
-        "company": "[Charter Communications](http://www.slickcharts.com/symbol/CHTR)",
+        "symbol": "KHC",
+        "company": "[Kraft Heinz](http://slickcharts.com/symbol/KHC)",
         "weight": 0.08
       },
       {
-        "symbol": "[KHC](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/KHC)",
-        "company": "[Kraft Heinz](http://www.slickcharts.com/symbol/KHC)",
-        "weight": 0.08
-      },
-      {
-        "symbol": "[DXCM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/DXCM)",
-        "company": "[DexCom](http://www.slickcharts.com/symbol/DXCM)",
+        "symbol": "DXCM",
+        "company": "[DexCom](http://slickcharts.com/symbol/DXCM)",
         "weight": 0.07
       },
       {
-        "symbol": "[VRSK](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/VRSK)",
-        "company": "[Verisk](http://www.slickcharts.com/symbol/VRSK)",
+        "symbol": "VRSK",
+        "company": "[Verisk](http://slickcharts.com/symbol/VRSK)",
+        "weight": 0.07
+      },
+      {
+        "symbol": "ZS",
+        "company": "[Zscaler](http://slickcharts.com/symbol/ZS)",
         "weight": 0.06
       },
       {
-        "symbol": "[ZS](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/ZS)",
-        "company": "[Zscaler](http://www.slickcharts.com/symbol/ZS)",
-        "weight": 0.06
-      },
-      {
-        "symbol": "[TEAM](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/TEAM)",
-        "company": "[Atlassian](http://www.slickcharts.com/symbol/TEAM)",
+        "symbol": "TEAM",
+        "company": "[Atlassian](http://slickcharts.com/symbol/TEAM)",
         "weight": 0.05
       },
       {
-        "symbol": "[CSGP](HTTP://WWW.SLICKCHARTS.COM/SYMBOL/CSGP)",
-        "company": "[CoStar Group](http://www.slickcharts.com/symbol/CSGP)",
+        "symbol": "CSGP",
+        "company": "[CoStar Group](http://slickcharts.com/symbol/CSGP)",
         "weight": 0.05
       }
     ]

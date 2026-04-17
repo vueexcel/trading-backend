@@ -9,7 +9,8 @@ const {
     getUniqueIndices,
     getPeriodOptions,
     getTickerDetailsByIndex,
-    getTickerReturns
+    getTickerReturns,
+    getIndexReturns
 } = require('../controllers/marketController');
 const requireAuth = require('../middleware/authMiddleware'); // Protect this route!
 
@@ -32,5 +33,6 @@ router.get('/indices', requireAuth, getUniqueIndices);
 router.get('/period-options', requireAuth, getPeriodOptions);
 router.post('/ticker-details', requireAuth, getTickerDetailsByIndex);
 router.post('/ticker-returns', requireAuth, getTickerReturns);
+router.post('/index-returns', requireAuth, getIndexReturns);
 
 module.exports = router;

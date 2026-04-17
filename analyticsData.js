@@ -1,10 +1,13 @@
 const bigquery = require('./config/bigquery');
 const supabase = require('./config/supabase');
+const fs = require('fs');
+const path = require('path');
 
 const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT || 'extended-byway-454621-s6';
 const BIGQUERY_DATASET = process.env.BIGQUERY_DATASET || 'sp500data1';
 const TICKER_DETAILS_TABLE = process.env.TICKER_DETAILS_TABLE || 'TickerDetails';
 const BIGQUERY_TABLE = process.env.BIGQUERY_TABLE || 'stock_all_data';
+const WEIGHTS_JSON_PATH = path.resolve(__dirname, 'data', 'index-weights.json');
 
 const TICKER_DETAILS_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${TICKER_DETAILS_TABLE}`;
 const TABLE_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${BIGQUERY_TABLE}`;
@@ -12,6 +15,8 @@ const TABLE_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${BIGQUERY_TABLE}`;
 const DAYS_IN_YEAR = 365.25;
 const MAX_DATE_CACHE_TTL_MS = Number(process.env.MAX_DATE_CACHE_TTL_MS || 60000);
 let maxDateCache = { value: null, ts: 0 };
+let indexWeightsCache = null;
+let indexWeightsCacheMtime = 0;
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10);
@@ -125,6 +130,60 @@ function normIndexKey(s) {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalizeTickerFromWeightCell(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const md = s.match(/^\[([A-Za-z0-9.\-]+)\]\s*\(/);
+  if (md) return md[1].toUpperCase();
+  return s.replace(/[^A-Za-z0-9.\-]/g, '').toUpperCase() || s.toUpperCase().trim();
+}
+
+function indexToWeightSource(indexValue) {
+  const k = normIndexKey(indexValue);
+  if (k === 'dow jones' || k === 'dow' || k === 'dow jones 30' || k === 'djia') return 'dowjones';
+  if (k === 'sp500' || k === 's&p 500' || k === 's&p500' || k === 'sp 500') return 'sp500';
+  if (k === 'nasdaq 100' || k === 'nasdaq100' || k === 'ndx' || k === 'nasdaq-100') return 'nasdaq100';
+  if (k === 'all stocks') return 'sp500';
+  return null;
+}
+
+function loadIndexWeights() {
+  try {
+    const st = fs.statSync(WEIGHTS_JSON_PATH);
+    if (indexWeightsCache && indexWeightsCacheMtime === st.mtimeMs) return indexWeightsCache;
+    const raw = fs.readFileSync(WEIGHTS_JSON_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    indexWeightsCache = parsed;
+    indexWeightsCacheMtime = st.mtimeMs;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function buildWeightMapForIndex(indexValue, tickerSymbols) {
+  const syms = [...new Set((tickerSymbols || []).map((s) => String(s || '').toUpperCase().trim()).filter(Boolean))];
+  const sourceKey = indexToWeightSource(indexValue);
+  const allWeights = loadIndexWeights();
+  const out = new Map();
+  if (!allWeights?.sources || !sourceKey || !Array.isArray(allWeights.sources[sourceKey])) {
+    for (const s of syms) out.set(s, 1);
+    return out;
+  }
+  const bySymbol = new Map();
+  for (const r of allWeights.sources[sourceKey]) {
+    const sym = normalizeTickerFromWeightCell(r.symbol);
+    const w = Number(r.weight);
+    if (!sym || !Number.isFinite(w) || w <= 0) continue;
+    bySymbol.set(sym, w);
+  }
+  for (const s of syms) {
+    const w = Number(bySymbol.get(s));
+    out.set(s, Number.isFinite(w) && w > 0 ? w : 1);
+  }
+  return out;
 }
 
 function resolveMarketGroupFromIndexValue(indexValue, groups) {
@@ -601,6 +660,28 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
     .filter(Boolean);
 }
 
+async function getIndexConstituentSymbols(indexValue) {
+  let rows = [];
+  try {
+    const groups = await fetchMarketGroupsWithCodes();
+    const resolved = resolveMarketGroupFromIndexValue(indexValue, groups);
+    if (resolved) {
+      const members = await getMembersForMarketGroupId(resolved.id);
+      rows = (members || []).map((m) => String(m.symbol || '').toUpperCase().trim()).filter(Boolean);
+    } else {
+      const dbIndex = await mapIndexValueToDbIndex(indexValue);
+      const fallbackRows = await fetchTickerDetailsRowsByIndexColumn(dbIndex);
+      rows = (fallbackRows || []).map((r) => String(r.Symbol || '').toUpperCase().trim()).filter(Boolean);
+    }
+  } catch (e) {
+    console.error('getIndexConstituentSymbols:', e);
+    const dbIndex = await mapIndexValueToDbIndex(indexValue);
+    const fallbackRows = await fetchTickerDetailsRowsByIndexColumn(dbIndex);
+    rows = (fallbackRows || []).map((r) => String(r.Symbol || '').toUpperCase().trim()).filter(Boolean);
+  }
+  return [...new Set(rows)];
+}
+
 function yearsBetween(start, end) {
   return Math.round(((end - start) / (1000 * 60 * 60 * 24)) / DAYS_IN_YEAR * 1000) / 1000;
 }
@@ -859,15 +940,25 @@ async function calculateCustomRange(ticker, startDate, endDate, prices) {
   };
 }
 
-async function calculateAllReturns(ticker, includePredefined = true, includeAnnual = true, customRange = null, annualFromYear = 1970) {
-  const endDate = await getMaxDate();
+async function buildAllReturnsPayloadFromPrices(ticker, endDate, prices, includePredefined, includeAnnual, customRange, annualFromYear) {
   const t = (ticker || '').toString().trim().toUpperCase();
-
-  // Pull enough data once for all calculations.
-  const minDt = await getMinDateForTicker(t);
+  if (!prices || !prices.length) {
+    return {
+      success: true,
+      ticker: t,
+      asOfDate: isoDate(endDate),
+      performance: {
+        dynamicPeriods: [],
+        predefinedPeriods: [],
+        annualReturns: [],
+        customRange: [],
+        quarterlyReturns: [],
+        monthlyReturns: []
+      }
+    };
+  }
+  const minDt = prices[0].Date;
   const startYear = Math.max(minDt.getFullYear(), annualFromYear);
-  const earliest = new Date(startYear, 0, 1);
-  const prices = await fetchCloseSeries(t, earliest, endDate);
 
   const dynamic = await calculateDynamicPeriods(t, endDate, prices);
   const predefined = includePredefined ? await calculatePredefinedPeriods(t, endDate, prices) : [];
@@ -895,6 +986,198 @@ async function calculateAllReturns(ticker, includePredefined = true, includeAnnu
   };
 }
 
+async function calculateAllReturns(ticker, includePredefined = true, includeAnnual = true, customRange = null, annualFromYear = 1970) {
+  const endDate = await getMaxDate();
+  const t = (ticker || '').toString().trim().toUpperCase();
+
+  const minDt = await getMinDateForTicker(t);
+  const startYear = Math.max(minDt.getFullYear(), annualFromYear);
+  const earliest = new Date(startYear, 0, 1);
+  const prices = await fetchCloseSeries(t, earliest, endDate);
+
+  return buildAllReturnsPayloadFromPrices(t, endDate, prices, includePredefined, includeAnnual, customRange, annualFromYear);
+}
+
+function buildSyntheticIndexCloseSeries(priceData, weightByTicker) {
+  const byDate = new Map();
+  const baseCloseByTicker = new Map();
+  for (const row of priceData || []) {
+    const t = String(row.Ticker || '').toUpperCase().trim();
+    if (!t) continue;
+    const close = row.Close != null ? Number(row.Close) : null;
+    if (!Number.isFinite(close) || close <= 0) continue;
+    if (!baseCloseByTicker.has(t)) baseCloseByTicker.set(t, close);
+    const base = baseCloseByTicker.get(t);
+    if (!Number.isFinite(base) || base <= 0) continue;
+    const ratio = close / base;
+    const w = Number(weightByTicker.get(t));
+    const weight = Number.isFinite(w) && w > 0 ? w : 1;
+    const d = isoDate(row.Date);
+    const cur = byDate.get(d) || { num: 0, den: 0, dt: new Date(row.Date) };
+    cur.num += weight * ratio;
+    cur.den += weight;
+    if (row.Date > cur.dt) cur.dt = new Date(row.Date);
+    byDate.set(d, cur);
+  }
+
+  const out = [];
+  for (const [d, v] of byDate.entries()) {
+    if (!Number.isFinite(v.num) || !Number.isFinite(v.den) || v.den <= 0) continue;
+    out.push({ Date: new Date(`${d}T12:00:00`), Close: (v.num / v.den) * 100 });
+  }
+  out.sort((a, b) => a.Date - b.Date);
+  return out;
+}
+
+/**
+ * When your BigQuery `stock_all_data` stores major US indices as plain tickers
+ * (e.g. SPX, DJI, IXIC), use that single series for published-index returns.
+ * Falls back to synthetic constituents when no mapping applies.
+ */
+function resolveOfficialIndexTicker(indexValue) {
+  const raw = String(indexValue || '').trim();
+  if (!raw) return null;
+  const envMap = (process.env.OFFICIAL_INDEX_TICKER_MAP || '').trim();
+  if (envMap) {
+    try {
+      const obj = JSON.parse(envMap);
+      if (obj && typeof obj === 'object') {
+        const keys = [raw, normIndexKey(raw), raw.toLowerCase(), raw.toUpperCase()];
+        for (const k of keys) {
+          if (k != null && obj[k] != null && String(obj[k]).trim()) {
+            return String(obj[k]).trim().toUpperCase();
+          }
+        }
+      }
+    } catch {
+      /* ignore bad JSON */
+    }
+  }
+
+  const k = normIndexKey(raw);
+  const up = raw.toUpperCase();
+
+  if (k === 'sp500' || k === 's&p 500' || k === 's&p500' || k === 'sp 500' || up === 'SP') return 'SPX';
+  if (
+    k === 'dow jones' ||
+    k === 'dow jones 30' ||
+    k === 'dow' ||
+    k === 'djia' ||
+    up === 'DJ'
+  ) {
+    return 'DJI';
+  }
+  if (
+    k === 'nasdaq composite' ||
+    k === 'nasdaq comp' ||
+    k === 'ixic' ||
+    k === 'comp' ||
+    up === 'COMP'
+  ) {
+    return 'IXIC';
+  }
+  return null;
+}
+
+async function calculateIndexReturns(indexValue, customRange = null, annualFromYear = 1970) {
+  const endDate = await getMaxDate();
+  const officialTicker = resolveOfficialIndexTicker(indexValue);
+  if (officialTicker) {
+    const minDt = await getMinDateForTicker(officialTicker);
+    const startYear = Math.max(minDt.getFullYear(), annualFromYear);
+    const earliest = new Date(startYear, 0, 1);
+    const prices = await fetchCloseSeries(officialTicker, earliest, endDate);
+    const base = await buildAllReturnsPayloadFromPrices(
+      officialTicker,
+      endDate,
+      prices,
+      true,
+      true,
+      customRange,
+      annualFromYear
+    );
+    return {
+      ...base,
+      index: String(indexValue || '').trim(),
+      seriesMode: 'official-index-ticker',
+      officialIndexTicker: officialTicker,
+      constituentsCount: 1,
+      constituentSymbolsUsed: [officialTicker],
+      symbolsWithPriceData: prices.length ? [officialTicker] : [],
+      constituentsMissingPriceData: prices.length ? [] : [officialTicker],
+      syntheticCloseSeries: prices.map((r) => ({
+        date: isoDate(r.Date),
+        close: Math.round(Number(r.Close) * 10000) / 10000
+      }))
+    };
+  }
+
+  const tickerSymbols = await getIndexConstituentSymbols(indexValue);
+  if (!Array.isArray(tickerSymbols) || !tickerSymbols.length) {
+    throw new Error(`No constituents found for index "${indexValue}"`);
+  }
+
+  const weightByTicker = buildWeightMapForIndex(indexValue, tickerSymbols);
+
+  const earliest = new Date(Math.max(1900, Number(annualFromYear) || 1970), 0, 1);
+  const priceData = await fetchAllTickerCloses(tickerSymbols, earliest, endDate);
+  const symbolsWithPriceData = [
+    ...new Set(
+      (priceData || [])
+        .map((r) => String(r.Ticker || '').toUpperCase().trim())
+        .filter(Boolean)
+    )
+  ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  const symbolsWithPriceSet = new Set(symbolsWithPriceData);
+  const constituentSymbolsUsed = [...tickerSymbols].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' })
+  );
+  const constituentsMissingPriceData = constituentSymbolsUsed.filter((s) => !symbolsWithPriceSet.has(s));
+  const synthetic = buildSyntheticIndexCloseSeries(priceData, weightByTicker);
+  if (!synthetic.length) {
+    throw new Error(`No synthetic close series could be built for index "${indexValue}"`);
+  }
+
+  const syntheticEnd = synthetic[synthetic.length - 1].Date;
+  const minDt = synthetic[0].Date;
+  const startYear = Math.max(minDt.getFullYear(), annualFromYear);
+
+  const dynamic = await calculateDynamicPeriods(String(indexValue || 'INDEX'), syntheticEnd, synthetic);
+  const predefined = await calculatePredefinedPeriods(String(indexValue || 'INDEX'), syntheticEnd, synthetic);
+  const annual = await calculateAnnualReturns(String(indexValue || 'INDEX'), syntheticEnd, minDt.getFullYear(), synthetic);
+  const monthly = await calculateMonthlyReturns(String(indexValue || 'INDEX'), syntheticEnd, startYear, synthetic);
+  const quarterly = await calculateQuarterlyReturns(String(indexValue || 'INDEX'), syntheticEnd, startYear, synthetic);
+
+  let custom = null;
+  if (customRange && customRange.length === 2) {
+    custom = await calculateCustomRange(String(indexValue || 'INDEX'), new Date(customRange[0]), new Date(customRange[1]), synthetic);
+  }
+
+  return {
+    success: true,
+    index: String(indexValue || '').trim(),
+    seriesMode: 'synthetic-constituents',
+    officialIndexTicker: null,
+    asOfDate: isoDate(syntheticEnd),
+    constituentsCount: constituentSymbolsUsed.length,
+    constituentSymbolsUsed,
+    symbolsWithPriceData,
+    constituentsMissingPriceData,
+    syntheticCloseSeries: synthetic.map((r) => ({
+      date: isoDate(r.Date),
+      close: Math.round(Number(r.Close) * 10000) / 10000
+    })),
+    performance: {
+      dynamicPeriods: formatPeriods(dynamic),
+      predefinedPeriods: formatPeriods(predefined),
+      annualReturns: formatPeriods(annual, 'year'),
+      customRange: custom ? formatPeriods([custom]) : [],
+      quarterlyReturns: formatPeriods(quarterly, 'quarter'),
+      monthlyReturns: formatPeriods(monthly, 'month')
+    }
+  };
+}
+
 module.exports = {
   getUniqueIndices,
   getPeriodOptions,
@@ -902,6 +1185,7 @@ module.exports = {
   mapIndexValueToDbIndex,
   getTickerDetailsByIndex,
   calculateAllReturns,
+  calculateIndexReturns,
   calculateTotalReturnPercentage
 };
 

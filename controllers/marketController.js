@@ -793,6 +793,50 @@ const getTickerReturns = async (req, res) => {
     }
 };
 
+const getIndexReturns = async (req, res) => {
+    const data = req.body || {};
+    const indexValue = (data.index || '').trim();
+    if (!indexValue) {
+        return res.status(400).json({ success: false, error: 'Missing required field: index' });
+    }
+
+    const customStartDate = (data.customStartDate || '').trim();
+    const customEndDate = (data.customEndDate || '').trim();
+    let customRange = null;
+    if (customStartDate && customEndDate) {
+        try {
+            const startDt = new Date(customStartDate);
+            const endDt = new Date(customEndDate);
+            if (startDt <= endDt) {
+                customRange = [customStartDate, customEndDate];
+            }
+        } catch (e) {
+            // Ignore invalid custom range
+        }
+    }
+
+    try {
+        const cacheKey = makeCacheKey('market:index-returns:v1', {
+            index: indexValue.toLowerCase(),
+            customStartDate: customRange ? customRange[0] : '',
+            customEndDate: customRange ? customRange[1] : ''
+        });
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+
+        const payload = await analyticsData.calculateIndexReturns(indexValue, customRange, 2018);
+        await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json({ ...payload, cache_hit: false });
+    } catch (error) {
+        console.error('Error calculating index returns:', error);
+        res.status(500).json({ success: false, error: 'Failed to calculate index returns' });
+    }
+};
+
 module.exports = {
     getStockData,
     getOhlcTickerBounds,
@@ -802,5 +846,6 @@ module.exports = {
     getUniqueIndices,
     getPeriodOptions,
     getTickerDetailsByIndex,
-    getTickerReturns
+    getTickerReturns,
+    getIndexReturns
 };
