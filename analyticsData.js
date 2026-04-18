@@ -58,17 +58,41 @@ function getPeriodOptions() {
     { name: 'Last 3 years', value: 'last-3-years' },
     { name: 'Last 5 years', value: 'last-5-years' },
     { name: 'Last 10 years', value: 'last-10-years' },
+    { name: 'Last 20 years', value: 'last-20-years' },
   ];
   return periodDefs.map(p => ({ value: p.value, label: p.name }));
 }
 
-async function calculatePeriodDates(periodValue) {
-  const endDate = await getMaxDate();
+/**
+ * Start of rolling window for `periodValue`, relative to `endDate` (same semantics as ticker-details).
+ * Exported for index constituent leaderboards (single BQ fetch, many windows).
+ */
+function computeRollingWindowStart(endDate, periodValue) {
   const startDate = new Date(endDate);
-
   switch ((periodValue || '').toLowerCase()) {
     case 'last-date':
       startDate.setDate(endDate.getDate() - 1);
+      break;
+    /** ~5 calendar days ending at endDate (distinct from calendar week). */
+    case 'last-5-days':
+      startDate.setDate(endDate.getDate() - 5);
+      break;
+    /** First calendar day of month containing endDate. */
+    case 'mtd':
+      startDate.setFullYear(endDate.getFullYear(), endDate.getMonth(), 1);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    /** First calendar day of quarter containing endDate. */
+    case 'qtd': {
+      const m = endDate.getMonth();
+      const qStartMonth = Math.floor(m / 3) * 3;
+      startDate.setFullYear(endDate.getFullYear(), qStartMonth, 1);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    }
+    /** Long history cap (~25y) so BigQuery stays tractable for full-index fetch. */
+    case 'all-available':
+      startDate.setFullYear(endDate.getFullYear() - 25);
       break;
     case 'week':
       startDate.setDate(endDate.getDate() - 7);
@@ -98,12 +122,20 @@ async function calculatePeriodDates(periodValue) {
     case 'last-10-years':
       startDate.setDate(endDate.getDate() - Math.floor(10 * 365));
       break;
+    case 'last-20-years':
+      startDate.setDate(endDate.getDate() - Math.floor(20 * 365));
+      break;
     case 'last-1-year':
     default:
       startDate.setDate(endDate.getDate() - Math.floor(1 * 365));
       break;
   }
+  return startDate;
+}
 
+async function calculatePeriodDates(periodValue) {
+  const endDate = await getMaxDate();
+  const startDate = computeRollingWindowStart(endDate, periodValue);
   return [startDate, endDate];
 }
 
@@ -1178,14 +1210,459 @@ async function calculateIndexReturns(indexValue, customRange = null, annualFromY
   };
 }
 
+const DEFAULT_LEADERBOARD_INTERVALS = ['1d', '1m', '1y', '3y', '5y', '10y', '20y'];
+
+/** Map API shorthand to internal rolling keys (see computeRollingWindowStart). */
+const LEADER_PERIOD_ALIASES = {
+  '1d': 'last-date',
+  'last-day': 'last-date',
+  '1m': 'last-month',
+  '30d': 'last-month',
+  '1y': 'last-1-year',
+  '12m': 'last-1-year',
+  '3y': 'last-3-years',
+  '5y': 'last-5-years',
+  '10y': 'last-10-years',
+  '20y': 'last-20-years'
+};
+
+function normalizeLeaderPeriodKey(raw) {
+  const k = String(raw || '')
+    .toLowerCase()
+    .trim();
+  return LEADER_PERIOD_ALIASES[k] || k;
+}
+
+/** S&P 500 → 20/20; Dow & Nasdaq (100) → 10/10. */
+function leaderBoardDepthForIndex(indexValue) {
+  const k = normIndexKey(String(indexValue || ''));
+  if (k === 'sp500' || k === 's&p 500' || k === 's&p500' || k === 'sp 500') {
+    return { top: 20, bottom: 20 };
+  }
+  if (
+    k === 'dow jones' ||
+    k === 'dow jones 30' ||
+    k === 'dow' ||
+    k === 'djia' ||
+    k === 'nasdaq 100' ||
+    k === 'nasdaq100' ||
+    k === 'ndx' ||
+    k === 'nasdaq-100' ||
+    k === 'nasdaq'
+  ) {
+    return { top: 10, bottom: 10 };
+  }
+  return { top: 10, bottom: 10 };
+}
+
+function calendarQuarterBounds(year, quarter) {
+  const q = Number(quarter);
+  const y = Number(year);
+  if (!Number.isFinite(q) || q < 1 || q > 4 || !Number.isFinite(y)) return [null, null];
+  const parts = [
+    [0, 1, 2, 31],
+    [3, 1, 5, 30],
+    [6, 1, 8, 30],
+    [9, 1, 11, 31]
+  ];
+  const [sm, sd, em, ed] = parts[q - 1];
+  const start = new Date(y, sm, sd, 0, 0, 0, 0);
+  const end = new Date(y, em, ed, 23, 59, 59, 999);
+  return [start, end];
+}
+
+async function buildConstituentNameBySymbol(symbols) {
+  const rows = await fetchTickerDetailsRowsBySymbols(symbols);
+  const merged = mergeTickerDetailRowsBySymbol(rows);
+  const map = new Map();
+  for (const sym of symbols) {
+    const up = String(sym || '').toUpperCase().trim();
+    const row = merged.get(up);
+    map.set(up, row?.Security ? String(row.Security).trim() : '');
+  }
+  const missing = [...map.entries()].filter(([, n]) => !n).map(([s]) => s);
+  if (missing.length) {
+    const stubRows = missing.map((Symbol) => ({ Symbol, Security: '' }));
+    const filled = await backfillSecurityFromSupabase(stubRows);
+    for (const r of filled) {
+      const u = String(r.Symbol || '').toUpperCase().trim();
+      const nm = String(r.Security || '').trim();
+      if (nm) map.set(u, nm);
+    }
+  }
+  return map;
+}
+
+function rankLeaderSlice(byTicker, symbols, nameBySym, startDate, endDate, topN, bottomN, useLastTwoTradingDays, endClamp) {
+  const scores = [];
+  const endD = endClamp || endDate;
+  for (const sym of symbols) {
+    const rows = byTicker.get(sym) || [];
+    let pct = null;
+    if (useLastTwoTradingDays) {
+      const [sc, ec] = getLatestTwoCloses(rows, endD);
+      pct = calculateTotalReturnPercentage(sc, ec);
+    } else {
+      const [sc, ec] = getStartEndClose(rows, startDate, endDate);
+      pct = calculateTotalReturnPercentage(sc, ec);
+    }
+    scores.push({
+      symbol: sym,
+      companyName: nameBySym.get(sym) || '',
+      totalReturnPct: pct
+    });
+  }
+  const valid = scores.filter((s) => s.totalReturnPct != null && Number.isFinite(s.totalReturnPct));
+  const sortedDesc = [...valid].sort((a, b) => b.totalReturnPct - a.totalReturnPct);
+  const sortedAsc = [...valid].sort((a, b) => a.totalReturnPct - b.totalReturnPct);
+  return {
+    top: sortedDesc.slice(0, topN),
+    bottom: sortedAsc.slice(0, bottomN)
+  };
+}
+
+/**
+ * Rank index constituents by total return over multiple rolling windows, calendar quarters, and optional custom range.
+ * Uses one BigQuery fetch for all closes in the union of requested windows.
+ *
+ * @param {string} indexValue — e.g. sp500, dow jones, nasdaq 100
+ * @param {object} [options]
+ * @param {string[]} [options.intervals] — default 1d,1m,1y,3y,5y,10y,20y (aliases mapped internally)
+ * @param {number[]} [options.quarterYears] — calendar years for Q1–Q4 blocks (default: latest year & prior)
+ * @param {string} [options.customStartDate] — ISO date with options.customEndDate
+ * @param {string} [options.customEndDate]
+ */
+async function calculateIndexConstituentLeaderboards(indexValue, options = {}) {
+  const endDate = await getMaxDate();
+  const constituents = await getIndexConstituentSymbols(indexValue);
+  if (!constituents.length) {
+    throw new Error(`No constituents found for index "${indexValue}"`);
+  }
+
+  const depths = leaderBoardDepthForIndex(indexValue);
+  const rawIntervals =
+    Array.isArray(options.intervals) && options.intervals.length ? options.intervals : DEFAULT_LEADERBOARD_INTERVALS;
+
+  const quarterYears =
+    Array.isArray(options.quarterYears) && options.quarterYears.length
+      ? options.quarterYears.map((y) => Number(y)).filter((y) => Number.isFinite(y))
+      : [endDate.getFullYear(), endDate.getFullYear() - 1];
+
+  let customStart = null;
+  let customEnd = null;
+  const csRaw = (options.customStartDate || '').trim();
+  const ceRaw = (options.customEndDate || '').trim();
+  if (csRaw && ceRaw) {
+    const cs = new Date(csRaw);
+    const ce = new Date(ceRaw);
+    if (!Number.isNaN(cs.getTime()) && !Number.isNaN(ce.getTime()) && cs <= ce) {
+      customStart = cs;
+      customEnd = ce;
+    }
+  }
+
+  let earliest = endDate;
+  for (const raw of rawIntervals) {
+    const nk = normalizeLeaderPeriodKey(raw);
+    if (nk === 'last-date') continue;
+    const s = computeRollingWindowStart(endDate, nk);
+    if (s < earliest) earliest = s;
+  }
+  if (customStart && customStart < earliest) earliest = customStart;
+  for (const y of quarterYears) {
+    for (let q = 1; q <= 4; q++) {
+      const [qs] = calendarQuarterBounds(y, q);
+      if (qs && qs < earliest) earliest = qs;
+    }
+  }
+
+  const buffered = new Date(earliest);
+  buffered.setDate(buffered.getDate() - 45);
+
+  const priceData = await fetchAllTickerCloses(constituents, buffered, endDate);
+  const byTicker = buildPriceDataByTicker(priceData);
+  const symbolsWithPriceData = [...byTicker.keys()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+  const nameBySym = await buildConstituentNameBySymbol(constituents);
+
+  const intervalsOut = {};
+  for (const rawInterval of rawIntervals) {
+    const nk = normalizeLeaderPeriodKey(rawInterval);
+    const useLastTwo = nk === 'last-date';
+    const winStart = useLastTwo ? null : computeRollingWindowStart(endDate, nk);
+    const slice = rankLeaderSlice(
+      byTicker,
+      constituents,
+      nameBySym,
+      winStart || endDate,
+      endDate,
+      depths.top,
+      depths.bottom,
+      useLastTwo,
+      endDate
+    );
+    const keyOut = String(rawInterval);
+    intervalsOut[keyOut] = {
+      canonicalPeriod: nk,
+      startDateRequested: winStart ? isoDate(winStart) : null,
+      endDateRequested: isoDate(endDate),
+      methodologyNote: useLastTwo ? 'Return from prior trading session close to latest close (matches last-date).' : null,
+      ...slice
+    };
+  }
+
+  const quartersByYear = {};
+  for (const y of quarterYears) {
+    quartersByYear[String(y)] = {};
+    for (let q = 1; q <= 4; q++) {
+      const [qs, qe] = calendarQuarterBounds(y, q);
+      if (!qs || !qe) continue;
+      const slice = rankLeaderSlice(
+        byTicker,
+        constituents,
+        nameBySym,
+        qs,
+        qe,
+        depths.top,
+        depths.bottom,
+        false,
+        qe
+      );
+      quartersByYear[String(y)][`Q${q}`] = {
+        startDate: isoDate(qs),
+        endDate: isoDate(qe),
+        ...slice
+      };
+    }
+  }
+
+  let customRange = null;
+  if (customStart && customEnd) {
+    const slice = rankLeaderSlice(
+      byTicker,
+      constituents,
+      nameBySym,
+      customStart,
+      customEnd,
+      depths.top,
+      depths.bottom,
+      false,
+      customEnd
+    );
+    customRange = {
+      startDate: isoDate(customStart),
+      endDate: isoDate(customEnd),
+      ...slice
+    };
+  }
+
+  return {
+    success: true,
+    index: String(indexValue || '').trim(),
+    asOfDate: isoDate(endDate),
+    constituentsCount: constituents.length,
+    symbolsWithPriceDataCount: symbolsWithPriceData.length,
+    symbolsMissingPriceData: constituents.filter((s) => !byTicker.has(s)),
+    topN: depths.top,
+    bottomN: depths.bottom,
+    intervals: intervalsOut,
+    quartersByYear,
+    customRange
+  };
+}
+
+/**
+ * Latest daily volume vs trailing 10-session average volume (same-trading-day definition as ticker-details).
+ * Requires a numeric `Volume` column on BIGQUERY_TABLE; otherwise returns an empty Map.
+ */
+async function fetchRelativeVolume10dByTicker(tickerSymbols, endDate) {
+  const out = new Map();
+  if (!Array.isArray(tickerSymbols) || !tickerSymbols.length) return out;
+
+  const start = new Date(endDate);
+  start.setDate(start.getDate() - 120);
+
+  const tickersParam = tickerSymbols.map((t) => `'${String(t).replace(/'/g, "\\'")}'`).join(', ');
+  const query = `
+    WITH ranked AS (
+      SELECT
+        Ticker,
+        SAFE_CAST(Volume AS FLOAT64) AS vol,
+        ROW_NUMBER() OVER (PARTITION BY Ticker ORDER BY Date DESC) AS rn
+      FROM \`${TABLE_FQN}\`
+      WHERE Ticker IN (${tickersParam})
+        AND Date BETWEEN '${isoDate(start)}' AND '${isoDate(endDate)}'
+        AND Volume IS NOT NULL
+        AND SAFE_CAST(Volume AS FLOAT64) > 0
+    ),
+    agg AS (
+      SELECT
+        Ticker,
+        MAX(CASE WHEN rn = 1 THEN vol END) AS v_last,
+        AVG(CASE WHEN rn BETWEEN 2 AND 11 THEN vol END) AS v_avg_prior
+      FROM ranked
+      WHERE rn <= 11
+      GROUP BY Ticker
+    )
+    SELECT Ticker, v_last, v_avg_prior
+    FROM agg
+    WHERE v_last IS NOT NULL AND v_avg_prior IS NOT NULL AND v_avg_prior > 0
+  `;
+
+  try {
+    const [rows] = await bigquery.query({ query });
+    for (const row of rows || []) {
+      const t = String(row.Ticker || '')
+        .toUpperCase()
+        .trim();
+      const vl = Number(row.v_last);
+      const va = Number(row.v_avg_prior);
+      const rel = vl / va;
+      if (t && Number.isFinite(rel) && rel > 0) {
+        out.set(t, {
+          relativeVolume10d: Math.round(rel * 1000) / 1000,
+          volume: Number.isFinite(vl) ? vl : null
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('fetchRelativeVolume10dByTicker:', e.message || e);
+  }
+  return out;
+}
+
+/**
+ * Whitelist for POST /api/market/index-market-movers `period` (maps to getTickerDetailsByIndex / computeRollingWindowStart).
+ */
+function normalizeMarketMoversPeriod(raw) {
+  const k = String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-');
+  const map = {
+    '1d': 'last-date',
+    'last-date': 'last-date',
+    '5d': 'last-5-days',
+    'last-5-days': 'last-5-days',
+    mtd: 'mtd',
+    '1m': 'last-month',
+    'last-month': 'last-month',
+    qtd: 'qtd',
+    '3m': 'last-3-months',
+    'last-3-months': 'last-3-months',
+    '6m': 'last-6-months',
+    'last-6-months': 'last-6-months',
+    ytd: 'ytd',
+    '1y': 'last-1-year',
+    'last-1-year': 'last-1-year',
+    '3y': 'last-3-years',
+    'last-3-years': 'last-3-years',
+    '5y': 'last-5-years',
+    'last-5-years': 'last-5-years',
+    '10y': 'last-10-years',
+    'last-10-years': 'last-10-years',
+    '20y': 'last-20-years',
+    'last-20-years': 'last-20-years',
+    all: 'all-available',
+    'all-available': 'all-available'
+  };
+  const v = map[k];
+  return v || 'last-date';
+}
+
+function marketMoversSessionCopy(period) {
+  switch (period) {
+    case 'last-date':
+      return 'Returns use the latest daily close vs the prior trading session close (same methodology as ticker-details period last-date). Relative volume uses the latest session vs trailing 10 sessions.';
+    case 'last-5-days':
+      return 'Returns use total % change from approximately 5 calendar days before the latest close through the latest close.';
+    case 'mtd':
+      return 'Returns use total % change from the first calendar day of the month through the latest close.';
+    case 'qtd':
+      return 'Returns use total % change from the first calendar day of the quarter through the latest close.';
+    case 'all-available':
+      return 'Returns use total % change over ~25 years of history through the latest close (capped for performance).';
+    default:
+      return 'Returns use total % change from the start of the selected rolling/calendar window through the latest close. Relative volume always uses the latest session vs trailing 10 sessions.';
+  }
+}
+
+/**
+ * Scatter payload: period % change + relative volume (10d, latest session) per constituent.
+ */
+async function calculateIndexMarketMovers(indexValue, periodValue = 'last-date') {
+  const period = normalizeMarketMoversPeriod(periodValue);
+  const endDate = await getMaxDate();
+  const rows = await getTickerDetailsByIndex(indexValue, period);
+  if (!rows.length) {
+    return {
+      success: true,
+      index: String(indexValue || '').trim(),
+      period,
+      asOfDate: isoDate(endDate),
+      sessionNote: marketMoversSessionCopy(period),
+      volumeNote: 'No constituents returned for this index.',
+      points: []
+    };
+  }
+
+  const symbols = rows.map((r) => String(r.symbol || '').toUpperCase().trim()).filter(Boolean);
+  const volMap = await fetchRelativeVolume10dByTicker(symbols, endDate);
+
+  const points = rows.map((r) => {
+    const sym = String(r.symbol || '').toUpperCase().trim();
+    const vm = volMap.get(sym);
+    const hasVol = vm && Number.isFinite(vm.relativeVolume10d) && vm.relativeVolume10d > 0;
+    const last = r.price;
+    const pct = r.totalReturnPercentage;
+    let priceChange = null;
+    if (Number.isFinite(pct) && Number.isFinite(last) && last > 0) {
+      const prior = last / (1 + Number(pct) / 100);
+      priceChange = Math.round((last - prior) * 100) / 100;
+    }
+    return {
+      symbol: sym,
+      companyName: String(r.security || '').trim(),
+      sector: String(r.sector || '').trim(),
+      industry: String(r.industry || '').trim(),
+      dayReturnPct: r.totalReturnPercentage,
+      lastPrice: Number.isFinite(last) ? Math.round(last * 100) / 100 : null,
+      priceChange,
+      volume: hasVol && vm.volume != null ? vm.volume : null,
+      relativeVolume10d: hasVol ? vm.relativeVolume10d : 1,
+      relativeVolumeIsEstimated: !hasVol
+    };
+  });
+
+  return {
+    success: true,
+    index: String(indexValue || '').trim(),
+    period,
+    asOfDate: isoDate(endDate),
+    sessionNote:
+      marketMoversSessionCopy(period) +
+      ' Pre / Market / Post tabs are layout-only until extended-hours bars exist.',
+    volumeNote:
+      volMap.size > 0
+        ? 'Relative volume = latest session volume ÷ average volume of the prior 10 sessions (with volume).'
+        : 'Volume column missing or empty in price table; points use 1.0× on the X-axis until BigQuery exposes Volume.',
+    volumeRowsResolved: volMap.size,
+    points
+  };
+}
+
 module.exports = {
   getUniqueIndices,
   getPeriodOptions,
   calculatePeriodDates,
+  computeRollingWindowStart,
   mapIndexValueToDbIndex,
   getTickerDetailsByIndex,
   calculateAllReturns,
   calculateIndexReturns,
-  calculateTotalReturnPercentage
+  calculateTotalReturnPercentage,
+  calculateIndexConstituentLeaderboards,
+  calculateIndexMarketMovers,
+  normalizeMarketMoversPeriod
 };
 

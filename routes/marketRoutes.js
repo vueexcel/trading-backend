@@ -10,7 +10,9 @@ const {
     getPeriodOptions,
     getTickerDetailsByIndex,
     getTickerReturns,
-    getIndexReturns
+    getIndexReturns,
+    getIndexMarketMovers,
+    getIndexConstituentLeaders
 } = require('../controllers/marketController');
 const requireAuth = require('../middleware/authMiddleware'); // Protect this route!
 
@@ -34,5 +36,11 @@ router.get('/period-options', requireAuth, getPeriodOptions);
 router.post('/ticker-details', requireAuth, getTickerDetailsByIndex);
 router.post('/ticker-returns', requireAuth, getTickerReturns);
 router.post('/index-returns', requireAuth, getIndexReturns);
+
+/** 1-day return % vs relative volume (10d) for index constituents (scatter chart). */
+router.post('/index-market-movers', requireAuth, getIndexMarketMovers);
+
+/** Best / worst constituents by total return across rolling windows, calendar quarters, and optional custom range. */
+router.post('/index-constituent-leaders', requireAuth, getIndexConstituentLeaders);
 
 module.exports = router;

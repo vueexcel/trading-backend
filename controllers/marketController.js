@@ -837,6 +837,79 @@ const getIndexReturns = async (req, res) => {
     }
 };
 
+const getIndexMarketMovers = async (req, res) => {
+    const data = req.body || {};
+    const indexValue = (data.index || '').trim();
+    if (!indexValue) {
+        return res.status(400).json({ success: false, error: 'Missing required field: index' });
+    }
+
+    const periodRaw = data.period ?? data.periodValue ?? 'last-date';
+
+    try {
+        const periodNorm = analyticsData.normalizeMarketMoversPeriod(periodRaw);
+        const cacheKey = makeCacheKey('market:index-market-movers:v3', {
+            index: indexValue.toLowerCase(),
+            period: periodNorm
+        });
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+
+        const payload = await analyticsData.calculateIndexMarketMovers(indexValue, periodRaw);
+        await setCache(cacheKey, payload, OHLC_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json({ ...payload, cache_hit: false });
+    } catch (error) {
+        console.error('Error calculating index market movers:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to calculate index market movers'
+        });
+    }
+};
+
+const getIndexConstituentLeaders = async (req, res) => {
+    const data = req.body || {};
+    const indexValue = (data.index || '').trim();
+    if (!indexValue) {
+        return res.status(400).json({ success: false, error: 'Missing required field: index' });
+    }
+
+    try {
+        const cacheKey = makeCacheKey('market:index-constituent-leaders:v1', {
+            index: indexValue.toLowerCase(),
+            intervals: JSON.stringify(data.intervals || []),
+            quarterYears: JSON.stringify(data.quarterYears || []),
+            customStartDate: (data.customStartDate || '').trim(),
+            customEndDate: (data.customEndDate || '').trim()
+        });
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+
+        const payload = await analyticsData.calculateIndexConstituentLeaderboards(indexValue, {
+            intervals: data.intervals,
+            quarterYears: data.quarterYears,
+            customStartDate: data.customStartDate,
+            customEndDate: data.customEndDate
+        });
+        await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json({ ...payload, cache_hit: false });
+    } catch (error) {
+        console.error('Error calculating index constituent leaders:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to calculate index constituent leaders'
+        });
+    }
+};
+
 module.exports = {
     getStockData,
     getOhlcTickerBounds,
@@ -847,5 +920,7 @@ module.exports = {
     getPeriodOptions,
     getTickerDetailsByIndex,
     getTickerReturns,
-    getIndexReturns
+    getIndexReturns,
+    getIndexMarketMovers,
+    getIndexConstituentLeaders
 };
