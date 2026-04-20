@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase');
+const supabaseService = require('../config/supabaseService');
 
 function extractDisplayName(body) {
     const raw = body?.displayName ?? body?.display_name ?? body?.username ?? body?.['Display Name'];
@@ -204,4 +205,51 @@ const resendSignUpOtp = async (req, res) => {
     }
 };
 
-module.exports = { signUp, login, logout, refresh, updateDisplayName, verifySignUpOtp, resendSignUpOtp };
+async function findAuthUserByEmail(email) {
+    const target = String(email || '').trim().toLowerCase();
+    if (!target) return null;
+    let page = 1;
+    const perPage = 200;
+    while (page <= 100) {
+        const { data, error } = await supabaseService.auth.admin.listUsers({ page, perPage });
+        if (error) throw error;
+        const users = Array.isArray(data?.users) ? data.users : [];
+        const hit = users.find((u) => String(u?.email || '').trim().toLowerCase() === target);
+        if (hit) return hit;
+        if (users.length < perPage) break;
+        page += 1;
+    }
+    return null;
+}
+
+/** Start forgot-password: fail when email does not exist, then send reset email. */
+const startForgotPassword = async (req, res) => {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim() : '';
+    const redirectTo = typeof req.body?.redirectTo === 'string' ? req.body.redirectTo.trim() : '';
+    if (!email) return res.status(400).json({ error: 'email is required' });
+    try {
+        const user = await findAuthUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({ error: 'No account found for this email' });
+        }
+        const { error } = await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo ? { redirectTo } : undefined
+        );
+        if (error) throw error;
+        return res.status(200).json({ success: true, message: 'Reset code sent' });
+    } catch (error) {
+        return res.status(400).json({ error: error.message || 'Could not start password reset' });
+    }
+};
+
+module.exports = {
+    signUp,
+    login,
+    logout,
+    refresh,
+    updateDisplayName,
+    verifySignUpOtp,
+    resendSignUpOtp,
+    startForgotPassword
+};
