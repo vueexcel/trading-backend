@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const requireAuth = require('../middleware/authMiddleware');
 const supabase = require('../config/supabase');
+const supabaseService = require('../config/supabaseService');
 
 const AVATAR_BUCKET = 'avatars-private';
 const AVATAR_URL_TTL_SEC = 60 * 10;
@@ -22,7 +23,7 @@ async function buildAvatarSignedUrl(avatarPath) {
     const path = toStringOrEmpty(avatarPath);
     if (!path) return '';
     try {
-        const { data, error } = await supabase.storage
+        const { data, error } = await supabaseService.storage
             .from(AVATAR_BUCKET)
             .createSignedUrl(path, AVATAR_URL_TTL_SEC);
         if (error) return '';
@@ -127,7 +128,7 @@ router.post('/profile/avatar/upload-url', requireAuth, async (req, res) => {
 
         const ext = inferExt(mimeType);
         const avatarPath = `users/${req.user.id}/avatar-${Date.now()}.${ext}`;
-        const { data, error } = await supabase.storage
+        const { data, error } = await supabaseService.storage
             .from(AVATAR_BUCKET)
             .createSignedUploadUrl(avatarPath);
         if (error) throw error;
