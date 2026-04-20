@@ -1,18 +1,58 @@
 const supabase = require('../config/supabase');
 
+function extractDisplayName(body) {
+    const raw = body?.displayName ?? body?.display_name ?? body?.username ?? body?.['Display Name'];
+    return typeof raw === 'string' ? raw.trim() : '';
+}
+
+async function upsertUserProfileById(client, userId, displayName) {
+    if (!displayName) return { profile: null, warning: null };
+    try {
+        const { data, error } = await client
+            .from('user_profiles')
+            .upsert({ id: userId, display_name: displayName }, { onConflict: 'id' })
+            .select('id, display_name')
+            .single();
+        if (error) return { profile: null, warning: error.message };
+        return { profile: data || null, warning: null };
+    } catch (e) {
+        return { profile: null, warning: e?.message || String(e) };
+    }
+}
+
 // 1. Sign Up a new user
 const signUp = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
+    const displayName = extractDisplayName(req.body);
 
     try {
+        if (!email || !password) {
+            return res.status(400).json({ error: 'email and password are required' });
+        }
+        if (!displayName || displayName.length < 2) {
+            return res.status(400).json({ error: 'displayName must be at least 2 characters' });
+        }
+
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
+            options: {
+                data: { display_name: displayName }
+            }
         });
 
         if (error) throw error;
 
-        res.status(201).json({ message: 'User created successfully', data });
+        let profile = null;
+        let profileWarning = null;
+        const userId = data?.user?.id;
+        if (userId) {
+            const p = await upsertUserProfileById(supabase, userId, displayName);
+            profile = p.profile;
+            profileWarning = p.warning;
+        }
+
+        res.status(201).json({ message: 'User created successfully', data, profile, profileWarning });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -89,42 +129,29 @@ const refresh = async (req, res) => {
     }
 };
 
-/** PATCH display name — requires Bearer JWT (signup flow after session exists). */
+/** PATCH display name in `public.user_profiles` by authenticated user ID. */
 const updateDisplayName = async (req, res) => {
     try {
-        const raw = req.body?.displayName ?? req.body?.display_name ?? req.body?.['Display Name'];
-        const displayName = typeof raw === 'string' ? raw.trim() : '';
+        const displayName = extractDisplayName(req.body);
         if (!displayName || displayName.length < 2) {
             return res.status(400).json({ error: 'displayName must be at least 2 characters' });
         }
 
-        const { data: authData, error: authErr } = await req.supabase.auth.updateUser({
-            data: { display_name: displayName }
-        });
+        const { data, error } = await req.supabase
+            .from('user_profiles')
+            .update({ display_name: displayName })
+            .eq('id', req.user.id)
+            .select('id, display_name')
+            .maybeSingle();
 
-        if (authErr) throw authErr;
-
-        let profileWarning = null;
-        try {
-            let pErr = (await req.supabase.from('profiles').upsert(
-                { id: req.user.id, display_name: displayName },
-                { onConflict: 'id' }
-            )).error;
-            if (pErr) {
-                const e2 = (await req.supabase.from('profiles').upsert(
-                    { id: req.user.id, 'Display Name': displayName },
-                    { onConflict: 'id' }
-                )).error;
-                if (e2) profileWarning = e2.message;
-            }
-        } catch (e) {
-            profileWarning = e.message || String(e);
+        if (error) throw error;
+        if (!data) {
+            return res.status(404).json({ error: 'No user_profiles row found for this user id' });
         }
 
         res.status(200).json({
             success: true,
-            user: authData?.user ?? null,
-            profileWarning
+            profile: data
         });
     } catch (error) {
         res.status(400).json({ error: error.message || 'Update failed' });
