@@ -23,22 +23,15 @@ async function upsertUserProfileById(client, userId, displayName) {
 // 1. Sign Up a new user
 const signUp = async (req, res) => {
     const { email, password } = req.body || {};
-    const displayName = extractDisplayName(req.body);
 
     try {
         if (!email || !password) {
             return res.status(400).json({ error: 'email and password are required' });
         }
-        if (!displayName || displayName.length < 2) {
-            return res.status(400).json({ error: 'displayName must be at least 2 characters' });
-        }
 
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
-            options: {
-                data: { display_name: displayName }
-            }
         });
 
         if (error) throw error;
@@ -47,7 +40,8 @@ const signUp = async (req, res) => {
         let profileWarning = null;
         const userId = data?.user?.id;
         if (userId) {
-            const p = await upsertUserProfileById(supabase, userId, displayName);
+            const fallbackName = String(email || '').split('@')[0] || `user_${String(userId).slice(0, 8)}`;
+            const p = await upsertUserProfileById(supabase, userId, fallbackName);
             profile = p.profile;
             profileWarning = p.warning;
         }
