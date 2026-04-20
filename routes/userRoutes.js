@@ -206,7 +206,7 @@ router.post('/reset-password', requireAuth, async (req, res) => {
     try {
         const email = toStringOrEmpty(req.user?.email);
         if (!email) return res.status(400).json({ error: 'Missing user email' });
-        const redirectTo = toStringOrEmpty(req.body?.redirectTo) || `${toStringOrEmpty(process.env.FRONTEND_URL) || 'http://localhost:5173'}/login`;
+        const redirectTo = toStringOrEmpty(req.body?.redirectTo) || `${toStringOrEmpty(process.env.FRONTEND_URL) || 'http://localhost:5173'}/forgot-password`;
         const { error } = await supabase.auth.resetPasswordForEmail(
             email,
             redirectTo ? { redirectTo } : undefined
@@ -221,7 +221,9 @@ router.post('/reset-password', requireAuth, async (req, res) => {
 router.delete('/account', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        await req.supabase.from('user_profiles').delete().eq('id', userId);
+        // Use service-role for cleanup so RLS/ownership issues do not block auth deletion.
+        const { error: profileDeleteError } = await supabaseService.from('user_profiles').delete().eq('id', userId);
+        if (profileDeleteError) throw profileDeleteError;
         const { error } = await supabaseService.auth.admin.deleteUser(userId);
         if (error) throw error;
         return res.status(200).json({ success: true, message: 'Account deleted' });
