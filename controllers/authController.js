@@ -89,4 +89,98 @@ const refresh = async (req, res) => {
     }
 };
 
-module.exports = { signUp, login, logout, refresh };
+/** PATCH display name — requires Bearer JWT (signup flow after session exists). */
+const updateDisplayName = async (req, res) => {
+    try {
+        const raw = req.body?.displayName ?? req.body?.display_name ?? req.body?.['Display Name'];
+        const displayName = typeof raw === 'string' ? raw.trim() : '';
+        if (!displayName || displayName.length < 2) {
+            return res.status(400).json({ error: 'displayName must be at least 2 characters' });
+        }
+
+        const { data: authData, error: authErr } = await req.supabase.auth.updateUser({
+            data: { display_name: displayName }
+        });
+
+        if (authErr) throw authErr;
+
+        let profileWarning = null;
+        try {
+            let pErr = (await req.supabase.from('profiles').upsert(
+                { id: req.user.id, display_name: displayName },
+                { onConflict: 'id' }
+            )).error;
+            if (pErr) {
+                const e2 = (await req.supabase.from('profiles').upsert(
+                    { id: req.user.id, 'Display Name': displayName },
+                    { onConflict: 'id' }
+                )).error;
+                if (e2) profileWarning = e2.message;
+            }
+        } catch (e) {
+            profileWarning = e.message || String(e);
+        }
+
+        res.status(200).json({
+            success: true,
+            user: authData?.user ?? null,
+            profileWarning
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Update failed' });
+    }
+};
+
+/** Email OTP from signup template (`{{ .Token }}`). Returns session when valid. */
+const verifySignUpOtp = async (req, res) => {
+    const { email, token } = req.body || {};
+    const em = typeof email === 'string' ? email.trim() : '';
+    const code = typeof token === 'string' ? token.replace(/\D/g, '') : String(token || '').replace(/\D/g, '');
+
+    if (!em || !code) {
+        return res.status(400).json({ error: 'email and token are required' });
+    }
+
+    try {
+        const { data, error } = await supabase.auth.verifyOtp({
+            email: em,
+            token: code,
+            type: 'signup'
+        });
+
+        if (error) throw error;
+
+        res.status(200).json({
+            message: 'Email verified',
+            session: data.session,
+            user: data.user
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Verification failed' });
+    }
+};
+
+/** Resend signup confirmation (new OTP) — same as a new signUp without password. */
+const resendSignUpOtp = async (req, res) => {
+    const { email } = req.body || {};
+    const em = typeof email === 'string' ? email.trim() : '';
+
+    if (!em) {
+        return res.status(400).json({ error: 'email is required' });
+    }
+
+    try {
+        const { data, error } = await supabase.auth.resend({
+            type: 'signup',
+            email: em
+        });
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Code sent', data: data || null });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Resend failed' });
+    }
+};
+
+module.exports = { signUp, login, logout, refresh, updateDisplayName, verifySignUpOtp, resendSignUpOtp };
