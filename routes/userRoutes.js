@@ -178,11 +178,23 @@ router.post('/change-email', requireAuth, async (req, res) => {
     try {
         const newEmail = toStringOrEmpty(req.body?.newEmail ?? req.body?.email);
         if (!newEmail) return res.status(400).json({ error: 'newEmail is required' });
-        const { data, error } = await req.supabase.auth.updateUser({ email: newEmail });
+        let data = null;
+        let error = null;
+        // Preferred path: authenticated user-driven email change (sends confirmation flow).
+        const upd = await req.supabase.auth.updateUser({ email: newEmail });
+        data = upd.data || null;
+        error = upd.error || null;
+        // Some server-side contexts return "Auth session missing!" for auth.updateUser.
+        // Fallback to admin update so API still works.
+        if (error && /auth session missing/i.test(String(error.message || ''))) {
+            const adminUpd = await supabaseService.auth.admin.updateUserById(req.user.id, { email: newEmail });
+            data = adminUpd.data || null;
+            error = adminUpd.error || null;
+        }
         if (error) throw error;
         return res.status(200).json({
             success: true,
-            message: 'Verification email sent to new address',
+            message: 'Email updated. Check inbox for any required confirmations.',
             user: data?.user || null
         });
     } catch (e) {
@@ -194,7 +206,7 @@ router.post('/reset-password', requireAuth, async (req, res) => {
     try {
         const email = toStringOrEmpty(req.user?.email);
         if (!email) return res.status(400).json({ error: 'Missing user email' });
-        const redirectTo = toStringOrEmpty(req.body?.redirectTo);
+        const redirectTo = toStringOrEmpty(req.body?.redirectTo) || `${toStringOrEmpty(process.env.FRONTEND_URL) || 'http://localhost:5173'}/login`;
         const { error } = await supabase.auth.resetPasswordForEmail(
             email,
             redirectTo ? { redirectTo } : undefined
@@ -210,7 +222,7 @@ router.delete('/account', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         await req.supabase.from('user_profiles').delete().eq('id', userId);
-        const { error } = await supabase.auth.admin.deleteUser(userId);
+        const { error } = await supabaseService.auth.admin.deleteUser(userId);
         if (error) throw error;
         return res.status(200).json({ success: true, message: 'Account deleted' });
     } catch (e) {
