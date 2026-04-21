@@ -32,11 +32,12 @@ const userRoutes = require('./routes/userRoutes');
 const tickerRoutes = require('./routes/tickerRoutes');
 const watchlistRoutes = require('./routes/watchlistRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const { startSnapshotRefresher } = require('./services/snapshotRefresher');
 
 const app = express();
 
 app.use(cors({
-    exposedHeaders: ['X-Cache-Hit']
+    exposedHeaders: ['X-Cache-Hit', 'X-Data-Source', 'X-Snapshot-Ts']
 }));
 app.use(express.json());
 app.use(express.static('public'));
@@ -68,4 +69,5 @@ app.get('/chart', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    startSnapshotRefresher();
 });

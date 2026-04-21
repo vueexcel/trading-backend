@@ -59,6 +59,7 @@ const TICKER_DETAILS_CACHE_TTL_SECS = Number(process.env.TICKER_DETAILS_CACHE_TT
 /** Max inclusive calendar span for ohlc-signals-indicator (raise via OHLC_SIGNALS_MAX_RANGE_DAYS). */
 const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 40000);
 const WEIGHTS_JSON_PATH = path.resolve(__dirname, '..', 'data', 'index-weights.json');
+const ENABLE_MARKET_SNAPSHOT_READ = process.env.ENABLE_MARKET_SNAPSHOT_READ === '1';
 
 let weightsCache = null;
 let weightsCacheMtime = 0;
@@ -734,6 +735,26 @@ const getTickerDetailsByIndex = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Missing required field: period' });
     }
     try {
+        const startedAt = Date.now();
+        if (ENABLE_MARKET_SNAPSHOT_READ) {
+            const periodNorm = analyticsData.normalizeSnapshotPeriod(periodValue);
+            const snap = await analyticsData.readTickerDetailsSnapshot(indexValue, periodNorm);
+            if (snap?.data?.length) {
+                console.log(`[market:ticker-details] source=snapshot index="${indexValue}" period="${periodNorm}" rows=${snap.data.length} ms=${Date.now() - startedAt}`);
+                res.set('X-Data-Source', 'snapshot');
+                if (snap.snapshotTs) res.set('X-Snapshot-Ts', String(snap.snapshotTs));
+                return res.status(200).json({
+                    success: true,
+                    index: indexValue,
+                    period: periodNorm,
+                    asOfDate: snap.asOfDate || null,
+                    data: snap.data,
+                    cache_hit: false,
+                    data_source: 'snapshot',
+                    snapshot_ts: snap.snapshotTs || null
+                });
+            }
+        }
         const cacheKey = makeCacheKey('market:ticker-details:v1', {
             index: indexValue.toLowerCase(),
             period: periodValue.toLowerCase()
@@ -741,6 +762,8 @@ const getTickerDetailsByIndex = async (req, res) => {
         const cached = await getCache(cacheKey);
         if (cached) {
             res.set('X-Cache-Hit', '1');
+            res.set('X-Data-Source', cached?.data_source || 'live');
+            if (cached?.snapshot_ts) res.set('X-Snapshot-Ts', String(cached.snapshot_ts));
             return res.status(200).json({ ...cached, cache_hit: true });
         }
 
@@ -751,10 +774,14 @@ const getTickerDetailsByIndex = async (req, res) => {
             index: indexValue,
             period: periodValue,
             data: weighted,
-            cache_hit: false
+            cache_hit: false,
+            data_source: 'live',
+            snapshot_ts: null
         };
         await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
+        console.log(`[market:ticker-details] source=live index="${indexValue}" period="${periodValue}" rows=${weighted.length} ms=${Date.now() - startedAt}`);
         res.set('X-Cache-Hit', '0');
+        res.set('X-Data-Source', 'live');
         res.status(200).json(payload);
     } catch (error) {
         console.error('Error fetching ticker details by index:', error);
@@ -847,7 +874,30 @@ const getIndexMarketMovers = async (req, res) => {
     const periodRaw = data.period ?? data.periodValue ?? 'last-date';
 
     try {
+        const startedAt = Date.now();
         const periodNorm = analyticsData.normalizeMarketMoversPeriod(periodRaw);
+        if (ENABLE_MARKET_SNAPSHOT_READ) {
+            const snap = await analyticsData.readIndexMarketMoversSnapshot(indexValue, periodNorm);
+            if (snap?.points?.length) {
+                console.log(`[market:index-market-movers] source=snapshot index="${indexValue}" period="${periodNorm}" rows=${snap.points.length} ms=${Date.now() - startedAt}`);
+                res.set('X-Data-Source', 'snapshot');
+                if (snap.snapshotTs) res.set('X-Snapshot-Ts', String(snap.snapshotTs));
+                return res.status(200).json({
+                    success: true,
+                    index: indexValue,
+                    period: periodNorm,
+                    asOfDate: snap.asOfDate || null,
+                    sessionNote:
+                        'Returns are precomputed snapshots for the selected period. Pre / Market / Post tabs are layout-only until extended-hours bars exist.',
+                    volumeNote:
+                        'Relative volume = latest session volume ÷ average volume of the prior 10 sessions (with volume).',
+                    points: snap.points,
+                    cache_hit: false,
+                    data_source: 'snapshot',
+                    snapshot_ts: snap.snapshotTs || null
+                });
+            }
+        }
         const cacheKey = makeCacheKey('market:index-market-movers:v3', {
             index: indexValue.toLowerCase(),
             period: periodNorm
@@ -855,13 +905,18 @@ const getIndexMarketMovers = async (req, res) => {
         const cached = await getCache(cacheKey);
         if (cached) {
             res.set('X-Cache-Hit', '1');
+            res.set('X-Data-Source', cached?.data_source || 'live');
+            if (cached?.snapshot_ts) res.set('X-Snapshot-Ts', String(cached.snapshot_ts));
             return res.status(200).json({ ...cached, cache_hit: true });
         }
 
         const payload = await analyticsData.calculateIndexMarketMovers(indexValue, periodRaw);
-        await setCache(cacheKey, payload, OHLC_CACHE_TTL_SECS);
+        const livePayload = { ...payload, data_source: 'live', snapshot_ts: null };
+        await setCache(cacheKey, livePayload, OHLC_CACHE_TTL_SECS);
+        console.log(`[market:index-market-movers] source=live index="${indexValue}" period="${periodNorm}" rows=${Array.isArray(livePayload.points) ? livePayload.points.length : 0} ms=${Date.now() - startedAt}`);
         res.set('X-Cache-Hit', '0');
-        res.status(200).json({ ...payload, cache_hit: false });
+        res.set('X-Data-Source', 'live');
+        res.status(200).json({ ...livePayload, cache_hit: false });
     } catch (error) {
         console.error('Error calculating index market movers:', error);
         res.status(500).json({

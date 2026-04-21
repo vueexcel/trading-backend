@@ -7,10 +7,26 @@ const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT |
 const BIGQUERY_DATASET = process.env.BIGQUERY_DATASET || 'sp500data1';
 const TICKER_DETAILS_TABLE = process.env.TICKER_DETAILS_TABLE || 'TickerDetails';
 const BIGQUERY_TABLE = process.env.BIGQUERY_TABLE || 'stock_all_data';
+const SIGNALS_TABLE = process.env.BIGQUERY_SIGNALS_TABLE || 'Test';
+const TICKER_DETAILS_SYMBOL_COLUMN =
+  (process.env.TICKER_DETAILS_SYMBOL_COLUMN || 'Symbol').trim() || 'Symbol';
+const ENABLE_RELATIVE_VOLUME_QUERY = process.env.ENABLE_RELATIVE_VOLUME_QUERY === '1';
+const SNAPSHOT_DATASET = process.env.BIGQUERY_SNAPSHOT_DATASET || BIGQUERY_DATASET;
+const TICKER_DETAILS_SNAPSHOT_TABLE =
+  process.env.TICKER_DETAILS_SNAPSHOT_TABLE || 'ticker_details_snapshot';
+const INDEX_MOVERS_SNAPSHOT_TABLE =
+  process.env.INDEX_MARKET_MOVERS_SNAPSHOT_TABLE || 'index_market_movers_snapshot';
 const WEIGHTS_JSON_PATH = path.resolve(__dirname, 'data', 'index-weights.json');
 
 const TICKER_DETAILS_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${TICKER_DETAILS_TABLE}`;
 const TABLE_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${BIGQUERY_TABLE}`;
+const SIGNALS_TABLE_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${SIGNALS_TABLE}`;
+const TICKER_DETAILS_SNAPSHOT_FQN =
+  `${PROJECT_ID}.${SNAPSHOT_DATASET}.${TICKER_DETAILS_SNAPSHOT_TABLE}`;
+const INDEX_MOVERS_SNAPSHOT_FQN =
+  `${PROJECT_ID}.${SNAPSHOT_DATASET}.${INDEX_MOVERS_SNAPSHOT_TABLE}`;
+const SNAPSHOT_SUPPORTED_PERIODS = ['last-date', 'last-5-days', 'mtd'];
+const SNAPSHOT_SUPPORTED_INDICES = ['SP500', 'Dow Jones', 'Nasdaq 100'];
 
 const DAYS_IN_YEAR = 365.25;
 const MAX_DATE_CACHE_TTL_MS = Number(process.env.MAX_DATE_CACHE_TTL_MS || 60000);
@@ -390,10 +406,7 @@ async function fetchTickerDetailsRowsBySymbols(symbols) {
   ];
   if (!unique.length) return [];
   const tickersParam = unique.map((t) => `'${t.replace(/'/g, "\\'")}'`).join(', ');
-  const envCol = (process.env.TICKER_DETAILS_SYMBOL_COLUMN || '').trim();
-  const columnsToTry = envCol
-    ? [envCol]
-    : ['Symbol', 'Ticker'];
+  const columnsToTry = [TICKER_DETAILS_SYMBOL_COLUMN];
 
   let combined = [];
   for (const col of columnsToTry) {
@@ -550,6 +563,44 @@ async function fetchAllTickerCloses(tickerSymbols, extendedStart, endDate) {
   return out;
 }
 
+function normalizeSignalCode(sig) {
+  const s = String(sig || '').trim().toUpperCase();
+  if (!s) return 'N';
+  const allowed = new Set(['L1', 'L2', 'L3', 'S1', 'S2', 'S3', 'N']);
+  return allowed.has(s) ? s : 'N';
+}
+
+async function fetchLatestSignalsForTickers(tickerSymbols, endDate) {
+  if (!tickerSymbols.length) return new Map();
+  const tickersParam = tickerSymbols.map((t) => `'${String(t).replace(/'/g, "\\'")}'`).join(', ');
+  const query = `
+    WITH ranked AS (
+      SELECT
+        UPPER(TRIM(CAST(Ticker AS STRING))) AS ticker,
+        CAST(Signal AS STRING) AS signal,
+        DATE(Date) AS trade_date,
+        ROW_NUMBER() OVER (
+          PARTITION BY UPPER(TRIM(CAST(Ticker AS STRING)))
+          ORDER BY DATE(Date) DESC
+        ) AS rn
+      FROM \`${SIGNALS_TABLE_FQN}\`
+      WHERE UPPER(TRIM(CAST(Ticker AS STRING))) IN (${tickersParam})
+        AND DATE(Date) <= DATE('${isoDate(endDate)}')
+    )
+    SELECT ticker, signal
+    FROM ranked
+    WHERE rn = 1
+  `;
+  const [rows] = await bigquery.query({ query });
+  const out = new Map();
+  for (const row of rows || []) {
+    const ticker = String(row.ticker || '').toUpperCase().trim();
+    if (!ticker) continue;
+    out.set(ticker, normalizeSignalCode(row.signal));
+  }
+  return out;
+}
+
 function getStartEndClose(priceData, startDate, endDate) {
   const tickerData = Array.isArray(priceData) ? priceData : [];
   if (!tickerData.length) return [null, null];
@@ -666,6 +717,7 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
   extendedStart.setDate(startDate.getDate() - 30);
   const priceData = await fetchAllTickerCloses(tickerSymbols, extendedStart, endDate);
   const priceDataByTicker = buildPriceDataByTicker(priceData);
+  const signalByTicker = await fetchLatestSignalsForTickers(tickerSymbols, endDate);
 
   return rows
     .map((row, idx) => {
@@ -686,7 +738,8 @@ async function getTickerDetailsByIndex(indexValue, periodValue) {
         industry: row.Industry || '',
         index: groupMeta ? groupMeta.name : row.Index || '',
         totalReturnPercentage: totalReturnPct,
-        price: endClose
+        price: endClose,
+        signal: signalByTicker.get(symbol) || 'N'
       };
     })
     .filter(Boolean);
@@ -1478,6 +1531,7 @@ async function calculateIndexConstituentLeaderboards(indexValue, options = {}) {
 async function fetchRelativeVolume10dByTicker(tickerSymbols, endDate) {
   const out = new Map();
   if (!Array.isArray(tickerSymbols) || !tickerSymbols.length) return out;
+  if (!ENABLE_RELATIVE_VOLUME_QUERY) return out;
 
   const start = new Date(endDate);
   start.setDate(start.getDate() - 120);
@@ -1651,6 +1705,206 @@ async function calculateIndexMarketMovers(indexValue, periodValue = 'last-date')
   };
 }
 
+function normalizeSnapshotPeriod(periodValue) {
+  return normalizeMarketMoversPeriod(periodValue || 'last-date');
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+async function ensureSnapshotTables() {
+  const createTickerDetailsSnapshot = `
+    CREATE TABLE IF NOT EXISTS \`${TICKER_DETAILS_SNAPSHOT_FQN}\` (
+      snapshot_ts TIMESTAMP NOT NULL,
+      as_of_date DATE NOT NULL,
+      index_name STRING NOT NULL,
+      period STRING NOT NULL,
+      row_num INT64,
+      symbol STRING NOT NULL,
+      security STRING,
+      sector STRING,
+      industry STRING,
+      total_return_percentage FLOAT64,
+      price FLOAT64,
+      signal STRING,
+      weight FLOAT64
+    )
+    PARTITION BY DATE(snapshot_ts)
+    CLUSTER BY index_name, period, symbol
+  `;
+  const createIndexMoversSnapshot = `
+    CREATE TABLE IF NOT EXISTS \`${INDEX_MOVERS_SNAPSHOT_FQN}\` (
+      snapshot_ts TIMESTAMP NOT NULL,
+      as_of_date DATE NOT NULL,
+      index_name STRING NOT NULL,
+      period STRING NOT NULL,
+      symbol STRING NOT NULL,
+      company_name STRING,
+      sector STRING,
+      industry STRING,
+      day_return_pct FLOAT64,
+      last_price FLOAT64,
+      price_change FLOAT64,
+      volume FLOAT64,
+      relative_volume_10d FLOAT64,
+      relative_volume_is_estimated BOOL
+    )
+    PARTITION BY DATE(snapshot_ts)
+    CLUSTER BY index_name, period, symbol
+  `;
+  await bigquery.query({ query: createTickerDetailsSnapshot });
+  await bigquery.query({ query: createIndexMoversSnapshot });
+}
+
+async function writeTickerDetailsSnapshot(indexValue, periodValue, rows, asOfDate, snapshotTs) {
+  const indexName = String(indexValue || '').trim();
+  const period = normalizeSnapshotPeriod(periodValue);
+  const deleteQuery = `
+    DELETE FROM \`${TICKER_DETAILS_SNAPSHOT_FQN}\`
+    WHERE index_name = @indexName AND period = @period
+  `;
+  await bigquery.query({ query: deleteQuery, params: { indexName, period } });
+  if (!Array.isArray(rows) || !rows.length) return;
+  const values = rows
+    .map((r) => `(
+      TIMESTAMP('${snapshotTs}'),
+      DATE('${asOfDate}'),
+      '${String(indexName).replace(/'/g, "\\'")}',
+      '${String(period).replace(/'/g, "\\'")}',
+      ${Number.isFinite(Number(r.row)) ? Number(r.row) : 'NULL'},
+      '${String(r.symbol || '').replace(/'/g, "\\'")}',
+      '${String(r.security || '').replace(/'/g, "\\'")}',
+      '${String(r.sector || '').replace(/'/g, "\\'")}',
+      '${String(r.industry || '').replace(/'/g, "\\'")}',
+      ${Number.isFinite(Number(r.totalReturnPercentage)) ? Number(r.totalReturnPercentage) : 'NULL'},
+      ${Number.isFinite(Number(r.price)) ? Number(r.price) : 'NULL'},
+      '${String(r.signal || 'N').replace(/'/g, "\\'")}',
+      ${Number.isFinite(Number(r.weight)) ? Number(r.weight) : 'NULL'}
+    )`)
+    .join(',\n');
+  const insertQuery = `
+    INSERT INTO \`${TICKER_DETAILS_SNAPSHOT_FQN}\`
+    (snapshot_ts, as_of_date, index_name, period, row_num, symbol, security, sector, industry, total_return_percentage, price, signal, weight)
+    VALUES ${values}
+  `;
+  await bigquery.query({ query: insertQuery });
+}
+
+async function writeIndexMoversSnapshot(indexValue, periodValue, points, asOfDate, snapshotTs) {
+  const indexName = String(indexValue || '').trim();
+  const period = normalizeSnapshotPeriod(periodValue);
+  const deleteQuery = `
+    DELETE FROM \`${INDEX_MOVERS_SNAPSHOT_FQN}\`
+    WHERE index_name = @indexName AND period = @period
+  `;
+  await bigquery.query({ query: deleteQuery, params: { indexName, period } });
+  if (!Array.isArray(points) || !points.length) return;
+  const values = points
+    .map((p) => `(
+      TIMESTAMP('${snapshotTs}'),
+      DATE('${asOfDate}'),
+      '${String(indexName).replace(/'/g, "\\'")}',
+      '${String(period).replace(/'/g, "\\'")}',
+      '${String(p.symbol || '').replace(/'/g, "\\'")}',
+      '${String(p.companyName || '').replace(/'/g, "\\'")}',
+      '${String(p.sector || '').replace(/'/g, "\\'")}',
+      '${String(p.industry || '').replace(/'/g, "\\'")}',
+      ${Number.isFinite(Number(p.dayReturnPct)) ? Number(p.dayReturnPct) : 'NULL'},
+      ${Number.isFinite(Number(p.lastPrice)) ? Number(p.lastPrice) : 'NULL'},
+      ${Number.isFinite(Number(p.priceChange)) ? Number(p.priceChange) : 'NULL'},
+      ${Number.isFinite(Number(p.volume)) ? Number(p.volume) : 'NULL'},
+      ${Number.isFinite(Number(p.relativeVolume10d)) ? Number(p.relativeVolume10d) : 'NULL'},
+      ${p.relativeVolumeIsEstimated ? 'TRUE' : 'FALSE'}
+    )`)
+    .join(',\n');
+  const insertQuery = `
+    INSERT INTO \`${INDEX_MOVERS_SNAPSHOT_FQN}\`
+    (snapshot_ts, as_of_date, index_name, period, symbol, company_name, sector, industry, day_return_pct, last_price, price_change, volume, relative_volume_10d, relative_volume_is_estimated)
+    VALUES ${values}
+  `;
+  await bigquery.query({ query: insertQuery });
+}
+
+async function buildMarketSnapshots() {
+  await ensureSnapshotTables();
+  const snapshotTs = nowIso();
+  const asOfDate = isoDate(await getMaxDate());
+  for (const indexName of SNAPSHOT_SUPPORTED_INDICES) {
+    for (const period of SNAPSHOT_SUPPORTED_PERIODS) {
+      const details = await getTickerDetailsByIndex(indexName, period);
+      await writeTickerDetailsSnapshot(indexName, period, details, asOfDate, snapshotTs);
+      const movers = await calculateIndexMarketMovers(indexName, period);
+      await writeIndexMoversSnapshot(indexName, period, movers.points || [], asOfDate, snapshotTs);
+    }
+  }
+  return {
+    success: true,
+    snapshotTs,
+    asOfDate,
+    indices: SNAPSHOT_SUPPORTED_INDICES.length,
+    periods: SNAPSHOT_SUPPORTED_PERIODS.length
+  };
+}
+
+async function readTickerDetailsSnapshot(indexValue, periodValue) {
+  const indexName = String(indexValue || '').trim();
+  const period = normalizeSnapshotPeriod(periodValue);
+  const q = `
+    SELECT snapshot_ts, as_of_date, row_num, symbol, security, sector, industry, total_return_percentage, price, signal, weight
+    FROM \`${TICKER_DETAILS_SNAPSHOT_FQN}\`
+    WHERE index_name = @indexName
+      AND period = @period
+    ORDER BY row_num ASC, symbol ASC
+  `;
+  const [rows] = await bigquery.query({ query: q, params: { indexName, period } });
+  if (!rows || !rows.length) return null;
+  const snapshotTs = rows[0].snapshot_ts?.value || rows[0].snapshot_ts || null;
+  const asOfDate = rows[0].as_of_date?.value || rows[0].as_of_date || null;
+  const data = rows.map((r, i) => ({
+    row: Number(r.row_num) || i + 1,
+    symbol: String(r.symbol || ''),
+    security: String(r.security || ''),
+    sector: String(r.sector || ''),
+    industry: String(r.industry || ''),
+    index: indexName,
+    totalReturnPercentage: r.total_return_percentage != null ? Number(r.total_return_percentage) : null,
+    price: r.price != null ? Number(r.price) : null,
+    signal: String(r.signal || 'N'),
+    weight: r.weight != null ? Number(r.weight) : null
+  }));
+  return { snapshotTs, asOfDate, data };
+}
+
+async function readIndexMarketMoversSnapshot(indexValue, periodValue) {
+  const indexName = String(indexValue || '').trim();
+  const period = normalizeSnapshotPeriod(periodValue);
+  const q = `
+    SELECT snapshot_ts, as_of_date, symbol, company_name, sector, industry, day_return_pct, last_price, price_change, volume, relative_volume_10d, relative_volume_is_estimated
+    FROM \`${INDEX_MOVERS_SNAPSHOT_FQN}\`
+    WHERE index_name = @indexName
+      AND period = @period
+    ORDER BY symbol ASC
+  `;
+  const [rows] = await bigquery.query({ query: q, params: { indexName, period } });
+  if (!rows || !rows.length) return null;
+  const snapshotTs = rows[0].snapshot_ts?.value || rows[0].snapshot_ts || null;
+  const asOfDate = rows[0].as_of_date?.value || rows[0].as_of_date || null;
+  const points = rows.map((r) => ({
+    symbol: String(r.symbol || ''),
+    companyName: String(r.company_name || ''),
+    sector: String(r.sector || ''),
+    industry: String(r.industry || ''),
+    dayReturnPct: r.day_return_pct != null ? Number(r.day_return_pct) : null,
+    lastPrice: r.last_price != null ? Number(r.last_price) : null,
+    priceChange: r.price_change != null ? Number(r.price_change) : null,
+    volume: r.volume != null ? Number(r.volume) : null,
+    relativeVolume10d: r.relative_volume_10d != null ? Number(r.relative_volume_10d) : 1,
+    relativeVolumeIsEstimated: Boolean(r.relative_volume_is_estimated)
+  }));
+  return { snapshotTs, asOfDate, points };
+}
+
 module.exports = {
   getUniqueIndices,
   getPeriodOptions,
@@ -1663,6 +1917,11 @@ module.exports = {
   calculateTotalReturnPercentage,
   calculateIndexConstituentLeaderboards,
   calculateIndexMarketMovers,
-  normalizeMarketMoversPeriod
+  normalizeMarketMoversPeriod,
+  normalizeSnapshotPeriod,
+  ensureSnapshotTables,
+  buildMarketSnapshots,
+  readTickerDetailsSnapshot,
+  readIndexMarketMoversSnapshot
 };
 
