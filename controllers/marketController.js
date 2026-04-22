@@ -789,11 +789,28 @@ const getTickerDetailsByIndex = async (req, res) => {
     }
 };
 
+const MAX_TICKER_RETURNS_BATCH = 12;
+
 const getTickerReturns = async (req, res) => {
     const data = req.body || {};
-    const ticker = (data.ticker || '').trim();
-    if (!ticker) {
-        return res.status(400).json({ success: false, error: 'Missing required field: ticker' });
+    const single = (data.ticker || '').trim();
+    let tickers = Array.isArray(data.tickers)
+        ? [...new Set(data.tickers.map((t) => String(t || '').trim().toUpperCase()).filter(Boolean))]
+        : [];
+
+    if (!tickers.length && single) {
+        tickers = [single.toUpperCase()];
+    }
+
+    if (!tickers.length) {
+        return res.status(400).json({ success: false, error: 'Missing required field: ticker or tickers' });
+    }
+
+    if (tickers.length > MAX_TICKER_RETURNS_BATCH) {
+        return res.status(400).json({
+            success: false,
+            error: `At most ${MAX_TICKER_RETURNS_BATCH} tickers per request`
+        });
     }
 
     const customStartDate = (data.customStartDate || '').trim();
@@ -812,8 +829,37 @@ const getTickerReturns = async (req, res) => {
     }
 
     try {
-        const returns = await analyticsData.calculateAllReturns(ticker, true, true, customRange, 1980);
-        res.status(200).json(returns);
+        if (tickers.length === 1) {
+            const returns = await analyticsData.calculateAllReturns(tickers[0], true, true, customRange, 1980);
+            return res.status(200).json(returns);
+        }
+
+        const pairs = await Promise.all(
+            tickers.map(async (t) => {
+                try {
+                    const returns = await analyticsData.calculateAllReturns(t, true, true, customRange, 1980);
+                    return [t, returns];
+                } catch (err) {
+                    console.error(`Error calculating ticker returns for ${t}:`, err);
+                    return [
+                        t,
+                        {
+                            success: false,
+                            ticker: t,
+                            error: err?.message || 'Failed to calculate returns'
+                        }
+                    ];
+                }
+            })
+        );
+        const byTicker = Object.fromEntries(pairs);
+        res.status(200).json({
+            success: true,
+            batch: true,
+            customStartDate: customRange ? customRange[0] : null,
+            customEndDate: customRange ? customRange[1] : null,
+            byTicker
+        });
     } catch (error) {
         console.error('Error calculating ticker returns:', error);
         res.status(500).json({ success: false, error: 'Failed to calculate returns' });
