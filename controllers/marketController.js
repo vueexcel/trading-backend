@@ -812,7 +812,7 @@ const getTickerReturns = async (req, res) => {
     }
 
     try {
-        const returns = await analyticsData.calculateAllReturns(ticker, true, true, customRange, 2018);
+        const returns = await analyticsData.calculateAllReturns(ticker, true, true, customRange, 1980);
         res.status(200).json(returns);
     } catch (error) {
         console.error('Error calculating ticker returns:', error);
@@ -854,7 +854,7 @@ const getIndexReturns = async (req, res) => {
             return res.status(200).json({ ...cached, cache_hit: true });
         }
 
-        const payload = await analyticsData.calculateIndexReturns(indexValue, customRange, 2018);
+        const payload = await analyticsData.calculateIndexReturns(indexValue, customRange, 1980);
         await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
         res.set('X-Cache-Hit', '0');
         res.status(200).json({ ...payload, cache_hit: false });
