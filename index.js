@@ -33,11 +33,19 @@ const tickerRoutes = require('./routes/tickerRoutes');
 const watchlistRoutes = require('./routes/watchlistRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const { startSnapshotRefresher } = require('./services/snapshotRefresher');
+const { startTickerReturnsPrewarmer, waitForTickerReturnsWarmup } = require('./services/tickerReturnsPrewarmer');
 
 const app = express();
 
 app.use(cors({
-    exposedHeaders: ['X-Cache-Hit', 'X-Data-Source', 'X-Snapshot-Ts']
+    exposedHeaders: [
+        'X-Cache-Hit',
+        'X-Data-Source',
+        'X-Snapshot-Ts',
+        'X-Ticker-Returns-Source',
+        'X-Compute-Ms',
+        'X-Cache-Key'
+    ]
 }));
 app.use(express.json());
 app.use(express.static('public'));
@@ -67,7 +75,18 @@ app.get('/chart', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    startSnapshotRefresher();
-});
+
+async function bootstrap() {
+    try {
+        await waitForTickerReturnsWarmup();
+    } catch (err) {
+        console.warn('[ticker-returns-prewarm] startup warmup failed:', err?.message || err);
+    }
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        startSnapshotRefresher();
+        startTickerReturnsPrewarmer();
+    });
+}
+
+void bootstrap();

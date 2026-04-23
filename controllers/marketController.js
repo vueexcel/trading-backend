@@ -35,6 +35,7 @@
 const bigquery = require('../config/bigquery');
 const analyticsData = require('../analyticsData');
 const { makeCacheKey, getCache, setCache } = require('../utils/cache');
+const { warmTickerReturnsInBackground } = require('../services/tickerReturnsPrewarmer');
 const fs = require('fs');
 const path = require('path');
 
@@ -855,6 +856,7 @@ const getTickerDetailsByIndex = async (req, res) => {
 const MAX_TICKER_RETURNS_BATCH = 12;
 
 const getTickerReturns = async (req, res) => {
+    const startedAt = Date.now();
     const data = req.body || {};
     const single = (data.ticker || '').trim();
     let tickers = Array.isArray(data.tickers)
@@ -901,13 +903,23 @@ const getTickerReturns = async (req, res) => {
         const cached = await getCache(cacheKey);
         if (cached) {
             res.set('X-Cache-Hit', '1');
+            res.set('X-Ticker-Returns-Source', 'cache');
+            res.set('X-Compute-Ms', String(Date.now() - startedAt));
+            res.set('X-Cache-Key', cacheKey);
             return res.status(200).json({ ...cached, cache_hit: true });
+        }
+        if (!customRange) {
+            // Fire-and-forget: keep hot symbols warm without delaying this request.
+            warmTickerReturnsInBackground(tickers);
         }
 
         if (tickers.length === 1) {
             const returns = await analyticsData.calculateAllReturns(tickers[0], true, true, customRange, 1980);
             await setCache(cacheKey, returns, TICKER_RETURNS_CACHE_TTL_SECS);
             res.set('X-Cache-Hit', '0');
+            res.set('X-Ticker-Returns-Source', 'live-single');
+            res.set('X-Compute-Ms', String(Date.now() - startedAt));
+            res.set('X-Cache-Key', cacheKey);
             return res.status(200).json({ ...returns, cache_hit: false });
         }
 
@@ -939,6 +951,9 @@ const getTickerReturns = async (req, res) => {
         };
         await setCache(cacheKey, payload, TICKER_RETURNS_CACHE_TTL_SECS);
         res.set('X-Cache-Hit', '0');
+        res.set('X-Ticker-Returns-Source', 'live-batch');
+        res.set('X-Compute-Ms', String(Date.now() - startedAt));
+        res.set('X-Cache-Key', cacheKey);
         res.status(200).json({ ...payload, cache_hit: false });
     } catch (error) {
         console.error('Error calculating ticker returns:', error);
