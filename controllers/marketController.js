@@ -72,6 +72,8 @@ function ohlcRangeOffsetCap() {
 const OHLC_CACHE_TTL_SECS = Number(process.env.OHLC_CACHE_TTL_SECS || 120);
 const OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS = Number(process.env.OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS || 120);
 const TICKER_DETAILS_CACHE_TTL_SECS = Number(process.env.TICKER_DETAILS_CACHE_TTL_SECS || 300);
+/** Redis TTL for POST /api/market/ticker-returns (seconds). Override via TICKER_RETURNS_CACHE_TTL_SECS. */
+const TICKER_RETURNS_CACHE_TTL_SECS = Number(process.env.TICKER_RETURNS_CACHE_TTL_SECS || 300);
 /** Max inclusive calendar span for ohlc-signals-indicator (raise via OHLC_SIGNALS_MAX_RANGE_DAYS). */
 const OHLC_SIGNALS_MAX_RANGE_DAYS = Number(process.env.OHLC_SIGNALS_MAX_RANGE_DAYS || 40000);
 const WEIGHTS_JSON_PATH = path.resolve(__dirname, '..', 'data', 'index-weights.json');
@@ -889,10 +891,24 @@ const getTickerReturns = async (req, res) => {
         }
     }
 
+    const cacheKey = makeCacheKey('market:ticker-returns:v1', {
+        tickers: [...tickers].map((t) => String(t).toUpperCase()).sort().join(','),
+        customStartDate: customRange ? customRange[0] : '',
+        customEndDate: customRange ? customRange[1] : ''
+    });
+
     try {
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+
         if (tickers.length === 1) {
             const returns = await analyticsData.calculateAllReturns(tickers[0], true, true, customRange, 1980);
-            return res.status(200).json(returns);
+            await setCache(cacheKey, returns, TICKER_RETURNS_CACHE_TTL_SECS);
+            res.set('X-Cache-Hit', '0');
+            return res.status(200).json({ ...returns, cache_hit: false });
         }
 
         const pairs = await Promise.all(
@@ -914,13 +930,16 @@ const getTickerReturns = async (req, res) => {
             })
         );
         const byTicker = Object.fromEntries(pairs);
-        res.status(200).json({
+        const payload = {
             success: true,
             batch: true,
             customStartDate: customRange ? customRange[0] : null,
             customEndDate: customRange ? customRange[1] : null,
             byTicker
-        });
+        };
+        await setCache(cacheKey, payload, TICKER_RETURNS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        res.status(200).json({ ...payload, cache_hit: false });
     } catch (error) {
         console.error('Error calculating ticker returns:', error);
         res.status(500).json({ success: false, error: 'Failed to calculate returns' });
