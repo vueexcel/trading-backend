@@ -53,6 +53,22 @@ const MA200_TABLE_FQN =
 
 const OHLC_MAX_LIMIT = 500;
 const OHLC_DEFAULT_LIMIT = 100;
+/** When start_date + end_date are set, max rows per request (full series up to this cap). Override via OHLC_RANGE_MAX_ROWS. */
+const OHLC_RANGE_MAX_ROWS = Number(process.env.OHLC_RANGE_MAX_ROWS || 25000);
+/** Upper bound on OFFSET for range queries (abuse guard). */
+const OHLC_RANGE_MAX_OFFSET = Number(process.env.OHLC_RANGE_MAX_OFFSET || 500000);
+
+function ohlcRangeRowCap() {
+    const r = OHLC_RANGE_MAX_ROWS;
+    if (!Number.isFinite(r) || r <= 0) return 25000;
+    return Math.min(Math.floor(r), 500000);
+}
+
+function ohlcRangeOffsetCap() {
+    const r = OHLC_RANGE_MAX_OFFSET;
+    if (!Number.isFinite(r) || r < 0) return 500000;
+    return Math.min(Math.floor(r), 2000000);
+}
 const OHLC_CACHE_TTL_SECS = Number(process.env.OHLC_CACHE_TTL_SECS || 120);
 const OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS = Number(process.env.OHLC_SIGNALS_INDICATOR_CACHE_TTL_SECS || 120);
 const TICKER_DETAILS_CACHE_TTL_SECS = Number(process.env.TICKER_DETAILS_CACHE_TTL_SECS || 300);
@@ -354,8 +370,10 @@ const getOhlcSignalsIndicator = async (req, res) => {
 };
 
 // GET /api/market/ohlc?symbol=AAPL  or  ?symbol=AAPL&start_date=2024-01-01&end_date=2024-12-31&limit=250
+// With start_date + end_date: returns up to OHLC_RANGE_MAX_ROWS per request (default 25000), not 100.
+// Optional: offset for pagination (same ordering: newest first).
 const getStockData = async (req, res) => {
-    const { symbol, start_date, end_date, limit: limitParam } = req.query;
+    const { symbol, start_date, end_date, limit: limitParam, offset: offsetParam } = req.query;
 
     if (!symbol) {
         return res.status(400).json({ error: 'Symbol is required' });
@@ -368,11 +386,33 @@ const getStockData = async (req, res) => {
 
     let startDate = (start_date && typeof start_date === 'string') ? start_date.trim() : null;
     let endDate = (end_date && typeof end_date === 'string') ? end_date.trim() : null;
-    let limit = OHLC_DEFAULT_LIMIT;
-    if (limitParam != null && limitParam !== '') {
-        const n = parseInt(limitParam, 10);
-        if (!Number.isNaN(n) && n > 0) {
-            limit = Math.min(n, OHLC_MAX_LIMIT);
+
+    const hasRange = Boolean(startDate && endDate);
+    const rangeCap = ohlcRangeRowCap();
+    let limit;
+    let offset = 0;
+
+    if (hasRange) {
+        limit = rangeCap;
+        if (limitParam != null && limitParam !== '') {
+            const n = parseInt(limitParam, 10);
+            if (!Number.isNaN(n) && n > 0) {
+                limit = Math.min(n, rangeCap);
+            }
+        }
+        if (offsetParam != null && offsetParam !== '') {
+            const o = parseInt(offsetParam, 10);
+            if (!Number.isNaN(o) && o >= 0) {
+                offset = Math.min(o, ohlcRangeOffsetCap());
+            }
+        }
+    } else {
+        limit = OHLC_DEFAULT_LIMIT;
+        if (limitParam != null && limitParam !== '') {
+            const n = parseInt(limitParam, 10);
+            if (!Number.isNaN(n) && n > 0) {
+                limit = Math.min(n, OHLC_MAX_LIMIT);
+            }
         }
     }
 
@@ -390,11 +430,12 @@ const getStockData = async (req, res) => {
     }
 
     try {
-        const cacheKey = makeCacheKey('market:ohlc:v1', {
+        const cacheKey = makeCacheKey('market:ohlc:v2', {
             sym,
             startDate: startDate || '',
             endDate: endDate || '',
-            limit
+            limit,
+            offset
         });
         const cached = await getCache(cacheKey);
         if (cached) {
@@ -406,16 +447,28 @@ const getStockData = async (req, res) => {
         const params = { symbol: sym, limit };
 
         if (startDate && endDate) {
-            query = `
-                SELECT *
-                FROM \`${TABLE_FQN}\`
-                WHERE Ticker = @symbol
-                  AND Date BETWEEN @start AND @end
-                ORDER BY Date DESC
-                LIMIT @limit
-            `;
             params.start = startDate;
             params.end = endDate;
+            if (offset > 0) {
+                params.offset = offset;
+                query = `
+                    SELECT *
+                    FROM \`${TABLE_FQN}\`
+                    WHERE Ticker = @symbol
+                      AND Date BETWEEN @start AND @end
+                    ORDER BY Date DESC
+                    LIMIT @limit OFFSET @offset
+                `;
+            } else {
+                query = `
+                    SELECT *
+                    FROM \`${TABLE_FQN}\`
+                    WHERE Ticker = @symbol
+                      AND Date BETWEEN @start AND @end
+                    ORDER BY Date DESC
+                    LIMIT @limit
+                `;
+            }
         } else {
             query = `
                 SELECT *
@@ -431,6 +484,14 @@ const getStockData = async (req, res) => {
         const payload = {
             symbol: sym,
             data: rows,
+            ...(hasRange
+                ? {
+                      range: { start_date: startDate, end_date: endDate },
+                      limit,
+                      offset,
+                      max_range_rows: rangeCap
+                  }
+                : {}),
             cache_hit: false
         };
         await setCache(cacheKey, payload, OHLC_CACHE_TTL_SECS);
