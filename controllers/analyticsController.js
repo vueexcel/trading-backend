@@ -421,7 +421,7 @@ function runBacktest(initialPortfolio, prices, signalsByDate) {
 const ODIN_SUMMARY_PRICE_TABLE = `\`${TABLE_FQN}\``;
 const ODIN_SUMMARY_SIGNAL_TABLE = '`extended-byway-454621-s6.sp500data1.consolidated_testing_2`';
 const ODIN_INDEX_PRICE_TABLE = `\`${process.env.ODIN_INDEX_PRICE_TABLE || TABLE_FQN}\``;
-const ODIN_INDEX_SIGNAL_TABLE = `\`${process.env.ODIN_INDEX_SIGNAL_TABLE || `${PROJECT_ID}.${DATASET}.test`}\``;
+const ODIN_INDEX_SIGNAL_TABLE = `\`${process.env.ODIN_INDEX_SIGNAL_TABLE || `${PROJECT_ID}.${DATASET}.Test`}\``;
 const ODIN_MA200_DASHBOARD_TABLE = `\`${process.env.ODIN_MA200_DASHBOARD_TABLE || `${PROJECT_ID}.${DATASET}.ma200_dashboard_final`}\``;
 
 // ─── Signal classification (mirrors Apps Script T / T+1 multi-source) ─────
