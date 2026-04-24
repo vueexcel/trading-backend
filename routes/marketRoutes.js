@@ -10,6 +10,10 @@ const {
     getPeriodOptions,
     getTickerDetailsByIndex,
     getTickerReturns,
+    getTickerAnnualReturns,
+    getTickerQuarterlyReturns,
+    getTickerMonthlyReturns,
+    getTickerCoreReturns,
     getIndexReturns,
     getIndexMarketMovers,
     getIndexConstituentLeaders
@@ -35,6 +39,10 @@ router.get('/indices', requireAuth, getUniqueIndices);
 router.get('/period-options', requireAuth, getPeriodOptions);
 router.post('/ticker-details', requireAuth, getTickerDetailsByIndex);
 router.post('/ticker-returns', requireAuth, getTickerReturns);
+router.post('/ticker-annual-returns', requireAuth, getTickerAnnualReturns);
+router.post('/ticker-quarterly-returns', requireAuth, getTickerQuarterlyReturns);
+router.post('/ticker-monthly-returns', requireAuth, getTickerMonthlyReturns);
+router.post('/ticker-core-returns', requireAuth, getTickerCoreReturns);
 router.post('/index-returns', requireAuth, getIndexReturns);
 
 /** 1-day return % vs relative volume (10d) for index constituents (scatter chart). */

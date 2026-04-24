@@ -16,6 +16,8 @@ const TICKER_DETAILS_SNAPSHOT_TABLE =
   process.env.TICKER_DETAILS_SNAPSHOT_TABLE || 'ticker_details_snapshot';
 const INDEX_MOVERS_SNAPSHOT_TABLE =
   process.env.INDEX_MARKET_MOVERS_SNAPSHOT_TABLE || 'index_market_movers_snapshot';
+const INDEX_RETURNS_SNAPSHOT_TABLE =
+  process.env.INDEX_RETURNS_SNAPSHOT_TABLE || 'index_returns_snapshot';
 const WEIGHTS_JSON_PATH = path.resolve(__dirname, 'data', 'index-weights.json');
 
 const TICKER_DETAILS_FQN = `${PROJECT_ID}.${BIGQUERY_DATASET}.${TICKER_DETAILS_TABLE}`;
@@ -25,6 +27,13 @@ const TICKER_DETAILS_SNAPSHOT_FQN =
   `${PROJECT_ID}.${SNAPSHOT_DATASET}.${TICKER_DETAILS_SNAPSHOT_TABLE}`;
 const INDEX_MOVERS_SNAPSHOT_FQN =
   `${PROJECT_ID}.${SNAPSHOT_DATASET}.${INDEX_MOVERS_SNAPSHOT_TABLE}`;
+const INDEX_RETURNS_SNAPSHOT_FQN =
+  `${PROJECT_ID}.${SNAPSHOT_DATASET}.${INDEX_RETURNS_SNAPSHOT_TABLE}`;
+/** API `index` body values for POST /index-returns (same as IndexPage). */
+const SNAPSHOT_INDEX_RETURNS_KEYS = ['sp500', 'Dow Jones', 'Nasdaq 100'];
+const SNAPSHOT_INDEX_RETURNS_KEY_SET = new Set(
+  SNAPSHOT_INDEX_RETURNS_KEYS.map((k) => String(k).trim().toLowerCase())
+);
 const SNAPSHOT_SUPPORTED_PERIODS = ['last-date', 'last-5-days', 'mtd'];
 const SNAPSHOT_SUPPORTED_INDICES = ['SP500', 'Dow Jones', 'Nasdaq 100'];
 
@@ -1025,8 +1034,21 @@ async function calculateCustomRange(ticker, startDate, endDate, prices) {
   };
 }
 
-async function buildAllReturnsPayloadFromPrices(ticker, endDate, prices, includePredefined, includeAnnual, customRange, annualFromYear) {
+async function buildAllReturnsPayloadFromPrices(
+  ticker,
+  endDate,
+  prices,
+  includePredefined,
+  includeAnnual,
+  customRange,
+  annualFromYear,
+  options = {}
+) {
   const t = (ticker || '').toString().trim().toUpperCase();
+  const includeDynamic = options.includeDynamic !== false;
+  const includeMonthly = options.includeMonthly !== false;
+  const includeQuarterly = options.includeQuarterly !== false;
+  const includeCustom = options.includeCustom !== false;
   if (!prices || !prices.length) {
     return {
       success: true,
@@ -1045,14 +1067,14 @@ async function buildAllReturnsPayloadFromPrices(ticker, endDate, prices, include
   const minDt = prices[0].Date;
   const startYear = Math.max(minDt.getFullYear(), annualFromYear);
 
-  const dynamic = await calculateDynamicPeriods(t, endDate, prices);
+  const dynamic = includeDynamic ? await calculateDynamicPeriods(t, endDate, prices) : [];
   const predefined = includePredefined ? await calculatePredefinedPeriods(t, endDate, prices) : [];
   const annual = includeAnnual ? await calculateAnnualReturns(t, endDate, minDt.getFullYear(), prices) : [];
-  const monthly = await calculateMonthlyReturns(t, endDate, startYear, prices);
-  const quarterly = await calculateQuarterlyReturns(t, endDate, startYear, prices);
+  const monthly = includeMonthly ? await calculateMonthlyReturns(t, endDate, startYear, prices) : [];
+  const quarterly = includeQuarterly ? await calculateQuarterlyReturns(t, endDate, startYear, prices) : [];
 
   let custom = null;
-  if (customRange && customRange.length === 2) {
+  if (includeCustom && customRange && customRange.length === 2) {
     custom = await calculateCustomRange(t, new Date(customRange[0]), new Date(customRange[1]), prices);
   }
 
@@ -1081,6 +1103,33 @@ async function calculateAllReturns(ticker, includePredefined = true, includeAnnu
   const prices = await fetchCloseSeries(t, earliest, endDate);
 
   return buildAllReturnsPayloadFromPrices(t, endDate, prices, includePredefined, includeAnnual, customRange, annualFromYear);
+}
+
+async function calculateReturnsSections(ticker, sections = {}, customRange = null, annualFromYear = 1970) {
+  const includeDynamic = sections.includeDynamic !== false;
+  const includePredefined = sections.includePredefined !== false;
+  const includeAnnual = sections.includeAnnual !== false;
+  const includeMonthly = sections.includeMonthly !== false;
+  const includeQuarterly = sections.includeQuarterly !== false;
+  const includeCustom = sections.includeCustom !== false;
+
+  const endDate = await getMaxDate();
+  const t = (ticker || '').toString().trim().toUpperCase();
+  const minDt = await getMinDateForTicker(t);
+  const startYear = Math.max(minDt.getFullYear(), annualFromYear);
+  const earliest = new Date(startYear, 0, 1);
+  const prices = await fetchCloseSeries(t, earliest, endDate);
+
+  return buildAllReturnsPayloadFromPrices(
+    t,
+    endDate,
+    prices,
+    includePredefined,
+    includeAnnual,
+    customRange,
+    annualFromYear,
+    { includeDynamic, includeMonthly, includeQuarterly, includeCustom }
+  );
 }
 
 function buildSyntheticIndexCloseSeries(priceData, weightByTicker) {
@@ -1755,6 +1804,52 @@ async function ensureSnapshotTables() {
   `;
   await bigquery.query({ query: createTickerDetailsSnapshot });
   await bigquery.query({ query: createIndexMoversSnapshot });
+  const createIndexReturnsSnapshot = `
+    CREATE TABLE IF NOT EXISTS \`${INDEX_RETURNS_SNAPSHOT_FQN}\` (
+      snapshot_ts TIMESTAMP NOT NULL,
+      as_of_date DATE NOT NULL,
+      index_key STRING NOT NULL,
+      payload_json STRING NOT NULL
+    )
+    PARTITION BY DATE(snapshot_ts)
+    CLUSTER BY index_key
+  `;
+  await bigquery.query({ query: createIndexReturnsSnapshot });
+}
+
+function normalizeIndexReturnsSnapshotKey(indexValue) {
+  const low = String(indexValue || '')
+    .trim()
+    .toLowerCase();
+  if (!low || !SNAPSHOT_INDEX_RETURNS_KEY_SET.has(low)) return null;
+  return low;
+}
+
+async function writeIndexReturnsSnapshot(indexKeyLower, payload, asOfDate, snapshotTs) {
+  const indexKey = String(indexKeyLower || '')
+    .trim()
+    .toLowerCase();
+  if (!indexKey) return;
+  const deleteQuery = `
+    DELETE FROM \`${INDEX_RETURNS_SNAPSHOT_FQN}\`
+    WHERE index_key = @indexKey
+  `;
+  await bigquery.query({ query: deleteQuery, params: { indexKey } });
+  const payloadJson = JSON.stringify(payload || {});
+  const tsEsc = String(snapshotTs || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const dateEsc = String(asOfDate || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const insertQuery = `
+    INSERT INTO \`${INDEX_RETURNS_SNAPSHOT_FQN}\`
+    (snapshot_ts, as_of_date, index_key, payload_json)
+    VALUES (TIMESTAMP('${tsEsc}'), DATE('${dateEsc}'), @indexKey, @payloadJson)
+  `;
+  await bigquery.query({
+    query: insertQuery,
+    params: {
+      indexKey,
+      payloadJson
+    }
+  });
 }
 
 async function writeTickerDetailsSnapshot(indexValue, periodValue, rows, asOfDate, snapshotTs) {
@@ -1838,6 +1933,19 @@ async function buildMarketSnapshots() {
       await writeIndexMoversSnapshot(indexName, period, movers.points || [], asOfDate, snapshotTs);
     }
   }
+  for (const indexApi of SNAPSHOT_INDEX_RETURNS_KEYS) {
+    const keyLower = normalizeIndexReturnsSnapshotKey(indexApi);
+    if (!keyLower) continue;
+    try {
+      const payload = await calculateIndexReturns(indexApi, null, 1980);
+      await writeIndexReturnsSnapshot(keyLower, payload, asOfDate, snapshotTs);
+    } catch (err) {
+      console.error(
+        `[snapshot-refresher] index-returns snapshot failed index="${indexApi}":`,
+        err?.message || err
+      );
+    }
+  }
   return {
     success: true,
     snapshotTs,
@@ -1905,6 +2013,32 @@ async function readIndexMarketMoversSnapshot(indexValue, periodValue) {
   return { snapshotTs, asOfDate, points };
 }
 
+async function readIndexReturnsSnapshot(indexValue) {
+  const indexKey = normalizeIndexReturnsSnapshotKey(indexValue);
+  if (!indexKey) return null;
+  const q = `
+    SELECT snapshot_ts, as_of_date, payload_json
+    FROM \`${INDEX_RETURNS_SNAPSHOT_FQN}\`
+    WHERE index_key = @indexKey
+    ORDER BY snapshot_ts DESC
+    LIMIT 1
+  `;
+  const [rows] = await bigquery.query({ query: q, params: { indexKey } });
+  if (!rows || !rows.length) return null;
+  const snapshotTs = rows[0].snapshot_ts?.value || rows[0].snapshot_ts || null;
+  const asOfDate = rows[0].as_of_date?.value || rows[0].as_of_date || null;
+  let payload = null;
+  try {
+    const raw = rows[0].payload_json;
+    const s = raw != null && typeof raw === 'object' && raw.value != null ? String(raw.value) : String(raw || '');
+    payload = s ? JSON.parse(s) : null;
+  } catch {
+    return null;
+  }
+  if (!payload || typeof payload !== 'object') return null;
+  return { snapshotTs, asOfDate, payload };
+}
+
 module.exports = {
   getUniqueIndices,
   getPeriodOptions,
@@ -1913,6 +2047,7 @@ module.exports = {
   mapIndexValueToDbIndex,
   getTickerDetailsByIndex,
   calculateAllReturns,
+  calculateReturnsSections,
   calculateIndexReturns,
   calculateTotalReturnPercentage,
   calculateIndexConstituentLeaderboards,
@@ -1922,6 +2057,7 @@ module.exports = {
   ensureSnapshotTables,
   buildMarketSnapshots,
   readTickerDetailsSnapshot,
-  readIndexMarketMoversSnapshot
+  readIndexMarketMoversSnapshot,
+  readIndexReturnsSnapshot
 };
 

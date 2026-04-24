@@ -855,6 +855,23 @@ const getTickerDetailsByIndex = async (req, res) => {
 
 const MAX_TICKER_RETURNS_BATCH = 12;
 
+function parseTickerReturnsCustomRange(data) {
+    const customStartDate = (data.customStartDate || '').trim();
+    const customEndDate = (data.customEndDate || '').trim();
+    if (customStartDate && customEndDate) {
+        try {
+            const startDt = new Date(customStartDate);
+            const endDt = new Date(customEndDate);
+            if (startDt <= endDt) {
+                return [customStartDate, customEndDate];
+            }
+        } catch (e) {
+            // Ignore invalid dates
+        }
+    }
+    return null;
+}
+
 const getTickerReturns = async (req, res) => {
     const startedAt = Date.now();
     const data = req.body || {};
@@ -878,20 +895,7 @@ const getTickerReturns = async (req, res) => {
         });
     }
 
-    const customStartDate = (data.customStartDate || '').trim();
-    const customEndDate = (data.customEndDate || '').trim();
-    let customRange = null;
-    if (customStartDate && customEndDate) {
-        try {
-            const startDt = new Date(customStartDate);
-            const endDt = new Date(customEndDate);
-            if (startDt <= endDt) {
-                customRange = [customStartDate, customEndDate];
-            }
-        } catch (e) {
-            // Ignore invalid dates
-        }
-    }
+    const customRange = parseTickerReturnsCustomRange(data);
 
     const cacheKey = makeCacheKey('market:ticker-returns:v1', {
         tickers: [...tickers].map((t) => String(t).toUpperCase()).sort().join(','),
@@ -914,7 +918,7 @@ const getTickerReturns = async (req, res) => {
         }
 
         if (tickers.length === 1) {
-            const returns = await analyticsData.calculateAllReturns(tickers[0], true, true, customRange, 1980);
+            const returns = await analyticsData.calculateAllReturns(tickers[0], true, true, customRange, 2000);
             await setCache(cacheKey, returns, TICKER_RETURNS_CACHE_TTL_SECS);
             res.set('X-Cache-Hit', '0');
             res.set('X-Ticker-Returns-Source', 'live-single');
@@ -926,7 +930,7 @@ const getTickerReturns = async (req, res) => {
         const pairs = await Promise.all(
             tickers.map(async (t) => {
                 try {
-                    const returns = await analyticsData.calculateAllReturns(t, true, true, customRange, 1980);
+                    const returns = await analyticsData.calculateAllReturns(t, true, true, customRange, 2000);
                     return [t, returns];
                 } catch (err) {
                     console.error(`Error calculating ticker returns for ${t}:`, err);
@@ -961,6 +965,107 @@ const getTickerReturns = async (req, res) => {
     }
 };
 
+async function getTickerReturnsSection(req, res, sectionKey, sectionsConfig) {
+    const data = req.body || {};
+    const ticker = String(data.ticker || '').trim().toUpperCase();
+    if (!ticker) {
+        return res.status(400).json({ success: false, error: 'Missing required field: ticker' });
+    }
+
+    const customRange = parseTickerReturnsCustomRange(data);
+    const cacheKey = makeCacheKey(`market:ticker-returns:${sectionKey}:v1`, {
+        ticker,
+        customStartDate: customRange ? customRange[0] : '',
+        customEndDate: customRange ? customRange[1] : ''
+    });
+
+    try {
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+        const payload = await analyticsData.calculateReturnsSections(ticker, sectionsConfig, customRange, 2000);
+        await setCache(cacheKey, payload, TICKER_RETURNS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        return res.status(200).json({ ...payload, cache_hit: false });
+    } catch (error) {
+        console.error(`Error calculating ticker ${sectionKey} returns:`, error);
+        return res.status(500).json({ success: false, error: `Failed to calculate ticker ${sectionKey} returns` });
+    }
+}
+
+const getTickerAnnualReturns = async (req, res) =>
+    getTickerReturnsSection(req, res, 'annual', {
+        includeDynamic: false,
+        includePredefined: false,
+        includeAnnual: true,
+        includeMonthly: false,
+        includeQuarterly: false,
+        includeCustom: false
+    });
+
+const getTickerQuarterlyReturns = async (req, res) =>
+    getTickerReturnsSection(req, res, 'quarterly', {
+        includeDynamic: false,
+        includePredefined: false,
+        includeAnnual: false,
+        includeMonthly: false,
+        includeQuarterly: true,
+        includeCustom: false
+    });
+
+const getTickerMonthlyReturns = async (req, res) =>
+    getTickerReturnsSection(req, res, 'monthly', {
+        includeDynamic: false,
+        includePredefined: false,
+        includeAnnual: false,
+        includeMonthly: true,
+        includeQuarterly: false,
+        includeCustom: false
+    });
+
+/** Dynamic + predefined + optional custom range only (no annual / quarterly / monthly). */
+const getTickerCoreReturns = async (req, res) => {
+    const data = req.body || {};
+    const ticker = String(data.ticker || '').trim().toUpperCase();
+    if (!ticker) {
+        return res.status(400).json({ success: false, error: 'Missing required field: ticker' });
+    }
+    const customRange = parseTickerReturnsCustomRange(data);
+    const cacheKey = makeCacheKey('market:ticker-returns:core:v1', {
+        ticker,
+        customStartDate: customRange ? customRange[0] : '',
+        customEndDate: customRange ? customRange[1] : ''
+    });
+    try {
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            res.set('X-Cache-Hit', '1');
+            return res.status(200).json({ ...cached, cache_hit: true });
+        }
+        const payload = await analyticsData.calculateReturnsSections(
+            ticker,
+            {
+                includeDynamic: true,
+                includePredefined: true,
+                includeAnnual: false,
+                includeMonthly: false,
+                includeQuarterly: false,
+                includeCustom: Boolean(customRange && customRange.length === 2)
+            },
+            customRange,
+            2000
+        );
+        await setCache(cacheKey, payload, TICKER_RETURNS_CACHE_TTL_SECS);
+        res.set('X-Cache-Hit', '0');
+        return res.status(200).json({ ...payload, cache_hit: false });
+    } catch (error) {
+        console.error('Error calculating ticker core returns:', error);
+        return res.status(500).json({ success: false, error: 'Failed to calculate ticker core returns' });
+    }
+};
+
 const getIndexReturns = async (req, res) => {
     const data = req.body || {};
     const indexValue = (data.index || '').trim();
@@ -984,6 +1089,7 @@ const getIndexReturns = async (req, res) => {
     }
 
     try {
+        const startedAt = Date.now();
         const cacheKey = makeCacheKey('market:index-returns:v1', {
             index: indexValue.toLowerCase(),
             customStartDate: customRange ? customRange[0] : '',
@@ -992,13 +1098,40 @@ const getIndexReturns = async (req, res) => {
         const cached = await getCache(cacheKey);
         if (cached) {
             res.set('X-Cache-Hit', '1');
+            res.set('X-Data-Source', cached?.data_source || 'live');
+            if (cached?.snapshot_ts) res.set('X-Snapshot-Ts', String(cached.snapshot_ts));
             return res.status(200).json({ ...cached, cache_hit: true });
         }
 
-        const payload = await analyticsData.calculateIndexReturns(indexValue, customRange, 1980);
-        await setCache(cacheKey, payload, TICKER_DETAILS_CACHE_TTL_SECS);
+        if (ENABLE_MARKET_SNAPSHOT_READ && !customRange) {
+            const snap = await analyticsData.readIndexReturnsSnapshot(indexValue);
+            if (snap?.payload && snap.payload.success !== false) {
+                const out = {
+                    ...snap.payload,
+                    cache_hit: false,
+                    data_source: 'snapshot',
+                    snapshot_ts: snap.snapshotTs || null
+                };
+                await setCache(cacheKey, out, TICKER_DETAILS_CACHE_TTL_SECS);
+                res.set('X-Cache-Hit', '0');
+                res.set('X-Data-Source', 'snapshot');
+                if (snap.snapshotTs) res.set('X-Snapshot-Ts', String(snap.snapshotTs));
+                console.log(
+                    `[market:index-returns] source=snapshot index="${indexValue}" ms=${Date.now() - startedAt}`
+                );
+                return res.status(200).json(out);
+            }
+        }
+
+        const payload = await analyticsData.calculateIndexReturns(indexValue, customRange, 2000);
+        const liveOut = { ...payload, cache_hit: false, data_source: 'live', snapshot_ts: null };
+        await setCache(cacheKey, liveOut, TICKER_DETAILS_CACHE_TTL_SECS);
         res.set('X-Cache-Hit', '0');
-        res.status(200).json({ ...payload, cache_hit: false });
+        res.set('X-Data-Source', 'live');
+        console.log(
+            `[market:index-returns] source=live index="${indexValue}" ms=${Date.now() - startedAt}`
+        );
+        res.status(200).json(liveOut);
     } catch (error) {
         console.error('Error calculating index returns:', error);
         res.status(500).json({ success: false, error: 'Failed to calculate index returns' });
@@ -1116,6 +1249,10 @@ module.exports = {
     getPeriodOptions,
     getTickerDetailsByIndex,
     getTickerReturns,
+    getTickerAnnualReturns,
+    getTickerQuarterlyReturns,
+    getTickerMonthlyReturns,
+    getTickerCoreReturns,
     getIndexReturns,
     getIndexMarketMovers,
     getIndexConstituentLeaders

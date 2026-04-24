@@ -157,7 +157,11 @@ curl -X POST http://localhost:5000/api/market/monthly-ohlc \
 | `GET` | `/indices` | Get available index options | ✅ |
 | `GET` | `/period-options` | Get period selection options | ✅ |
 | `POST` | `/ticker-details` | Get ticker details by index and period | ✅ |
-| `POST` | `/ticker-returns` | Get comprehensive return analysis for a ticker | ✅ |
+| `POST` | `/ticker-returns` | Full return analysis (all sections in one response). Body: `ticker` or batched `tickers`, optional `customStartDate` / `customEndDate` | ✅ |
+| `POST` | `/ticker-core-returns` | Lighter payload: dynamic + predefined periods + optional custom range only (no annual / quarterly / monthly arrays) | ✅ |
+| `POST` | `/ticker-annual-returns` | `performance.annualReturns` only | ✅ |
+| `POST` | `/ticker-quarterly-returns` | `performance.quarterlyReturns` only | ✅ |
+| `POST` | `/ticker-monthly-returns` | `performance.monthlyReturns` only | ✅ |
 
 **Get Available Indices:**
 ```bash
@@ -339,6 +343,21 @@ curl -X POST http://localhost:5000/api/market/ticker-returns \
     ]
   }
 }
+```
+
+**Split ticker returns (optional `customStartDate` / `customEndDate` on each):**  
+`POST /ticker-core-returns`, `POST /ticker-annual-returns`, `POST /ticker-quarterly-returns`, and `POST /ticker-monthly-returns` each require a single `ticker` symbol. Responses use the same `performance` schema as `/ticker-returns`; only the section that route computes is filled, and the other arrays are empty. Each path has its own Redis cache key and less work per request than the full calculator, so clients can fetch sections in parallel.
+
+**Example (core returns):**
+```bash
+curl -X POST http://localhost:5000/api/market/ticker-core-returns \
+  -H "Authorization: Bearer <your-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "AAPL",
+    "customStartDate": "2024-01-01",
+    "customEndDate": "2025-01-01"
+  }'
 ```
 
 ### Ticker Routes (`/api/tickers`)
@@ -563,6 +582,8 @@ Returns comprehensive performance data including:
 - Monthly returns (month-over-month changes)
 - Quarterly returns (quarterly breakdown)
 - Custom date ranges (optional)
+
+For faster or parallel loading, use **`/ticker-core-returns`** plus **`/ticker-annual-returns`**, **`/ticker-quarterly-returns`**, and **`/ticker-monthly-returns`** (each `POST` with `ticker` and the same optional custom date range). See the Market Routes table above.
 
 ### Step 4: Get Monthly OHLC Data
 ```bash
