@@ -300,10 +300,29 @@ async function getMembersForMarketGroupId(groupId) {
   if (!linkErr && links?.length) {
     const ids = [...new Set(links.map((l) => l.ticker_id).filter(Boolean))];
     if (ids.length) {
-      const { data: ticks, error: tickErr } = await supabase
-        .from('tickers')
-        .select('symbol, company_name')
-        .in('id', ids);
+      // Keep URL size bounded for Supabase PostgREST `id=in.(...)` queries.
+      const ID_CHUNK_SIZE = 75;
+      let ticks = [];
+      let tickErr = null;
+      for (let i = 0; i < ids.length; i += ID_CHUNK_SIZE) {
+        const chunk = ids.slice(i, i + ID_CHUNK_SIZE);
+        const { data: part, error: partErr } = await supabase
+          .from('tickers')
+          .select('symbol, company_name')
+          .in('id', chunk);
+        if (partErr) {
+          tickErr = {
+            ...partErr,
+            chunk_start: i,
+            chunk_size: chunk.length,
+            total_ids: ids.length
+          };
+          break;
+        }
+        if (Array.isArray(part) && part.length) {
+          ticks = ticks.concat(part);
+        }
+      }
       if (tickErr) {
         console.error('getMembersForMarketGroupId tickers:', tickErr);
       } else if (ticks?.length) {
