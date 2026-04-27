@@ -909,106 +909,86 @@ async function getMinDateForTicker(ticker) {
   return dt;
 }
 
-async function calculateDynamicPeriods(ticker, endDate, prices) {
-  const results = [];
+function sqlDateLiteral(yyyyMmDd) {
+  return `DATE('${String(yyyyMmDd).replace(/'/g, "\\'")}')`;
+}
+
+function buildPeriodsSqlUnion(periods) {
+  return periods
+    .map(
+      (p) =>
+        `SELECT '${String(p.period).replace(/'/g, "\\'")}' AS period, ${sqlDateLiteral(
+          p.start_date_requested
+        )} AS start_date_requested, ${sqlDateLiteral(p.end_date_requested)} AS end_date_requested`
+    )
+    .join('\nUNION ALL\n');
+}
+
+function buildDynamicPeriodSpecs(endDate) {
+  const specs = [];
   for (const def of DYNAMIC_PERIOD_DEFS) {
     let start = new Date(endDate);
     if (def.type === 'days') start.setDate(endDate.getDate() - def.days);
     else if (def.type === 'years') start.setDate(endDate.getDate() - Math.floor(def.years * 365));
     else if (def.type === 'ytd') start = new Date(endDate.getFullYear(), 0, 1);
-
-    const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
-    const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
-    results.push({
+    specs.push({
       period: def.name,
       start_date_requested: isoDate(start),
-      end_date_requested: isoDate(endDate),
-      start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
-      end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
-      start_price: startPrice,
-      end_price: endPrice,
-      years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
-      total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+      end_date_requested: isoDate(endDate)
     });
   }
-  return results;
+  return specs;
 }
 
-async function calculatePredefinedPeriods(ticker, endDate, prices) {
-  const out = [];
+function buildPredefinedPeriodSpecs(endDate) {
+  const specs = [];
   for (const yr of PREDEFINED_START_YEARS) {
     const start = new Date(yr, 0, 1);
     if (start > endDate) continue;
-    const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
-    const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
-    out.push({
+    specs.push({
       period: String(yr),
       start_date_requested: isoDate(start),
-      end_date_requested: isoDate(endDate),
-      start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
-      end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
-      start_price: startPrice,
-      end_price: endPrice,
-      years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
-      total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+      end_date_requested: isoDate(endDate)
     });
   }
-  return out;
+  return specs;
 }
 
-async function calculateAnnualReturns(ticker, endDate, minYear, prices) {
-  const out = [];
+function buildAnnualPeriodSpecs(endDate, minYear) {
+  const specs = [];
   const endYear = endDate.getFullYear();
   for (let y = minYear; y <= endYear; y++) {
     const start = new Date(y, 0, 1);
     const end = (y === endYear) ? endDate : new Date(y, 11, 31);
-    const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
-    const [endFoundDate, endPrice] = closeOnOrBefore(prices, end);
-    if (!startFoundDate || !endFoundDate) continue;
-    out.push({
-      year: String(y),
+    specs.push({
+      period: String(y),
       start_date_requested: isoDate(start),
-      end_date_requested: isoDate(end),
-      start_date_found: isoDate(startFoundDate),
-      end_date_found: isoDate(endFoundDate),
-      start_price: startPrice,
-      end_price: endPrice,
-      years: yearsBetween(startFoundDate, endFoundDate),
-      total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+      end_date_requested: isoDate(end)
     });
   }
-  return out;
+  return specs;
 }
 
-async function calculateMonthlyReturns(ticker, endDate, fromYear, prices) {
-  const out = [];
+function buildMonthlyPeriodSpecs(endDate, fromYear) {
+  const specs = [];
   const endYear = endDate.getFullYear();
   for (let y = fromYear; y <= endYear; y++) {
     for (let m = 0; m < 12; m++) {
       const start = new Date(y, m, 1);
       const end = (y === endYear && m === endDate.getMonth()) ? endDate : new Date(y, m + 1, 0);
       if (start > endDate) continue;
-      const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
-      const [endFoundDate, endPrice] = closeOnOrBefore(prices, end);
-      if (!startFoundDate || !endFoundDate) continue;
-      out.push({
-        month: `${y}-${String(m + 1).padStart(2, '0')}`,
+      specs.push({
+        period: `${y}-${String(m + 1).padStart(2, '0')}`,
         start_date_requested: isoDate(start),
-        end_date_requested: isoDate(end),
-        start_date_found: isoDate(startFoundDate),
-        end_date_found: isoDate(endFoundDate),
-        start_price: startPrice,
-        end_price: endPrice,
-        years: yearsBetween(startFoundDate, endFoundDate),
-        total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+        end_date_requested: isoDate(end)
       });
     }
   }
-  return out;
+  return specs;
 }
 
-async function calculateQuarterlyReturns(ticker, endDate, fromYear, prices) {
-  const out = [];
+function buildQuarterlyPeriodSpecs(endDate, fromYear) {
+  const specs = [];
   const endYear = endDate.getFullYear();
   for (let y = fromYear; y <= endYear; y++) {
     for (let q = 1; q <= 4; q++) {
@@ -1018,11 +998,284 @@ async function calculateQuarterlyReturns(ticker, endDate, fromYear, prices) {
         ? endDate
         : new Date(y, startMonth + 3, 0);
       if (start > endDate) continue;
+      specs.push({
+        period: `${y}-Q${q}`,
+        start_date_requested: isoDate(start),
+        end_date_requested: isoDate(end)
+      });
+    }
+  }
+  return specs;
+}
+
+async function calculatePeriodsViaSql(ticker, periods) {
+  if (!Array.isArray(periods) || periods.length === 0) return [];
+  const periodsSql = buildPeriodsSqlUnion(periods);
+  const query = `
+    WITH periods AS (
+      ${periodsSql}
+    ),
+    ticker_prices AS (
+      SELECT
+        DATE(Date) AS d,
+        CAST(Close AS FLOAT64) AS c
+      FROM \`${TABLE_FQN}\`
+      WHERE UPPER(TRIM(CAST(Ticker AS STRING))) = @ticker
+        AND Close IS NOT NULL
+    ),
+    span_rows AS (
+      SELECT
+        p.period,
+        p.start_date_requested,
+        p.end_date_requested,
+        tp.d,
+        tp.c
+      FROM periods p
+      LEFT JOIN ticker_prices tp
+        ON tp.d BETWEEN p.start_date_requested AND p.end_date_requested
+    ),
+    spans AS (
+      SELECT
+        period,
+        start_date_requested,
+        end_date_requested,
+        ARRAY_AGG(STRUCT(d, c) ORDER BY d ASC LIMIT 1)[SAFE_OFFSET(0)] AS first_row,
+        ARRAY_AGG(STRUCT(d, c) ORDER BY d DESC LIMIT 1)[SAFE_OFFSET(0)] AS last_row
+      FROM span_rows
+      GROUP BY period, start_date_requested, end_date_requested
+    )
+    SELECT
+      period,
+      CAST(start_date_requested AS STRING) AS start_date_requested,
+      CAST(end_date_requested AS STRING) AS end_date_requested,
+      CAST(first_row.d AS STRING) AS start_date_found,
+      CAST(last_row.d AS STRING) AS end_date_found,
+      first_row.c AS start_price,
+      last_row.c AS end_price,
+      CASE
+        WHEN first_row.d IS NOT NULL AND last_row.d IS NOT NULL
+        THEN ROUND(DATE_DIFF(last_row.d, first_row.d, DAY) / ${DAYS_IN_YEAR}, 3)
+        ELSE 0
+      END AS years,
+      CASE
+        WHEN first_row.c IS NULL OR first_row.c = 0 OR last_row.c IS NULL
+        THEN NULL
+        ELSE ROUND(((last_row.c - first_row.c) / first_row.c) * 100, 2)
+      END AS total_return_pct
+    FROM spans
+    ORDER BY start_date_requested, period
+  `;
+  const [rows] = await bigquery.query({
+    query,
+    params: { ticker: String(ticker || '').toUpperCase().trim() }
+  });
+  return (rows || []).map((r) => ({
+    period: String(r.period || ''),
+    start_date_requested: String(r.start_date_requested || ''),
+    end_date_requested: String(r.end_date_requested || ''),
+    start_date_found: r.start_date_found ? String(r.start_date_found) : null,
+    end_date_found: r.end_date_found ? String(r.end_date_found) : null,
+    start_price: r.start_price != null ? Number(r.start_price) : null,
+    end_price: r.end_price != null ? Number(r.end_price) : null,
+    years: r.years != null ? Number(r.years) : 0,
+    total_return_pct: r.total_return_pct != null ? Number(r.total_return_pct) : null
+  }));
+}
+
+function buildConstituentsSql(tickerSymbols, weightByTicker) {
+  const unique = [...new Set((tickerSymbols || []).map((s) => String(s || '').toUpperCase().trim()).filter(Boolean))];
+  if (!unique.length) return 'SELECT NULL AS ticker, NULL AS weight WHERE FALSE';
+  return unique
+    .map((sym) => {
+      const wRaw = Number(weightByTicker?.get(sym));
+      const w = Number.isFinite(wRaw) && wRaw > 0 ? wRaw : 1;
+      return `SELECT '${sym.replace(/'/g, "\\'")}' AS ticker, ${w} AS weight`;
+    })
+    .join('\nUNION ALL\n');
+}
+
+async function calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, periods, baseStartDate, maxEndDate) {
+  if (!Array.isArray(periods) || periods.length === 0) return [];
+  const constituentsSql = buildConstituentsSql(tickerSymbols, weightByTicker);
+  const periodsSql = buildPeriodsSqlUnion(periods);
+  const query = `
+    WITH constituents AS (
+      ${constituentsSql}
+    ),
+    prices AS (
+      SELECT
+        DATE(Date) AS d,
+        UPPER(TRIM(CAST(Ticker AS STRING))) AS ticker,
+        CAST(Close AS FLOAT64) AS c
+      FROM \`${TABLE_FQN}\`
+      WHERE DATE(Date) BETWEEN @baseStart AND @maxEnd
+        AND Close IS NOT NULL
+    ),
+    filtered_prices AS (
+      SELECT p.d, p.ticker, p.c
+      FROM prices p
+      JOIN constituents c
+        ON p.ticker = c.ticker
+    ),
+    base AS (
+      SELECT
+        ticker,
+        ARRAY_AGG(c ORDER BY d ASC LIMIT 1)[SAFE_OFFSET(0)] AS base_close
+      FROM filtered_prices
+      GROUP BY ticker
+    ),
+    synthetic_series AS (
+      SELECT
+        p.d,
+        SAFE_DIVIDE(
+          SUM(c.weight * SAFE_DIVIDE(p.c, b.base_close)),
+          SUM(c.weight)
+        ) * 100 AS c
+      FROM filtered_prices p
+      JOIN constituents c
+        ON p.ticker = c.ticker
+      JOIN base b
+        ON p.ticker = b.ticker
+      WHERE b.base_close IS NOT NULL
+        AND b.base_close > 0
+      GROUP BY p.d
+    ),
+    periods AS (
+      ${periodsSql}
+    ),
+    span_rows AS (
+      SELECT
+        p.period,
+        p.start_date_requested,
+        p.end_date_requested,
+        s.d,
+        s.c
+      FROM periods p
+      LEFT JOIN synthetic_series s
+        ON s.d BETWEEN p.start_date_requested AND p.end_date_requested
+    ),
+    spans AS (
+      SELECT
+        period,
+        start_date_requested,
+        end_date_requested,
+        ARRAY_AGG(STRUCT(d, c) ORDER BY d ASC LIMIT 1)[SAFE_OFFSET(0)] AS first_row,
+        ARRAY_AGG(STRUCT(d, c) ORDER BY d DESC LIMIT 1)[SAFE_OFFSET(0)] AS last_row
+      FROM span_rows
+      GROUP BY period, start_date_requested, end_date_requested
+    )
+    SELECT
+      period,
+      CAST(start_date_requested AS STRING) AS start_date_requested,
+      CAST(end_date_requested AS STRING) AS end_date_requested,
+      CAST(first_row.d AS STRING) AS start_date_found,
+      CAST(last_row.d AS STRING) AS end_date_found,
+      first_row.c AS start_price,
+      last_row.c AS end_price,
+      CASE
+        WHEN first_row.d IS NOT NULL AND last_row.d IS NOT NULL
+        THEN ROUND(DATE_DIFF(last_row.d, first_row.d, DAY) / ${DAYS_IN_YEAR}, 3)
+        ELSE 0
+      END AS years,
+      CASE
+        WHEN first_row.c IS NULL OR first_row.c = 0 OR last_row.c IS NULL THEN NULL
+        ELSE ROUND(((last_row.c - first_row.c) / first_row.c) * 100, 2)
+      END AS total_return_pct
+    FROM spans
+    ORDER BY start_date_requested, period
+  `;
+  const [rows] = await bigquery.query({
+    query,
+    params: {
+      baseStart: isoDate(baseStartDate),
+      maxEnd: isoDate(maxEndDate)
+    }
+  });
+  return (rows || []).map((r) => ({
+    period: String(r.period || ''),
+    start_date_requested: String(r.start_date_requested || ''),
+    end_date_requested: String(r.end_date_requested || ''),
+    start_date_found: r.start_date_found ? String(r.start_date_found) : null,
+    end_date_found: r.end_date_found ? String(r.end_date_found) : null,
+    start_price: r.start_price != null ? Number(r.start_price) : null,
+    end_price: r.end_price != null ? Number(r.end_price) : null,
+    years: r.years != null ? Number(r.years) : 0,
+    total_return_pct: r.total_return_pct != null ? Number(r.total_return_pct) : null
+  }));
+}
+
+async function calculateDynamicPeriods(ticker, endDate, prices) {
+  if (Array.isArray(prices) && prices.length) {
+    const results = [];
+    for (const def of DYNAMIC_PERIOD_DEFS) {
+      let start = new Date(endDate);
+      if (def.type === 'days') start.setDate(endDate.getDate() - def.days);
+      else if (def.type === 'years') start.setDate(endDate.getDate() - Math.floor(def.years * 365));
+      else if (def.type === 'ytd') start = new Date(endDate.getFullYear(), 0, 1);
+      const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
+      const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
+      results.push({
+        period: def.name,
+        start_date_requested: isoDate(start),
+        end_date_requested: isoDate(endDate),
+        start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
+        end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
+        start_price: startPrice,
+        end_price: endPrice,
+        years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
+        total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+      });
+    }
+    return results;
+  }
+  const specs = [];
+  specs.push(...buildDynamicPeriodSpecs(endDate));
+  const rows = await calculatePeriodsViaSql(ticker, specs);
+  const byPeriod = new Map(rows.map((r) => [r.period, r]));
+  return DYNAMIC_PERIOD_DEFS.map((d) => byPeriod.get(d.name)).filter(Boolean);
+}
+
+async function calculatePredefinedPeriods(ticker, endDate, prices) {
+  if (Array.isArray(prices) && prices.length) {
+    const out = [];
+    for (const yr of PREDEFINED_START_YEARS) {
+      const start = new Date(yr, 0, 1);
+      if (start > endDate) continue;
+      const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
+      const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
+      out.push({
+        period: String(yr),
+        start_date_requested: isoDate(start),
+        end_date_requested: isoDate(endDate),
+        start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
+        end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
+        start_price: startPrice,
+        end_price: endPrice,
+        years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
+        total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+      });
+    }
+    return out;
+  }
+  const specs = [];
+  specs.push(...buildPredefinedPeriodSpecs(endDate));
+  const rows = await calculatePeriodsViaSql(ticker, specs);
+  const byPeriod = new Map(rows.map((r) => [r.period, r]));
+  return PREDEFINED_START_YEARS.map((y) => byPeriod.get(String(y))).filter(Boolean);
+}
+
+async function calculateAnnualReturns(ticker, endDate, minYear, prices) {
+  if (Array.isArray(prices) && prices.length) {
+    const out = [];
+    const endYear = endDate.getFullYear();
+    for (let y = minYear; y <= endYear; y++) {
+      const start = new Date(y, 0, 1);
+      const end = (y === endYear) ? endDate : new Date(y, 11, 31);
       const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
       const [endFoundDate, endPrice] = closeOnOrBefore(prices, end);
       if (!startFoundDate || !endFoundDate) continue;
       out.push({
-        quarter: `${y}-Q${q}`,
+        year: String(y),
         start_date_requested: isoDate(start),
         end_date_requested: isoDate(end),
         start_date_found: isoDate(startFoundDate),
@@ -1033,23 +1286,122 @@ async function calculateQuarterlyReturns(ticker, endDate, fromYear, prices) {
         total_return_pct: calcTotalReturnPct(startPrice, endPrice)
       });
     }
+    return out;
   }
-  return out;
+  const specs = [];
+  specs.push(...buildAnnualPeriodSpecs(endDate, minYear));
+  const rows = await calculatePeriodsViaSql(ticker, specs);
+  return rows
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, year: r.period }));
+}
+
+async function calculateMonthlyReturns(ticker, endDate, fromYear, prices) {
+  if (Array.isArray(prices) && prices.length) {
+    const out = [];
+    const endYear = endDate.getFullYear();
+    for (let y = fromYear; y <= endYear; y++) {
+      for (let m = 0; m < 12; m++) {
+        const start = new Date(y, m, 1);
+        const end = (y === endYear && m === endDate.getMonth()) ? endDate : new Date(y, m + 1, 0);
+        if (start > endDate) continue;
+        const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
+        const [endFoundDate, endPrice] = closeOnOrBefore(prices, end);
+        if (!startFoundDate || !endFoundDate) continue;
+        out.push({
+          month: `${y}-${String(m + 1).padStart(2, '0')}`,
+          start_date_requested: isoDate(start),
+          end_date_requested: isoDate(end),
+          start_date_found: isoDate(startFoundDate),
+          end_date_found: isoDate(endFoundDate),
+          start_price: startPrice,
+          end_price: endPrice,
+          years: yearsBetween(startFoundDate, endFoundDate),
+          total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+        });
+      }
+    }
+    return out;
+  }
+  const specs = [];
+  specs.push(...buildMonthlyPeriodSpecs(endDate, fromYear));
+  const rows = await calculatePeriodsViaSql(ticker, specs);
+  return rows
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, month: r.period }));
+}
+
+async function calculateQuarterlyReturns(ticker, endDate, fromYear, prices) {
+  if (Array.isArray(prices) && prices.length) {
+    const out = [];
+    const endYear = endDate.getFullYear();
+    for (let y = fromYear; y <= endYear; y++) {
+      for (let q = 1; q <= 4; q++) {
+        const startMonth = (q - 1) * 3;
+        const start = new Date(y, startMonth, 1);
+        const end = (y === endYear && endDate.getMonth() <= startMonth + 2)
+          ? endDate
+          : new Date(y, startMonth + 3, 0);
+        if (start > endDate) continue;
+        const [startFoundDate, startPrice] = closeOnOrAfter(prices, start);
+        const [endFoundDate, endPrice] = closeOnOrBefore(prices, end);
+        if (!startFoundDate || !endFoundDate) continue;
+        out.push({
+          quarter: `${y}-Q${q}`,
+          start_date_requested: isoDate(start),
+          end_date_requested: isoDate(end),
+          start_date_found: isoDate(startFoundDate),
+          end_date_found: isoDate(endFoundDate),
+          start_price: startPrice,
+          end_price: endPrice,
+          years: yearsBetween(startFoundDate, endFoundDate),
+          total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+        });
+      }
+    }
+    return out;
+  }
+  const specs = [];
+  specs.push(...buildQuarterlyPeriodSpecs(endDate, fromYear));
+  const rows = await calculatePeriodsViaSql(ticker, specs);
+  return rows
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, quarter: r.period }));
 }
 
 async function calculateCustomRange(ticker, startDate, endDate, prices) {
-  const [startFoundDate, startPrice] = closeOnOrAfter(prices, startDate);
-  const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
-  return {
+  if (Array.isArray(prices) && prices.length) {
+    const [startFoundDate, startPrice] = closeOnOrAfter(prices, startDate);
+    const [endFoundDate, endPrice] = closeOnOrBefore(prices, endDate);
+    return {
+      period: 'Selected dates',
+      start_date_requested: isoDate(startDate),
+      end_date_requested: isoDate(endDate),
+      start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
+      end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
+      start_price: startPrice,
+      end_price: endPrice,
+      years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
+      total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+    };
+  }
+  const rows = await calculatePeriodsViaSql(ticker, [
+    {
+      period: 'Selected dates',
+      start_date_requested: isoDate(startDate),
+      end_date_requested: isoDate(endDate)
+    }
+  ]);
+  return rows[0] || {
     period: 'Selected dates',
     start_date_requested: isoDate(startDate),
     end_date_requested: isoDate(endDate),
-    start_date_found: startFoundDate ? isoDate(startFoundDate) : null,
-    end_date_found: endFoundDate ? isoDate(endFoundDate) : null,
-    start_price: startPrice,
-    end_price: endPrice,
-    years: (startFoundDate && endFoundDate) ? yearsBetween(startFoundDate, endFoundDate) : 0,
-    total_return_pct: calcTotalReturnPct(startPrice, endPrice)
+    start_date_found: null,
+    end_date_found: null,
+    start_price: null,
+    end_price: null,
+    years: 0,
+    total_return_pct: null
   };
 }
 
@@ -1068,33 +1420,18 @@ async function buildAllReturnsPayloadFromPrices(
   const includeMonthly = options.includeMonthly !== false;
   const includeQuarterly = options.includeQuarterly !== false;
   const includeCustom = options.includeCustom !== false;
-  if (!prices || !prices.length) {
-    return {
-      success: true,
-      ticker: t,
-      asOfDate: isoDate(endDate),
-      performance: {
-        dynamicPeriods: [],
-        predefinedPeriods: [],
-        annualReturns: [],
-        customRange: [],
-        quarterlyReturns: [],
-        monthlyReturns: []
-      }
-    };
-  }
-  const minDt = prices[0].Date;
+  const minDt = await getMinDateForTicker(t);
   const startYear = Math.max(minDt.getFullYear(), annualFromYear);
 
-  const dynamic = includeDynamic ? await calculateDynamicPeriods(t, endDate, prices) : [];
-  const predefined = includePredefined ? await calculatePredefinedPeriods(t, endDate, prices) : [];
-  const annual = includeAnnual ? await calculateAnnualReturns(t, endDate, minDt.getFullYear(), prices) : [];
-  const monthly = includeMonthly ? await calculateMonthlyReturns(t, endDate, startYear, prices) : [];
-  const quarterly = includeQuarterly ? await calculateQuarterlyReturns(t, endDate, startYear, prices) : [];
+  const dynamic = includeDynamic ? await calculateDynamicPeriods(t, endDate) : [];
+  const predefined = includePredefined ? await calculatePredefinedPeriods(t, endDate) : [];
+  const annual = includeAnnual ? await calculateAnnualReturns(t, endDate, minDt.getFullYear()) : [];
+  const monthly = includeMonthly ? await calculateMonthlyReturns(t, endDate, startYear) : [];
+  const quarterly = includeQuarterly ? await calculateQuarterlyReturns(t, endDate, startYear) : [];
 
   let custom = null;
   if (includeCustom && customRange && customRange.length === 2) {
-    custom = await calculateCustomRange(t, new Date(customRange[0]), new Date(customRange[1]), prices);
+    custom = await calculateCustomRange(t, new Date(customRange[0]), new Date(customRange[1]));
   }
 
   return {
@@ -1115,13 +1452,7 @@ async function buildAllReturnsPayloadFromPrices(
 async function calculateAllReturns(ticker, includePredefined = true, includeAnnual = true, customRange = null, annualFromYear = 1970) {
   const endDate = await getMaxDate();
   const t = (ticker || '').toString().trim().toUpperCase();
-
-  const minDt = await getMinDateForTicker(t);
-  const startYear = Math.max(minDt.getFullYear(), annualFromYear);
-  const earliest = new Date(startYear, 0, 1);
-  const prices = await fetchCloseSeries(t, earliest, endDate);
-
-  return buildAllReturnsPayloadFromPrices(t, endDate, prices, includePredefined, includeAnnual, customRange, annualFromYear);
+  return buildAllReturnsPayloadFromPrices(t, endDate, [], includePredefined, includeAnnual, customRange, annualFromYear);
 }
 
 async function calculateReturnsSections(ticker, sections = {}, customRange = null, annualFromYear = 1970) {
@@ -1134,15 +1465,11 @@ async function calculateReturnsSections(ticker, sections = {}, customRange = nul
 
   const endDate = await getMaxDate();
   const t = (ticker || '').toString().trim().toUpperCase();
-  const minDt = await getMinDateForTicker(t);
-  const startYear = Math.max(minDt.getFullYear(), annualFromYear);
-  const earliest = new Date(startYear, 0, 1);
-  const prices = await fetchCloseSeries(t, earliest, endDate);
 
   return buildAllReturnsPayloadFromPrices(
     t,
     endDate,
-    prices,
+    [],
     includePredefined,
     includeAnnual,
     customRange,
@@ -1239,11 +1566,12 @@ async function calculateIndexReturns(indexValue, customRange = null, annualFromY
     const minDt = await getMinDateForTicker(officialTicker);
     const startYear = Math.max(minDt.getFullYear(), annualFromYear);
     const earliest = new Date(startYear, 0, 1);
+    // Keep close series for chart metadata, but compute return tables via SQL path.
     const prices = await fetchCloseSeries(officialTicker, earliest, endDate);
     const base = await buildAllReturnsPayloadFromPrices(
       officialTicker,
       endDate,
-      prices,
+      [],
       true,
       true,
       customRange,
@@ -1294,17 +1622,53 @@ async function calculateIndexReturns(indexValue, customRange = null, annualFromY
   const syntheticEnd = synthetic[synthetic.length - 1].Date;
   const minDt = synthetic[0].Date;
   const startYear = Math.max(minDt.getFullYear(), annualFromYear);
+  const calcStart = new Date(startYear, 0, 1);
+  const dynSpecs = buildDynamicPeriodSpecs(syntheticEnd);
+  const preSpecs = buildPredefinedPeriodSpecs(syntheticEnd);
+  const annualSpecs = buildAnnualPeriodSpecs(syntheticEnd, minDt.getFullYear());
+  const monthlySpecs = buildMonthlyPeriodSpecs(syntheticEnd, startYear);
+  const quarterlySpecs = buildQuarterlyPeriodSpecs(syntheticEnd, startYear);
+  const customSpecs =
+    customRange && customRange.length === 2
+      ? [{
+          period: 'Selected dates',
+          start_date_requested: String(customRange[0]).slice(0, 10),
+          end_date_requested: String(customRange[1]).slice(0, 10)
+        }]
+      : [];
 
-  const dynamic = await calculateDynamicPeriods(String(indexValue || 'INDEX'), syntheticEnd, synthetic);
-  const predefined = await calculatePredefinedPeriods(String(indexValue || 'INDEX'), syntheticEnd, synthetic);
-  const annual = await calculateAnnualReturns(String(indexValue || 'INDEX'), syntheticEnd, minDt.getFullYear(), synthetic);
-  const monthly = await calculateMonthlyReturns(String(indexValue || 'INDEX'), syntheticEnd, startYear, synthetic);
-  const quarterly = await calculateQuarterlyReturns(String(indexValue || 'INDEX'), syntheticEnd, startYear, synthetic);
+  const [
+    dynamicRaw,
+    predefinedRaw,
+    annualRaw,
+    monthlyRaw,
+    quarterlyRaw,
+    customRaw
+  ] = await Promise.all([
+    calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, dynSpecs, calcStart, syntheticEnd),
+    calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, preSpecs, calcStart, syntheticEnd),
+    calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, annualSpecs, calcStart, syntheticEnd),
+    calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, monthlySpecs, calcStart, syntheticEnd),
+    calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, quarterlySpecs, calcStart, syntheticEnd),
+    customSpecs.length
+      ? calculateSyntheticPeriodsViaSql(tickerSymbols, weightByTicker, customSpecs, calcStart, syntheticEnd)
+      : Promise.resolve([])
+  ]);
 
-  let custom = null;
-  if (customRange && customRange.length === 2) {
-    custom = await calculateCustomRange(String(indexValue || 'INDEX'), new Date(customRange[0]), new Date(customRange[1]), synthetic);
-  }
+  const dynamicByPeriod = new Map(dynamicRaw.map((r) => [r.period, r]));
+  const predefinedByPeriod = new Map(predefinedRaw.map((r) => [r.period, r]));
+  const dynamic = DYNAMIC_PERIOD_DEFS.map((d) => dynamicByPeriod.get(d.name)).filter(Boolean);
+  const predefined = PREDEFINED_START_YEARS.map((y) => predefinedByPeriod.get(String(y))).filter(Boolean);
+  const annual = annualRaw
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, year: r.period }));
+  const monthly = monthlyRaw
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, month: r.period }));
+  const quarterly = quarterlyRaw
+    .filter((r) => r.start_date_found && r.end_date_found)
+    .map((r) => ({ ...r, quarter: r.period }));
+  const custom = customRaw.length ? customRaw[0] : null;
 
   return {
     success: true,
