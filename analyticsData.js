@@ -34,7 +34,22 @@ const SNAPSHOT_INDEX_RETURNS_KEYS = ['sp500', 'Dow Jones', 'Nasdaq 100'];
 const SNAPSHOT_INDEX_RETURNS_KEY_SET = new Set(
   SNAPSHOT_INDEX_RETURNS_KEYS.map((k) => String(k).trim().toLowerCase())
 );
-const SNAPSHOT_SUPPORTED_PERIODS = ['last-date', 'last-5-days', 'mtd'];
+const SNAPSHOT_SUPPORTED_PERIODS = [
+  'last-date',
+  'last-5-days',
+  'mtd',
+  'last-month',
+  'qtd',
+  'last-3-months',
+  'last-6-months',
+  'ytd',
+  'last-1-year',
+  'last-3-years',
+  'last-5-years',
+  'last-10-years',
+  'last-20-years',
+  'all-available'
+];
 const SNAPSHOT_SUPPORTED_INDICES = ['SP500', 'Dow Jones', 'Nasdaq 100'];
 
 const DAYS_IN_YEAR = 365.25;

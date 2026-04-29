@@ -46,6 +46,9 @@ const PROJECT_ID = process.env.GCP_PROJECT || process.env.GOOGLE_CLOUD_PROJECT |
 const DATASET = process.env.BIGQUERY_DATASET || 'sp500data1';
 const TABLE = process.env.BIGQUERY_TABLE || 'stock_all_data';
 const TABLE_FQN = `${PROJECT_ID}.${DATASET}.${TABLE}`; // used in backticks below
+/** Pre-aggregated weekly OHLC (see README). Override with BIGQUERY_WEEKLY_OHLC_TABLE. */
+const WEEKLY_OHLC_TABLE = process.env.BIGQUERY_WEEKLY_OHLC_TABLE || 'stock_weekly_data_test';
+const WEEKLY_OHLC_TABLE_FQN = `${PROJECT_ID}.${DATASET}.${WEEKLY_OHLC_TABLE}`;
 // Same signal source as Odin summary; override with OHLC_SIGNALS_TABLE_FQN if needed (full `project.dataset.table` in backticks).
 const OHLC_SIGNALS_TABLE_FQN =
     process.env.OHLC_SIGNALS_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.consolidated_testing_2`';
@@ -560,6 +563,20 @@ async function _fetchDateRange(symbol) {
     return rows[0];
 }
 
+/** Min/max Last_Trading_Day in the weekly OHLC table for default date range. */
+async function _fetchWeeklyDateRange(symbol) {
+    const dateQuery = `
+        SELECT MIN(Last_Trading_Day) AS min_date, MAX(Last_Trading_Day) AS max_date
+        FROM \`${WEEKLY_OHLC_TABLE_FQN}\`
+        WHERE Ticker = @symbol
+    `;
+    const [rows] = await bigquery.query({
+        query: dateQuery,
+        params: { symbol: symbol.toUpperCase() }
+    });
+    return rows[0];
+}
+
 // POST /api/market/monthly-ohlc
 const getMonthlyOHLC = async (req, res) => {
     const data = req.body || {};
@@ -663,6 +680,7 @@ const getMonthlyOHLC = async (req, res) => {
 };
 
 // POST /api/market/weekly-ohlc  body: { ticker, start_date?, end_date? }
+// Reads pre-aggregated weekly bars from BIGQUERY_WEEKLY_OHLC_TABLE (default stock_weekly_data_test).
 const getWeeklyOHLC = async (req, res) => {
     const data = req.body || {};
     const ticker = (data.ticker || '').trim();
@@ -674,7 +692,7 @@ const getWeeklyOHLC = async (req, res) => {
     let endDate = (data.end_date || '').trim() || null;
 
     try {
-        const cacheKey = makeCacheKey('market:weekly-ohlc:v1', {
+        const cacheKey = makeCacheKey('market:weekly-ohlc:v2', {
             ticker: ticker.toUpperCase(),
             startDate: startDate || '',
             endDate: endDate || ''
@@ -686,46 +704,32 @@ const getWeeklyOHLC = async (req, res) => {
         }
 
         if (!startDate || !endDate) {
-            const { min_date, max_date } = await _fetchDateRange(ticker);
+            const { min_date, max_date } = await _fetchWeeklyDateRange(ticker);
             if (!min_date || !max_date) {
-                return res.status(404).json({ success: false, error: 'No data found for the given ticker/date range' });
+                return res.status(404).json({ success: false, error: 'No weekly OHLC data found for this ticker' });
             }
-            if (!startDate) startDate = min_date.toISOString ? min_date.toISOString().slice(0, 10) : String(min_date).slice(0, 10);
-            if (!endDate) endDate = max_date.toISOString ? max_date.toISOString().slice(0, 10) : String(max_date).slice(0, 10);
+            if (!startDate) startDate = rowDateKeyFromBQ(min_date);
+            if (!endDate) endDate = rowDateKeyFromBQ(max_date);
         }
 
         const query = `
-            WITH stock_data AS (
-                SELECT
-                    Ticker,
-                    Date,
-                    Open,
-                    High,
-                    Low,
-                    Close,
-                    EXTRACT(YEAR FROM Date) AS year,
-                    EXTRACT(ISOWEEK FROM Date) AS week
-                FROM \`${TABLE_FQN}\`
-                WHERE Ticker = @symbol
-                  AND Date BETWEEN @start AND @end
-            ),
-            weekly_summary AS (
-                SELECT
-                    Ticker,
-                    year,
-                    week,
-                    ARRAY_AGG(Open ORDER BY Date ASC LIMIT 1)[OFFSET(0)] AS Open,
-                    MAX(High) AS High,
-                    MIN(Low) AS Low,
-                    ARRAY_AGG(Close ORDER BY Date DESC LIMIT 1)[OFFSET(0)] AS Close,
-                    MIN(Date) AS week_start,
-                    MAX(Date) AS week_end
-                FROM stock_data
-                GROUP BY Ticker, year, week
-            )
-            SELECT *
-            FROM weekly_summary
-            ORDER BY year, week
+            SELECT
+                Ticker,
+                Week_Start,
+                First_Trading_Day,
+                Last_Trading_Day,
+                Trading_Days,
+                Weekly_Open,
+                Weekly_High,
+                Weekly_Low,
+                Weekly_Close,
+                Weekly_Adj_Close,
+                EXTRACT(ISOYEAR FROM Last_Trading_Day) AS iso_year,
+                EXTRACT(ISOWEEK FROM Last_Trading_Day) AS iso_week
+            FROM \`${WEEKLY_OHLC_TABLE_FQN}\`
+            WHERE Ticker = @symbol
+              AND Last_Trading_Day BETWEEN @start AND @end
+            ORDER BY Last_Trading_Day ASC
         `;
 
         const [rows] = await bigquery.query({
@@ -737,24 +741,40 @@ const getWeeklyOHLC = async (req, res) => {
             }
         });
 
-        const weeklyOHLC = rows.map(r => {
-            const year = Number(r.year);
-            const week = Number(r.week);
-            const ws = r.week_start && (r.week_start.value || r.week_start);
-            const we = r.week_end && (r.week_end.value || r.week_end);
-            const startStr = ws ? (typeof ws === 'string' ? ws : new Date(ws).toISOString().slice(0, 10)) : '';
-            const endStr = we ? (typeof we === 'string' ? we : new Date(we).toISOString().slice(0, 10)) : '';
+        const weeklyOHLC = rows.map((r) => {
+            const open = Number(r.Weekly_Open);
+            const high = Number(r.Weekly_High);
+            const low = Number(r.Weekly_Low);
+            const close = Number(r.Weekly_Close);
+            const adjClose = Number(r.Weekly_Adj_Close);
+            const year = Number(r.iso_year);
+            const week = Number(r.iso_week);
+            const weekStart = rowDateKeyFromBQ(r.Week_Start);
+            const firstDay = rowDateKeyFromBQ(r.First_Trading_Day);
+            const lastDay = rowDateKeyFromBQ(r.Last_Trading_Day);
+            const returnPct =
+                Number.isFinite(open) && open !== 0 && Number.isFinite(close)
+                    ? ((close - open) / open) * 100
+                    : null;
+            const adjReturnPct =
+                Number.isFinite(open) && open !== 0 && Number.isFinite(adjClose)
+                    ? ((adjClose - open) / open) * 100
+                    : null;
             return {
                 ticker: r.Ticker,
                 year,
                 week,
-                open: Number(r.Open),
-                high: Number(r.High),
-                low: Number(r.Low),
-                close: Number(r.Close),
-                adj_close: Number(r.Close),
-                start_date: startStr,
-                end_date: endStr
+                open,
+                high,
+                low,
+                close,
+                adj_close: Number.isFinite(adjClose) ? adjClose : null,
+                return_pct: returnPct,
+                adj_return_pct: adjReturnPct,
+                week_start: weekStart,
+                start_date: firstDay,
+                end_date: lastDay,
+                trading_days: r.Trading_Days != null ? Number(r.Trading_Days) : null
             };
         });
 

@@ -61,6 +61,8 @@ PORT=5000
 GOOGLE_CLOUD_PROJECT=extended-byway-454621-s6
 BIGQUERY_DATASET=sp500data1
 BIGQUERY_TABLE=stock_all_data
+# Optional: weekly OHLC table for POST /weekly-ohlc (default stock_weekly_data_test)
+# BIGQUERY_WEEKLY_OHLC_TABLE=stock_weekly_data_test
 TICKER_DETAILS_TABLE=TickerDetails
 SUPABASE_URL=<your-supabase-url>
 SUPABASE_KEY=<your-supabase-anon-key>
@@ -74,6 +76,7 @@ REDIS_TOKEN=<your-upstash-redis-token>
 - `GOOGLE_CLOUD_PROJECT` - Your Google Cloud project ID
 - `BIGQUERY_DATASET` - Dataset containing market data (default: `sp500data1`)
 - `BIGQUERY_TABLE` - Table with OHLC prices (default: `stock_all_data`)
+- `BIGQUERY_WEEKLY_OHLC_TABLE` - Pre-aggregated weekly OHLC for `POST /weekly-ohlc` (default: `stock_weekly_data_test`)
 - `TICKER_DETAILS_TABLE` - Table with ticker metadata (default: `TickerDetails`)
 - `TICKER_DETAILS_SYMBOL_COLUMN` (optional) - If set (e.g. `Ticker`), only that column is used for symbol lookups in `TickerDetails`. If unset, the API tries `Symbol` then `Ticker`.
 
@@ -108,7 +111,8 @@ curl -X POST http://localhost:5000/api/auth/login \
 |--------|----------|-------------|----------------|
 | `GET` | `/ohlc` | Get stock OHLC data (raw rows, limited to 100) | ✅ |
 | `GET` | `/ohlc-ticker-bounds?symbol=AAPL` | Min/max `Date` in OHLC table for a ticker (chart “ALL” range) | ✅ |
-| `POST` | `/monthly-ohlc` | Get monthly aggregated OHLC data | ✅ |
+| `POST` | `/monthly-ohlc` | Get monthly aggregated OHLC (from daily `BIGQUERY_TABLE`) | ✅ |
+| `POST` | `/weekly-ohlc` | Get weekly OHLC from pre-aggregated `BIGQUERY_WEEKLY_OHLC_TABLE` + `return_pct` | ✅ |
 
 **Get OHLC Data:**
 ```bash
@@ -592,7 +596,47 @@ curl -X POST http://localhost:5000/api/market/monthly-ohlc \
   -H "Content-Type: application/json" \
   -d '{"ticker": "AAPL", "start_date": "2023-01-01", "end_date": "2023-12-31"}'
 ```
-Returns monthly aggregated Open, High, Low, Close prices
+Returns monthly aggregated Open, High, Low, Close prices (built from daily rows in `BIGQUERY_TABLE`).
+
+### Step 5: Get Weekly OHLC Data
+Reads pre-aggregated weekly bars from BigQuery (`BIGQUERY_WEEKLY_OHLC_TABLE`, default `stock_weekly_data_test`), keyed by `Ticker` and filtered on `Last_Trading_Day`. Each row includes OHLC, calendar week metadata (`year` / `week` from ISO week of `Last_Trading_Day`), and percentage returns.
+
+```bash
+curl -X POST http://localhost:5000/api/market/weekly-ohlc \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"ticker": "AAPL", "start_date": "2023-01-01", "end_date": "2023-12-31"}'
+```
+
+Optional body fields (same as monthly): omit `start_date` and/or `end_date` to use the ticker’s full available range in the weekly table (min/max `Last_Trading_Day`).
+
+**Returns:** `weeklyOHLC` array. Each element includes:
+- `open`, `high`, `low`, `close`, `adj_close` — from `Weekly_Open`, `Weekly_High`, `Weekly_Low`, `Weekly_Close`, `Weekly_Adj_Close`
+- `return_pct` — \((\text{close} - \text{open}) / \text{open} \times 100\)
+- `adj_return_pct` — \((\text{adj\_close} - \text{open}) / \text{open} \times 100\) when both are numeric
+- `week_start`, `start_date`, `end_date` — map to `Week_Start`, `First_Trading_Day`, `Last_Trading_Day`
+- `trading_days` — `Trading_Days`
+- `year`, `week` — ISO year/week derived from `Last_Trading_Day`
+
+Example row:
+```json
+{
+  "ticker": "AAPL",
+  "year": 2023,
+  "week": 14,
+  "open": 160.1,
+  "high": 165.0,
+  "low": 158.2,
+  "close": 164.5,
+  "adj_close": 164.5,
+  "return_pct": 2.748,
+  "adj_return_pct": 2.748,
+  "week_start": "2023-04-03",
+  "start_date": "2023-04-03",
+  "end_date": "2023-04-07",
+  "trading_days": 5
+}
+```
 
 ## Getting Started
 
@@ -608,11 +652,12 @@ Returns monthly aggregated Open, High, Low, Close prices
 ### 3. Setup Analytics (Google BigQuery)
 - Create Google Cloud project
 - Enable BigQuery API
-- Create two tables:
-  - `stock_all_data` - Contains Ticker, Date, Open, High, Low, Close, Adj Close columns
-  - `TickerDetails` - Contains Symbol, Security, Sector, Industry, Index columns
+- Create tables (minimum):
+  - `stock_all_data` — Ticker, Date, Open, High, Low, Close (daily OHLC; used by `/ohlc`, `/monthly-ohlc`, etc.)
+  - `TickerDetails` — Symbol, Security, Sector, Industry, Index columns
+  - **Weekly OHLC** — For `POST /api/market/weekly-ohlc`, load or maintain `stock_weekly_data_test` (or set `BIGQUERY_WEEKLY_OHLC_TABLE`) with columns such as: `Ticker`, `Week_Start`, `First_Trading_Day`, `Last_Trading_Day`, `Trading_Days`, `Weekly_Open`, `Weekly_High`, `Weekly_Low`, `Weekly_Close`, `Weekly_Adj_Close`
 - Download service account credentials JSON
-- Set `GOOGLE_CLOUD_PROJECT`, `BIGQUERY_DATASET`, `BIGQUERY_TABLE` in `.env`
+- Set `GOOGLE_CLOUD_PROJECT`, `BIGQUERY_DATASET`, `BIGQUERY_TABLE` in `.env`, and optionally `BIGQUERY_WEEKLY_OHLC_TABLE` if your weekly table name differs from `stock_weekly_data_test`
 
 ### 4. Install Dependencies
 ```bash
