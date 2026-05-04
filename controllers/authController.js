@@ -237,7 +237,7 @@ const startForgotPassword = async (req, res) => {
             redirectTo ? { redirectTo } : undefined
         );
         if (error) throw error;
-        return res.status(200).json({ success: true, message: 'Reset code sent' });
+        return res.status(200).json({ success: true, message: 'Password reset email sent (check your inbox for the link).' });
     } catch (error) {
         return res.status(400).json({ error: error.message || 'Could not start password reset' });
     }

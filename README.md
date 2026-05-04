@@ -9,7 +9,7 @@ A robust Node.js/Express backend API for a trading application with real-time ma
 - **Ticker Management** - Browse tickers by groups and search functionality
 - **Watchlists** - Create and manage custom watchlists with ticker tracking
 - **Rate Limiting** - Protected endpoints to prevent abuse
-- **Caching** - Redis/Upstash for optimized performance
+- **Caching** - Redis (TCP via `ioredis` on Railway, or Upstash REST fallback)
 - **Big Query Integration** - Advanced data analytics and storage
 
 ## Tech Stack
@@ -18,7 +18,7 @@ A robust Node.js/Express backend API for a trading application with real-time ma
 - **Framework:** Express.js
 - **Database:** Supabase (PostgreSQL)
 - **Data Analytics:** Google BigQuery
-- **Caching:** Upstash Redis
+- **Caching:** Redis (`REDIS_URL`) or Upstash REST
 - **Authentication:** Supabase Auth
 - **Rate Limiting:** express-rate-limit
 
@@ -68,8 +68,10 @@ SUPABASE_URL=<your-supabase-url>
 SUPABASE_KEY=<your-supabase-anon-key>
 # Strongly recommended on the server: service role key so `tickers.id` is always returned for search/resolve (RLS-safe full reads).
 SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
-REDIS_URL=<your-upstash-redis-url>
-REDIS_TOKEN=<your-upstash-redis-token>
+# Redis cache — prefer Railway Redis plugin `REDIS_URL`, or Upstash REST vars if unset:
+# REDIS_URL=redis://...
+# UPSTASH_REDIS_REST_URL= (optional fallback)
+# UPSTASH_REDIS_REST_TOKEN=
 ```
 
 ### BigQuery Configuration
@@ -473,7 +475,7 @@ curl -X GET http://localhost:5000/api/watchlists/defaults
 │
 ├── config/                      # Configuration files
 │   ├── bigquery.js             # BigQuery setup
-│   ├── redis.js                # Redis/Upstash setup
+│   ├── redis.js                # Redis: ioredis (REDIS_URL) or Upstash REST fallback
 │   └── supabase.js             # Supabase setup
 │
 ├── controllers/                # Business logic
@@ -645,9 +647,10 @@ Example row:
 - Set up authentication enabled
 - Configure your `.env` with Supabase credentials
 
-### 2. Setup Cache (Upstash Redis)
-- Create Upstash Redis database
-- Add credentials to `.env`
+### 2. Setup Cache (Redis)
+- **Railway:** Add the **Redis** plugin; link it to your API service. Railway injects **`REDIS_URL`** (e.g. `redis://` or `rediss://`). No code changes needed.
+- **Alternative (Upstash REST):** If `REDIS_URL` is not set, the server uses **`UPSTASH_REDIS_REST_URL`** + **`UPSTASH_REDIS_REST_TOKEN`** (legacy / local dev).
+- Add the chosen variables to `.env` (or Railway project variables).
 
 ### 3. Setup Analytics (Google BigQuery)
 - Create Google Cloud project
