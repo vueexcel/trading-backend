@@ -18,7 +18,7 @@ A robust Node.js/Express backend API for a trading application with real-time ma
 - **Framework:** Express.js
 - **Database:** Supabase (PostgreSQL)
 - **Data Analytics:** Google BigQuery
-- **Caching:** Redis (`REDIS_URL`) or Upstash REST
+- **Caching:** Redis via `REDIS_URL` (Railway) with optional Upstash REST fallback when both are set
 - **Authentication:** Supabase Auth
 - **Rate Limiting:** express-rate-limit
 
@@ -68,9 +68,9 @@ SUPABASE_URL=<your-supabase-url>
 SUPABASE_KEY=<your-supabase-anon-key>
 # Strongly recommended on the server: service role key so `tickers.id` is always returned for search/resolve (RLS-safe full reads).
 SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
-# Redis cache — prefer Railway Redis plugin `REDIS_URL`, or Upstash REST vars if unset:
+# Redis cache — Railway `REDIS_URL` when deployed; add Upstash REST vars for local fallback when both are set:
 # REDIS_URL=redis://...
-# UPSTASH_REDIS_REST_URL= (optional fallback)
+# UPSTASH_REDIS_REST_URL=
 # UPSTASH_REDIS_REST_TOKEN=
 ```
 
@@ -649,7 +649,8 @@ Example row:
 
 ### 2. Setup Cache (Redis)
 - **Railway:** Add the **Redis** plugin; link it to your API service. Railway injects **`REDIS_URL`** (e.g. `redis://` or `rediss://`). No code changes needed.
-- **Alternative (Upstash REST):** If `REDIS_URL` is not set, the server uses **`UPSTASH_REDIS_REST_URL`** + **`UPSTASH_REDIS_REST_TOKEN`** (legacy / local dev).
+- **Upstash REST:** If only **`UPSTASH_REDIS_REST_URL`** + **`UPSTASH_REDIS_REST_TOKEN`** are set (no `REDIS_URL`), the server uses Upstash.
+- **Both set:** The server tries **`REDIS_URL`** first (short ping + timeout). If TCP is unreachable—common on localhost when `.env` still points at Railway’s internal Redis host—it **falls back to Upstash** automatically.
 - Add the chosen variables to `.env` (or Railway project variables).
 
 ### 3. Setup Analytics (Google BigQuery)

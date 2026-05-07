@@ -1,6 +1,19 @@
 const IoRedis = require('ioredis');
 const { Redis: UpstashRedis } = require('@upstash/redis');
 
+function hasUpstashEnv() {
+  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+function withTimeout(promise, ms, label = 'operation') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    )
+  ]);
+}
+
 /**
  * Native Redis (TCP) — Railway plugin sets `REDIS_URL` (often `redis://` or `rediss://`).
  * Values are stored JSON-encoded so behaviour matches the legacy Upstash path.
@@ -15,6 +28,14 @@ function createNativeRedisAdapter(redisUrl) {
   });
 
   return {
+    ping: () => client.ping(),
+    disconnect: () => {
+      try {
+        client.disconnect();
+      } catch {
+        /* ignore */
+      }
+    },
     async get(key) {
       const s = await client.get(key);
       if (s == null) return null;
@@ -50,13 +71,64 @@ function createUpstashAdapter() {
   };
 }
 
-/** Unified cache client or null if Redis is not configured. */
-let redis = null;
-
-if (process.env.REDIS_URL) {
-  redis = createNativeRedisAdapter(process.env.REDIS_URL);
-} else if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  redis = createUpstashAdapter();
+/**
+ * When both Railway `REDIS_URL` and Upstash REST credentials exist:
+ * try TCP first (production Railway). If unreachable (e.g. local `.env` with internal Railway host), use Upstash.
+ */
+async function connectNativeOrFallbackUpstash(redisUrl) {
+  const native = createNativeRedisAdapter(redisUrl);
+  const timeoutMs = Number(process.env.REDIS_CONNECT_TIMEOUT_MS || 5000);
+  try {
+    await withTimeout(native.ping(), timeoutMs, 'redis ping');
+    console.log('[redis] using TCP (REDIS_URL)');
+    return native;
+  } catch (err) {
+    console.warn('[redis] REDIS_URL unreachable (' + err.message + '), falling back to Upstash REST');
+    native.disconnect();
+    return createUpstashAdapter();
+  }
 }
 
-module.exports = redis;
+let clientPromise = null;
+
+function getResolvedClient() {
+  if (clientPromise) return clientPromise;
+
+  const url = process.env.REDIS_URL;
+  const upstashOk = hasUpstashEnv();
+
+  if (!url && !upstashOk) {
+    clientPromise = Promise.resolve(null);
+  } else if (url && upstashOk) {
+    clientPromise = connectNativeOrFallbackUpstash(url);
+  } else if (url) {
+    clientPromise = Promise.resolve(createNativeRedisAdapter(url));
+  } else {
+    clientPromise = Promise.resolve(createUpstashAdapter());
+  }
+
+  return clientPromise;
+}
+
+/** Facade: lazy-connects once; Railway TCP preferred when Upstash is also configured. */
+const redisFacade = {
+  async get(key) {
+    const c = await getResolvedClient();
+    if (!c) return null;
+    return c.get(key);
+  },
+  async set(key, value, opts) {
+    const c = await getResolvedClient();
+    if (!c) return;
+    return c.set(key, value, opts);
+  },
+  async incr(key) {
+    const c = await getResolvedClient();
+    if (!c) return;
+    return c.incr(key);
+  }
+};
+
+const hasRedisUrl = !!process.env.REDIS_URL;
+const hasUpstash = hasUpstashEnv();
+module.exports = !hasRedisUrl && !hasUpstash ? null : redisFacade;
