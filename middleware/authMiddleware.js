@@ -9,7 +9,14 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     global: { fetch }
 });
 
+const isAuthDisabled = () =>
+    process.env.AUTH_DISABLED === 'true' || process.env.AUTH_DISABLED === '1';
+
 const requireAuth = async (req, res, next) => {
+    if (isAuthDisabled()) {
+        return next();
+    }
+
     try {
         // 1. Check if the request has an Authorization header
         const authHeader = req.headers.authorization;
