@@ -51,7 +51,7 @@ const WEEKLY_OHLC_TABLE = process.env.BIGQUERY_WEEKLY_OHLC_TABLE || 'stock_weekl
 const WEEKLY_OHLC_TABLE_FQN = `${PROJECT_ID}.${DATASET}.${WEEKLY_OHLC_TABLE}`;
 // Same signal source as Odin summary; override with OHLC_SIGNALS_TABLE_FQN if needed (full `project.dataset.table` in backticks).
 const OHLC_SIGNALS_TABLE_FQN =
-    process.env.OHLC_SIGNALS_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.consolidated_testing_2`';
+    process.env.OHLC_SIGNALS_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.Test`';
 const MA200_TABLE_FQN =
     process.env.MA200_TABLE_FQN || '`extended-byway-454621-s6.sp500data1.200MA_consolidated`';
 
